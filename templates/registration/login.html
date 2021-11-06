@@ -1,0 +1,30 @@
+{% extends 'registration/base.html' %}
+{% block title %}Login{% endblock %}
+
+{% block main %}
+{% load static %}
+
+  <div class="vh-100 d-flex justify-content-center">
+    <div class="form-access my-auto">
+      <form>
+        <span>Sign In</span>
+        <div class="form-group">
+          <input type="email" class="form-control" placeholder="Email Address">
+        </div>
+        <div class="form-group">
+          <input type="password" class="form-control" placeholder="Password">
+        </div>
+        <div class="text-right">
+          <a href="reset-password-dark.html">Forgot Password?</a>
+        </div>
+        <div class="custom-control custom-checkbox">
+          <input type="checkbox" class="custom-control-input" id="form-checkbox">
+          <label class="custom-control-label" for="form-checkbox">Remember me</label>
+        </div>
+        <button type="submit" class="btn btn-primary">Sign In</button>
+      </form>
+      <h2>Don't have an account? <a href="{% url 'exchange:signUp' %}">Sign up here</a></h2>
+    </div>
+  </div>
+
+{% endblock %}

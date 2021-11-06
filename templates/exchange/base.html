@@ -1,0 +1,82 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<meta http-equiv="content-type" content="text/html;charset=UTF-8" /><!-- /Added by HTTrack -->
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Exchange | {% block title %}{% endblock %}</title>
+  <link rel="icon" href="{% static 'exchange/img/favicon.png' %}" type="image/x-icon">
+  <link rel="stylesheet" href="{% static 'exchange/css/style.css' %}">
+</head>
+
+<body id="dark">
+  <header class="dark-bb">
+    <nav class="navbar navbar-expand-lg">
+      <a class="navbar-brand" href="{% url 'exchange:home' %}"><img src="{% static 'exchange/img/logo-light.svg' %}" alt="logo"></a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#headerMenu"
+        aria-controls="headerMenu" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="icon ion-md-menu"></i>
+      </button>
+
+      <div class="collapse navbar-collapse" id="headerMenu">
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item dropdown">
+            <a class="nav-link" href="{% url 'account:trade' %}" aria-haspopup="true"
+              aria-expanded="false">
+              Trade
+            </a>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link" href="{% url 'exchange:markets' %}" aria-haspopup="true"
+              aria-expanded="false">
+              Markets
+            </a>
+          </li>
+
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true"
+              aria-expanded="false">
+              Dashboard
+            </a>
+            <div class="dropdown-menu">
+              <a class="dropdown-item" href="{% url 'account:profile' %}">Profile</a>
+              <a class="dropdown-item" href="{% url 'account:wallet' %}">Wallet</a>
+              <a class="dropdown-item" href="{% url 'account:settings' %}">Settings</a>
+            </div>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true"
+              aria-expanded="false">
+              Others
+            </a>
+            <div class="dropdown-menu">
+              <a class="dropdown-item" href="{% url 'exchange:symbolInfo' %}">Symbol Info</a>
+              <a class="dropdown-item" href="{% url 'exchange:heatMap' %}">Heat Map</a>
+            </div>
+          </li>
+        </ul>
+        <ul class="navbar-nav ml-auto">
+          <a href="{% url 'login' %}" class="btn-1">Sign In</a>
+          <a href="{% url 'exchange:signUp' %}" class="btn-2">Get Started</a>
+        </ul>
+      </div>
+    </nav>
+  </header>
+
+  {% block main %}
+
+  {% endblock %}
+
+  <script src="{% static 'exchange/js/jquery-3.4.1.min.js' %}"></script>
+  <script src="{% static 'exchange/js/popper.min.js' %}"></script>
+  <script src="{% static 'exchange/js/bootstrap.min.js' %}"></script>
+  <script src="{% static 'exchange/js/amcharts-core.min.js' %}"></script>
+  <script src="{% static 'exchange/js/amcharts.min.js' %}"></script>
+  <script src="{% static 'exchange/js/custom.js' %}"></script>
+</body>
+
+</html>
