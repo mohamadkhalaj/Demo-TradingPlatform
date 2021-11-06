@@ -3,12 +3,14 @@ __pycache__/
 *.py[cod]
 *$py.class
 .env
+venv
 staticfiles
 db.sqlite3
 # C extensions
 *.so
 
 # Distribution / packaging
+*/migrations
 .Python
 build/
 develop-eggs/
