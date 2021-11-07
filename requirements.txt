@@ -24,6 +24,4 @@ social-auth-core==4.1.0
 sqlparse==0.4.2
 urllib3==1.26.7
 whitenoise==5.2.0
-django-heroku==0.3.1
 gunicorn==20.1.0
-psycopg2==2.8.6
