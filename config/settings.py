@@ -1,6 +1,6 @@
 
 from pathlib import Path
-import os, django_heroku
+import os
 from decouple import config
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -136,4 +136,4 @@ HCAPTCHA_SECRET = config('HCAPTCHA_SECRET')
 HCAPTCHA_SITEKEY = config('HCAPTCHA_SITEKEY')
 HCAPTCHA_TIMEOUT = 5
 
-django_heroku.settings(locals())
+# django_heroku.settings(locals())
