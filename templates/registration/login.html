@@ -1,19 +1,19 @@
 {% extends 'registration/base.html' %}
 {% block title %}Login{% endblock %}
-
 {% block main %}
 {% load static %}
+{% load widget_tweaks %}
   <div class="vh-100 d-flex justify-content-center">
     <div class="form-access my-auto">
       <form method = "post">{% csrf_token %}
         <span>Sign In</span>
         <div class="form-group">
           <!-- <input type="email" class="form-control" placeholder="Email Address"> -->
-          {{form.username}}
+          {{form.username|add_class:"form-control"}}
         </div>
         <div class="form-group">
           <!-- <input type="password" class="form-control" placeholder="Password"> -->
-          {{form.password}}
+          {{form.password|add_class:"form-control"}}
         </div>
         <div class="text-right">
           <a href="reset-password-dark.html">Forgot Password?</a>
