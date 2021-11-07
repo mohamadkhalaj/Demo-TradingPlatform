@@ -11,7 +11,7 @@ DEBUG = True
 # DEBUG_PROPAGATE_EXCEPTIONS = True
 
 ALLOWED_HOSTS = ['*']
-LOGIN_REDIRECT_URL = 'account:dashboard'
+LOGIN_REDIRECT_URL = 'exchange:home'
 LOGIN_URL = 'login'
 LOGOUT_REDIRECT_URL = 'login'
 SOCIAL_AUTH_URL_NAMESPACE = 'social'
