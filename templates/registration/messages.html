@@ -1,0 +1,20 @@
+{% extends 'registration/base.html' %}
+{% block title %}{{title}}{% endblock %}
+
+{% block main %}
+{% load static %}
+
+  <div class="vh-100 d-flex justify-content-center">
+    <div class="form-access my-auto">
+        <span class="errors">{{message}}</span>
+        <span>
+			{% if redirect %}
+				<a class="btn btn-primary d-block" href="{% url redirect %}">Return</a>
+			{% else %}
+				<a class="btn btn-primary d-block" href="{{request.META.HTTP_REFERER}}">Return</a>
+			{% endif %}
+		</span>
+    </div>
+  </div>
+
+{% endblock %}

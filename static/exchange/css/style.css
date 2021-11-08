@@ -2433,4 +2433,10 @@ tbody.ob-heading {
     }
 }
 
+.errors {
+    margin: 13px;
+    font-size: 18px;
+    color: #007bff;
+    text-align: justify;
+}
 /*# sourceMappingURL=style.css.map */

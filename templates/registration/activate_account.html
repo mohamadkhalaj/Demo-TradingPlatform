@@ -1,0 +1,23 @@
+{% extends 'registration/email_base.html' %}
+{% block title %}{{page_title}}{% endblock %}
+
+{% block main %}
+
+<p style="margin: 0 0 16px;">Hi {{ user.username }},</p>
+<p style="margin: 0 0 16px;">Click below link for activate your account.</p>
+<a style="  background-color: #cab49c;
+  border: 1px solid #cab49c;
+  font-size: 20px;
+  color: #FFFFFF;
+  width: 150px;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 10%;
+  margin-bottom:5px;" href="http://{{ domain }}{% url 'activate' uidb64=uid token=token %}">Click</a>
+
+<p style="margin-top:15px">Or click here: </p>
+<a style="margin: 0 0 16px;" href="http://{{ domain }}{% url 'activate' uidb64=uid token=token %}">http://{{ domain }}{% url 'activate' uidb64=uid token=token %}</a>
+
+{% endblock %}
