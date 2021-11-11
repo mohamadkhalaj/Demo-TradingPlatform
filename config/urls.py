@@ -8,7 +8,6 @@ urlpatterns = [
     path('', include('exchange.urls')),
     path('account/', include('account.urls')),
     path('', include('django.contrib.auth.urls')),
-    # path('login/', Login.as_view(), name='login'),
     path('', include('social_django.urls', namespace='social')),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 

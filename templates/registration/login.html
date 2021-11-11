@@ -42,7 +42,7 @@
 		<button type="submit" class="btn btn-primary">Sign In</button>
 		</div>
 		<div class="form-group m-0" style="direction:rtl">
-			<a class="btn btn-danger btn-block" href="">
+			<a class="btn btn-danger btn-block" href="{% url 'social:begin' 'google-oauth2' %}">
 				Sign in with google
 				<img style="width:20px" src="{% static 'exchange/img/google.png' %}" alt="google">
 			</a>

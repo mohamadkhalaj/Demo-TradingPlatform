@@ -135,6 +135,12 @@ SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = config('SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET')
 HCAPTCHA_SECRET = config('HCAPTCHA_SECRET')
 HCAPTCHA_SITEKEY = config('HCAPTCHA_SITEKEY')
 HCAPTCHA_TIMEOUT = 5
-
 # django_heroku.settings(locals())
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# social auth configuration
+
+AUTHENTICATION_BACKENDS = (
+    'social_core.backends.google.GoogleOAuth2',
+    'django.contrib.auth.backends.ModelBackend',
+)
