@@ -27,11 +27,7 @@
                   <h5 class="card-title">General Information</h5>
                   <div class="settings-profile">
                     <form>
-                      <img src="{% static 'exchange/img/avatar.svg' %}" alt="avatar">
-                      <div class="custom-file">
-                        <input type="file" class="custom-file-input" id="fileUpload">
-                        <label class="custom-file-label" for="fileUpload">Choose avatar</label>
-                      </div>
+                      <img src="{% static 'exchange/img/avatar.svg' %}" alt="{{user.username}}'s avatar">
                       <div class="form-row mt-4">
                         <div class="col-md-6">
                           <label for="formFirst">First name</label>
@@ -42,31 +38,15 @@
                           <input id="formLast" type="text" class="form-control" placeholder="Last name">
                         </div>
                         <div class="col-md-6">
+                          <label for="username">Username</label>
+                          <input id="username" type="text" class="form-control" placeholder="Useername">
+                        </div>
+                        <div class="col-md-6">
                           <label for="emailAddress">Email</label>
-                          <input id="emailAddress" type="text" class="form-control" placeholder="Enter your email">
+                          <input id="emailAddress" type="text" class="form-control" placeholder="Email">
                         </div>
-                        <div class="col-md-6">
-                          <label for="phoneNumber">Phone</label>
-                          <input id="phoneNumber" type="text" class="form-control" placeholder="Enter phone number">
-                        </div>
-                        <div class="col-md-6">
-                          <label for="selectLanguage">Language</label>
-                          <select id="selectLanguage" class="custom-select">
-                            <option selected>English</option>
-                            <option>Mandarin Chinese</option>
-                            <option>Spanish</option>
-                            <option>Arabic</option>
-                            <option>Russian</option>
-                          </select>
-                        </div>
-                        <div class="col-md-6">
-                          <label for="selectCurrency">Currency</label>
-                          <select id="selectCurrency" class="custom-select">
-                            <option selected>USD</option>
-                            <option>EUR</option>
-                            <option>GBP</option>
-                            <option>CHF</option>
-                          </select>
+                        <div class="col-md-12">
+                          <span class="form-control">Click <a href="{% url 'account:password_change' %}">here</a> for change your password.</span>
                         </div>
                         <div class="col-md-12">
                           <input type="submit" value="Update">
