@@ -3,6 +3,7 @@ from .trade import Trade
 from django.http import HttpResponse, JsonResponse
 from .models import TradeHistory, Portfolio
 from .common_functions import Give_equivalent
+from django.contrib.auth.decorators import login_required
 import json
 import re
 
@@ -33,22 +34,28 @@ def messages(request):
 
 # _________________________________________________________
 
-
+@login_required()
 def trade(request, value):
-	value = re.sub('\'', '\"', value)
-	value = json.loads(value)
-	# Portfolio.objects.all().delete()
-	# TradeHistory.objects.all().delete()
-	try:
-		Portfolio.objects.get(cryptoName='USDT')
-	except:
-		newObj = Portfolio(cryptoName='USDT', amount=1000.0, equivalentAmount=None)
-		newObj.save()
+	# value = re.sub('\'', '\"', value)
+	# value = json.loads(value)
 
-	tradeObject = Trade(value['type'], value['pair'], float(value['amount']))
-	result = tradeObject.result
+	# try:
+	# 	Portfolio.objects.get(cryptoName='USDT')
+	# except:
+	# 	newObj = Portfolio(cryptoName='USDT', amount=1000.0, equivalentAmount=None)
+	# 	newObj.save()
+	#
+	# tradeObject = Trade(value['type'], value['pair'], float(value['amount']))
+	# result = tradeObject.result
 
-	return JsonResponse(result)
+	# obj = Portfolio.objects.get(cryptoName='ETH')
+	# obj.amount = 1
+	# obj.save()
+	obj = Portfolio.objects.filter(usr=request.user)
+	print(obj)
+
+
+	return HttpResponse(str(request.user))
 
 
 def portfolio(request):
