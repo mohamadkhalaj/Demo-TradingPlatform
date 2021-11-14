@@ -98,7 +98,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 HCAPTCHA_DEFAULT_CONFIG = {
-    'hl' : 'fa'
+    'hl' : 'en'
 }
 
 LANGUAGE_CODE = 'en-us'
@@ -139,8 +139,3 @@ HCAPTCHA_TIMEOUT = 5
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 # social auth configuration
-
-AUTHENTICATION_BACKENDS = (
-    'social_core.backends.google.GoogleOAuth2',
-    'django.contrib.auth.backends.ModelBackend',
-)

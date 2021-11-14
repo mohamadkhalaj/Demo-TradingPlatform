@@ -39,6 +39,16 @@
 		<div class="text-right">
 			<a href="{% url 'password_reset' %}" class="float-left">Forgot Password?</a>
 		</div>
+		<div class="form-group">
+			{{form.hcaptcha|add_class:"form-control"}}
+			{% if form.hcaptcha.errors %}
+				<div class="errors">
+					{% for error in form.hcaptcha.errors %}
+				<span>{{error}}</span>
+			{% endfor %}
+			</div>
+			{% endif %}
+		</div>
 		<button type="submit" class="btn btn-primary">Sign In</button>
 		</div>
 		<div class="form-group m-0" style="direction:rtl">

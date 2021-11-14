@@ -1,7 +1,7 @@
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from django.contrib.auth.views import LoginView
 from django.contrib.auth.decorators import login_required
-from django.urls import reverse_lazy
+from .forms import LoginForm, forms
 
 @login_required
 def wallet(request):
@@ -21,6 +21,6 @@ def settings(request):
 def trade(request):
 	return render(request, 'registration/trade.html')
 
-# @login_required
-# class PasswordChange(PasswordChangeView):
-# 	success_url = reverse_lazy("account:profile")
+class Login(LoginView):
+	form_class = LoginForm
+	redirect_authenticated_user = True
