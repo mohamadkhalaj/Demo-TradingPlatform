@@ -12,15 +12,54 @@
       <span>Create Account</span>
       <div class="form-group">
         {{form.username|add_class:"form-control"|attr:"placeholder:Username"}}
+        {% if form.username.errors %}
+          <div class="errors">
+            {% for error in form.username.errors %}
+          <span>{{error}}</span>
+        {% endfor %}
+        </div>
+        {% endif %}
       </div>
       <div class="form-group">
         {{ form.email|add_class:"form-control"|attr:"placeholder:Email Address" }}
+        {% if form.email.errors %}
+          <div class="errors">
+            {% for error in form.email.errors %}
+          <span>{{error}}</span>
+        {% endfor %}
+        </div>
+        {% endif %}
       </div>
       <div class="form-group">
         {{ form.password1|add_class:"form-control"|attr:"placeholder:Password" }}
+        {% if form.password1.errors %}
+          <div class="errors">
+            {% for error in form.password1.errors %}
+          <span>{{error}}</span>
+        {% endfor %}
+        </div>
+        {% endif %}
       </div>
       <div class="form-group">
-        {{ form.password2|add_class:"form-control"|attr:"placeholder:Confirm Password" }}
+        {{ form.password2|add_class:"form-control mb-3"|attr:"placeholder:Confirm Password" }}
+        {% if form.password2.errors %}
+          <div class="errors">
+            {% for error in form.password2.errors %}
+          <span>{{error}}</span>
+        {% endfor %}
+        </div>
+        {% endif %}
+
+        <div style="margin-bottom: -13px;">
+          {{form.hcaptcha|add_class:"form-control"}}
+          {% if form.hcaptcha.errors %}
+            <div class="errors">
+              {% for error in form.hcaptcha.errors %}
+            <span>{{error}}</span>
+          {% endfor %}
+          </div>
+          {% endif %}
+        </div>
         <button type="submit" class="btn btn-primary">Create Account</button>
       </div>
       <div class="form-group m-0" style="direction:rtl">

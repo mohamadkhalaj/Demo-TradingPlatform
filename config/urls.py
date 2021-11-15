@@ -6,7 +6,7 @@ from account.views import Login, Register, activate
 
 urlpatterns = [
     path('login/', Login.as_view(), name = 'login'),
-    path('register/',Register.as_view(),name = 'register'),
+    path('signup/',Register.as_view(), name = 'signUp'),
     path('activate/<uidb64>/<token>/', activate, name='activate'),
     path('admin/', admin.site.urls),
     path('', include('exchange.urls')),
