@@ -1,4 +1,5 @@
 {% load static %}
+{% load gravatar %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -63,12 +64,12 @@
         <li class="nav-item dropdown header-img-icon">
         <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true"
               aria-expanded="false">
-              <img src="{% static 'exchange/img/avatar.svg' %}" alt="avatar">
+              <img src="{% gravatar_url user.email 150 %}" class="img-circle" alt="{{user.username}}'s avatar">
             </a>
             <div class="dropdown-menu">
               <div class="dropdown-header d-flex flex-column align-items-center">
                 <div class="figure mb-3">
-                  <img src="{% static 'exchange/img/avatar.svg' %}" alt="">
+                  <img src="{% gravatar_url user.email 150 %}" class="img-circle" alt="{{user.username}}'s avatar">
                 </div>
                 <div class="info text-center">
                   <p class="name font-weight-bold mb-0">

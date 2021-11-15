@@ -37,9 +37,9 @@
 			{% endif %}
 			<br>
 		<div class="text-right">
-			<a href="{% url 'password_reset' %}" class="float-left">Forgot Password?</a>
+			<a href="{% url 'password_reset' %}" class="float-left mb-3">Forgot Password?</a>
 		</div>
-		<div class="form-group">
+		<div style="margin-bottom: -13px;">
 			{{form.hcaptcha|add_class:"form-control"}}
 			{% if form.hcaptcha.errors %}
 				<div class="errors">
