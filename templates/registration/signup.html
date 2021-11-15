@@ -3,33 +3,38 @@
 
 {% block main %}
 {% load static %}
+{% load widget_tweaks %}
 
-  <div class="vh-100 d-flex justify-content-center">
-    <div class="form-access my-auto" style="max-width: min-content;">
-      <form>
-        <span>Create Account</span>
-        <div class="form-group">
-          <input type="text" class="form-control" placeholder="Username">
-        </div>
-        <div class="form-group">
-          <input type="email" class="form-control" placeholder="Email Address">
-        </div>
-        <div class="form-group">
-          <input type="password" class="form-control" placeholder="Password">
-        </div>
-        <div class="form-group">
-          <input type="password" class="form-control" placeholder="Confirm Password">
-          <button type="submit" class="btn btn-primary">Create Account</button>
-        </div>
-        <div class="form-group m-0" style="direction:rtl">
-          <a class="btn btn-danger btn-block" href="">
-            Sing up with google
-            <img style="width:20px" src="{% static 'exchange/img/google.png' %}" alt="google">
-          </a>
-        </div>
-      </form>
-      <h2>Already have an account? <a href="{% url 'login' %}">Sign in here</a></h2>
-    </div>
+<div class="vh-100 d-flex justify-content-center">
+  <div class="form-access my-auto" style="max-width: min-content;">
+    <form method="post">
+      {% csrf_token %}
+      <span>Create Account</span>
+      <div class="form-group">
+        {{form.username|add_class:"form-control"|attr:"placeholder:Username"}}
+      </div>
+      <div class="form-group">
+        <!-- <input type="email" class="form-control" placeholder="Email Address"> -->
+        {{ form.email|add_class:"form-control"|attr:"placeholder:Email Address" }}
+      </div>
+      <div class="form-group">
+        <!-- <input type="password" class="form-control" placeholder="Password"> -->
+        {{ form.password1|add_class:"form-control"|attr:"placeholder:Password" }}
+      </div>
+      <div class="form-group">
+        <!-- <input type="password" class="form-control" placeholder="Confirm Password"> -->
+        {{ form.password2|add_class:"form-control"|attr:"placeholder:Confirm Password" }}
+        <button type="submit" class="btn btn-primary">Create Account</button>
+      </div>
+      <div class="form-group m-0" style="direction:rtl">
+        <a class="btn btn-danger btn-block" href="">
+          Sign up with google
+          <img style="width:20px" src="{% static 'exchange/img/google.png' %}" alt="google">
+        </a>
+      </div>
+    </form>
+    <h2>Already have an account? <a href="{% url 'login' %}">Sign in here</a></h2>
   </div>
+</div>
 
 {% endblock %}

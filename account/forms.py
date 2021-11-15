@@ -9,3 +9,10 @@ class LoginForm(AuthenticationForm):
     class Meta:
         model = User
         fields = '__all__'
+
+
+class SignupForm(UserCreationForm):
+    email = forms.EmailField(max_length=200)
+    class Meta:
+        model = User
+        fields = ('username', 'email', 'password1', 'password2')
