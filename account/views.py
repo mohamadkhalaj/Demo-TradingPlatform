@@ -17,6 +17,7 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.template.loader import render_to_string
 from .tokens import account_activation_token
 from django.core.mail import EmailMessage
+from exchange.models import Portfolio
 
 class Profile(LoginRequiredMixin, UpdateView):
 	model = User
@@ -87,7 +88,8 @@ def activate(request, uidb64, token):
 	if user is not None and account_activation_token.check_token(user, token):
 		user.is_active = True
 		user.save()
-
+		# allocate 1000 USDT to the new user
+		allocate_USDT(user)
 		context = {
 			'title' : 'Signup',
 			'redirect' : 'login',
@@ -103,3 +105,8 @@ def activate(request, uidb64, token):
 		}
 		return render(
 			request, 'registration/messages.html', context=context)
+
+
+def allocate_USDT(user):
+	newObj = Portfolio(usr=user, cryptoName='USDT', amount=1000.0, equivalentAmount=None)
+	newObj.save()

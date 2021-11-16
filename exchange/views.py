@@ -6,6 +6,7 @@ from .common_functions import Give_equivalent
 from django.contrib.auth.decorators import login_required
 import json
 import re
+from django.contrib.auth import get_user_model
 
 # Create your views here.
 def home(request):
@@ -43,10 +44,19 @@ def trade(request, value):
 	# obj = Portfolio.objects.get(cryptoName='ETH')
 	# obj.amount = 1
 	# obj.save()
-	obj = Portfolio.objects.filter(usr=request.user)
-	print(obj.get(cryptoName='BTC').amount)
+	# obj = Portfolio.objects.filter(usr='ali')
+	# print(obj.get(cryptoName='BTC').amount)
 
+	# newObj = Portfolio(usr=request.user, cryptoName='USDT', amount=1000.0, equivalentAmount=None)
+	# newObj.save()
+	# print(obj)
 
+	# User = get_user_model()
+	# users = User.objects.all()
+
+	# User.objects.get(username='ali').delete()
+	# Portfolio(usr=request.user, cryptoName='BTC', amount=1.1, equivalentAmount=66000).save()
+	print(Portfolio.objects.filter(usr=request.user))
 	return HttpResponse(str(request.user))
 
 

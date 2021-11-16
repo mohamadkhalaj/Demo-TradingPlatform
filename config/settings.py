@@ -138,14 +138,5 @@ HCAPTCHA_TIMEOUT = 5
 # django_heroku.settings(locals())
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
-<<<<<<< HEAD
 # social auth configuration
-
-AUTHENTICATION_BACKENDS = (
-    'social_core.backends.google.GoogleOAuth2',
-    'django.contrib.auth.backends.ModelBackend',
-)
-# AUTH_USER_MODEL = 'account.User'
-=======
-# social auth configuration
->>>>>>> 51f7bb41bd98e8ddf1549cfa5f097803b598d46e
+AUTH_USER_MODEL = 'account.User'
