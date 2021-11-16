@@ -52,7 +52,7 @@ def trade(request, value):
 	# obj.amount = 1
 	# obj.save()
 	obj = Portfolio.objects.filter(usr=request.user)
-	print(obj)
+	print(obj.get(cryptoName='BTC').amount)
 
 
 	return HttpResponse(str(request.user))
