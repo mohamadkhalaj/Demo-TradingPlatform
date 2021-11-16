@@ -2439,4 +2439,7 @@ tbody.ob-heading {
     color: #007bff;
     text-align: justify;
 }
-/*# sourceMappingURL=style.css.map */
+
+.img-circle {
+    border-radius:  50%;
+}

@@ -37,7 +37,17 @@
 			{% endif %}
 			<br>
 		<div class="text-right">
-			<a href="{% url 'password_reset' %}" class="float-left">Forgot Password?</a>
+			<a href="{% url 'password_reset' %}" class="float-left mb-3">Forgot Password?</a>
+		</div>
+		<div style="margin-bottom: -13px;">
+			{{form.hcaptcha|add_class:"form-control"}}
+			{% if form.hcaptcha.errors %}
+				<div class="errors">
+					{% for error in form.hcaptcha.errors %}
+				<span>{{error}}</span>
+			{% endfor %}
+			</div>
+			{% endif %}
 		</div>
 		<button type="submit" class="btn btn-primary">Sign In</button>
 		</div>
@@ -48,7 +58,7 @@
 			</a>
 		</div>
 	</form>
-	<h2>Don't have an account? <a href="{% url 'exchange:signUp' %}">Sign up here</a></h2>
+	<h2>Don't have an account? <a href="{% url 'signUp' %}">Sign up here</a></h2>
 </div>
 </div>
 

@@ -3,33 +3,74 @@
 
 {% block main %}
 {% load static %}
+{% load widget_tweaks %}
 
-  <div class="vh-100 d-flex justify-content-center">
-    <div class="form-access my-auto" style="max-width: min-content;">
-      <form>
-        <span>Create Account</span>
-        <div class="form-group">
-          <input type="text" class="form-control" placeholder="Username">
+<div class="vh-100 d-flex justify-content-center">
+  <div class="form-access my-auto" style="max-width: min-content;">
+    <form method="post">
+      {% csrf_token %}
+      <span>Create Account</span>
+      <div class="form-group">
+        {{form.username|add_class:"form-control"|attr:"placeholder:Username"}}
+        {% if form.username.errors %}
+          <div class="errors">
+            {% for error in form.username.errors %}
+          <span>{{error}}</span>
+        {% endfor %}
         </div>
-        <div class="form-group">
-          <input type="email" class="form-control" placeholder="Email Address">
+        {% endif %}
+      </div>
+      <div class="form-group">
+        {{ form.email|add_class:"form-control"|attr:"placeholder:Email Address" }}
+        {% if form.email.errors %}
+          <div class="errors">
+            {% for error in form.email.errors %}
+          <span>{{error}}</span>
+        {% endfor %}
         </div>
-        <div class="form-group">
-          <input type="password" class="form-control" placeholder="Password">
+        {% endif %}
+      </div>
+      <div class="form-group">
+        {{ form.password1|add_class:"form-control"|attr:"placeholder:Password" }}
+        {% if form.password1.errors %}
+          <div class="errors">
+            {% for error in form.password1.errors %}
+          <span>{{error}}</span>
+        {% endfor %}
         </div>
-        <div class="form-group">
-          <input type="password" class="form-control" placeholder="Confirm Password">
-          <button type="submit" class="btn btn-primary">Create Account</button>
+        {% endif %}
+      </div>
+      <div class="form-group">
+        {{ form.password2|add_class:"form-control mb-3"|attr:"placeholder:Confirm Password" }}
+        {% if form.password2.errors %}
+          <div class="errors">
+            {% for error in form.password2.errors %}
+          <span>{{error}}</span>
+        {% endfor %}
         </div>
-        <div class="form-group m-0" style="direction:rtl">
-          <a class="btn btn-danger btn-block" href="">
-            Sing up with google
-            <img style="width:20px" src="{% static 'exchange/img/google.png' %}" alt="google">
-          </a>
+        {% endif %}
+
+        <div style="margin-bottom: -13px;">
+          {{form.hcaptcha|add_class:"form-control"}}
+          {% if form.hcaptcha.errors %}
+            <div class="errors">
+              {% for error in form.hcaptcha.errors %}
+            <span>{{error}}</span>
+          {% endfor %}
+          </div>
+          {% endif %}
         </div>
-      </form>
-      <h2>Already have an account? <a href="{% url 'login' %}">Sign in here</a></h2>
-    </div>
+        <button type="submit" class="btn btn-primary">Create Account</button>
+      </div>
+      <div class="form-group m-0" style="direction:rtl">
+        <a class="btn btn-danger btn-block" href="">
+          Sign up with google
+          <img style="width:20px" src="{% static 'exchange/img/google.png' %}" alt="google">
+        </a>
+      </div>
+    </form>
+    <h2>Already have an account? <a href="{% url 'login' %}">Sign in here</a></h2>
   </div>
+</div>
 
 {% endblock %}

@@ -24,14 +24,6 @@ def symbolInfo(request):
 def heatMap(request):
 	return render(request, 'exchange/heatmap.html')
 
-def messages(request):
-	context = {
-		'title' : 'Test',
-		'redirect' : 'login',
-		'message' : 'Succesfull',
-	}
-	return render(request, 'registration/messages.html', context=context)
-
 # _________________________________________________________
 
 @login_required()

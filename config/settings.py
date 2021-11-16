@@ -98,7 +98,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 HCAPTCHA_DEFAULT_CONFIG = {
-    'hl' : 'fa'
+    'hl' : 'en'
 }
 
 LANGUAGE_CODE = 'en-us'
@@ -124,7 +124,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'account.User'
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
-# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_USE_TLS = True
 EMAIL_PORT = 587
@@ -138,6 +138,7 @@ HCAPTCHA_TIMEOUT = 5
 # django_heroku.settings(locals())
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
+<<<<<<< HEAD
 # social auth configuration
 
 AUTHENTICATION_BACKENDS = (
@@ -145,3 +146,6 @@ AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
 )
 # AUTH_USER_MODEL = 'account.User'
+=======
+# social auth configuration
+>>>>>>> 51f7bb41bd98e8ddf1549cfa5f097803b598d46e

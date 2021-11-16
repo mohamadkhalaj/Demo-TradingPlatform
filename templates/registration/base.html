@@ -1,10 +1,10 @@
 {% load static %}
+{% load gravatar %}
 
 <!DOCTYPE html>
 <html lang="en">
 
-
-<meta http-equiv="content-type" content="text/html;charset=UTF-8" /><!-- /Added by HTTrack -->
+<meta http-equiv="content-type" content="text/html;charset=UTF-8" />
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -135,12 +135,12 @@
             {% if user.is_authenticated %}
               <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true"
                 aria-expanded="false">
-                <img src="{% static 'exchange/img/avatar.svg' %}" alt="avatar">
+                <img src="{% gravatar_url user.email 150 %}" class="img-circle" alt="{{user.username}}'s avatar">
               </a>
               <div class="dropdown-menu">
                 <div class="dropdown-header d-flex flex-column align-items-center">
                   <div class="figure mb-3">
-                    <img src="{% static 'exchange/img/avatar.svg' %}" alt="">
+                    <img src="{% gravatar_url user.email 150 %}" class="img-circle" alt="{{user.username}}'s avatar">
                   </div>
                   <div class="info text-center">
                     <p class="name font-weight-bold mb-0">
@@ -187,7 +187,7 @@
             {% else %}
               <a class="nav-link" href="{% url 'login' %}" role="button" aria-haspopup="true"
                 aria-expanded="false">
-                <img src="{% static 'exchange/img/avatar.svg' %}" alt="avatar">
+                <img src="{% gravatar_url 'test@gmail.com' 150 %}" class="img-circle" alt="avatar">
               </a>
             {% endif %}
           </li>
