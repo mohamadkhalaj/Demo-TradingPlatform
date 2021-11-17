@@ -18,6 +18,8 @@ from django.template.loader import render_to_string
 from .tokens import account_activation_token
 from django.core.mail import EmailMessage
 from exchange.models import Portfolio
+import requests
+
 
 class Profile(LoginRequiredMixin, UpdateView):
 	model = User
@@ -30,7 +32,14 @@ class Profile(LoginRequiredMixin, UpdateView):
 
 @login_required
 def wallet(request):
-	return render(request, 'registration/wallet.html')
+	resJson = {}
+	all = Portfolio.objects.filter(usr=request.user)
+	i = 0
+	for item in all.iterator():
+		resJson[i] = {'cryptoName': item.cryptoName, 'amount': item.amount,
+					  'equivalentAmount': calc_equivalent(item.cryptoName, 'USDT', item.amount)[1]}
+		i += 1
+	return render(request, 'registration/wallet.html', {'resJson': resJson})
 
 @login_required
 def settings(request):
@@ -38,7 +47,20 @@ def settings(request):
 
 @login_required
 def trade(request):
+	print(Portfolio.objects.filter(usr=request.user))
 	return render(request, 'registration/trade.html')
+
+
+def calc_equivalent(base, qoute, amount):
+	response = requests.get(
+		"https://min-api.cryptocompare.com/data/pricemulti?fsyms=" + base + "," + qoute + "&tsyms=USDT,USDT")
+	response = response.json()
+	basePrice = float(response[base]['USDT'])
+	qoutePrice = float(response[qoute]['USDT'])
+	pairPrice = basePrice / qoutePrice
+	equivalent = pairPrice * amount
+
+	return pairPrice, equivalent
 
 class Login(LoginView):
 	form_class = LoginForm

@@ -31,12 +31,7 @@ def heatMap(request):
 def trade(request, value):
 	# value = re.sub('\'', '\"', value)
 	# value = json.loads(value)
-
-	# try:
-	# 	Portfolio.objects.get(cryptoName='USDT')
-	# except:
-	# 	newObj = Portfolio(cryptoName='USDT', amount=1000.0, equivalentAmount=None)
-	# 	newObj.save()
+	#
 	#
 	# tradeObject = Trade(value['type'], value['pair'], float(value['amount']))
 	# result = tradeObject.result
@@ -55,16 +50,19 @@ def trade(request, value):
 	# users = User.objects.all()
 
 	# User.objects.get(username='ali').delete()
-	# Portfolio(usr=request.user, cryptoName='BTC', amount=1.1, equivalentAmount=66000).save()
-	print(Portfolio.objects.filter(usr=request.user))
+	# Portfolio(usr=request.user, cryptoName='BTC', amount=1.2, equivalentAmount=66000).save()
+	obj = Portfolio.objects.filter(usr=request.user)
+	# print(obj.get(cryptoName='USDT').amount)
+	print(obj)
 	return HttpResponse(str(request.user))
 
 
 def portfolio(request):
 	eq = Give_equivalent()
+	obj = Portfolio.objects.filter(usr=request.user)
 	resJson = {}
 	i = 0
-	for item in Portfolio.objects.all().iterator():
+	for item in obj.iterator():
 		if item.cryptoName == 'USDT':
 			equivalentAmount = None
 		else:
