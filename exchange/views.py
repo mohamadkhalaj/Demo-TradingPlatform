@@ -26,38 +26,27 @@ def heatMap(request):
 
 @login_required()
 def trade(request, value):
-	# value = re.sub('\'', '\"', value)
-	# value = json.loads(value)
-	#
-	#
-	# tradeObject = Trade(value['type'], value['pair'], float(value['amount']))
-	# result = tradeObject.result
+	value = re.sub('\'', '\"', value)
+	value = json.loads(value)
 
-	# obj = Portfolio.objects.get(cryptoName='ETH')
-	# obj.amount = 1
-	# obj.save()
-	# obj = Portfolio.objects.filter(usr='ali')
-	# print(obj.get(cryptoName='BTC').amount)
+	# Portfolio.objects.filter(usr=request.user).get(cryptoName='BTC').delete()
+	tradeObject = Trade(request.user, value['type'], value['pair'], float(value['amount']))
+	result = tradeObject.result
 
-	# newObj = Portfolio(usr=request.user, cryptoName='USDT', amount=1000.0, equivalentAmount=None)
-	# newObj.save()
-	# print(obj)
-
-	# User = get_user_model()
-	# users = User.objects.all()
+	# newObj = Portfolio(usr=request.user, cryptoName='USDT', amount=1000.0, equivalentAmount=None).save()
 
 	# User.objects.get(username='ali').delete()
 	# Portfolio(usr=request.user, cryptoName='BTC', amount=1.2, equivalentAmount=66000).save()
-	obj = Portfolio.objects.filter(usr=request.user)
-	# print(obj.get(cryptoName='USDT').amount)
-	print(obj)
-	return HttpResponse(str(request.user))
+
+	return JsonResponse(result)
+	# return HttpResponse(str(request.user))
 
 
+@login_required()
 def portfolio(request):
 	eq = Give_equivalent()
 	resJson = dict()
-	for index, item in enumerate(Portfolio.objects.all().iterator()):
+	for index, item in enumerate(Portfolio.objects.filter(usr=request.user).iterator()):
 		if item.cryptoName == 'USDT':
 			equivalentAmount = None
 		else:
@@ -66,12 +55,9 @@ def portfolio(request):
 	return JsonResponse(resJson)
 
 
+@login_required()
 def tradinghistory(request):
 	resJson = dict()
-	for index, item in enumerate(TradeHistory.objects.all().iterator()):
+	for index, item in enumerate(TradeHistory.objects.filter(usr=request.user).iterator()):
 		resJson[index] = {'type': item.type, 'pair': item.pair, 'pairPrice': item.pairPrice, 'amount': item.amount,'price': item.price, 'timeStamp': item.time}
 	return JsonResponse(resJson)
-
-
-
-
