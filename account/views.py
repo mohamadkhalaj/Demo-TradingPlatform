@@ -29,6 +29,7 @@ class Profile(LoginRequiredMixin, UpdateView):
 	def get_object(self):
 		return User.objects.get(pk = self.request.user.pk)
 
+
 @login_required
 def wallet(request):
 	resJson = dict()

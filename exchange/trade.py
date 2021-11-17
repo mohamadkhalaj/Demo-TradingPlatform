@@ -15,7 +15,7 @@ class Trade:
         self.pairPrice = 0
         self.equivalent = 0
         self.callf()
-        # dict = {'pair':'ETH|USDT', 'type':'buy', 'amount':'0.02'}
+        # dict = {'pair':'ETH|USDT', 'type':'buy', 'amount':'0.002'}
 
     def callf(self):
         self.pairPrice, self.equivalent = self.calc_equivalent(self.base, self.qoute, self.amount)

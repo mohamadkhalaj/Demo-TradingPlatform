@@ -5,7 +5,8 @@ from .common_functions import Give_equivalent
 from .models import TradeHistory, Portfolio
 from django.shortcuts import render
 from .trade import Trade
-import json, re
+import json
+import re
 
 
 def home(request):
