@@ -1,14 +1,13 @@
+from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse, JsonResponse
+from django.contrib.auth import get_user_model
+from .common_functions import Give_equivalent
+from .models import TradeHistory, Portfolio
 from django.shortcuts import render
 from .trade import Trade
-from django.http import HttpResponse, JsonResponse
-from .models import TradeHistory, Portfolio
-from .common_functions import Give_equivalent
-from django.contrib.auth.decorators import login_required
-import json
-import re
-from django.contrib.auth import get_user_model
+import json, re
 
-# Create your views here.
+
 def home(request):
 	return render(request, 'exchange/index.html')
 
@@ -24,8 +23,6 @@ def symbolInfo(request):
 
 def heatMap(request):
 	return render(request, 'exchange/heatmap.html')
-
-# _________________________________________________________
 
 @login_required()
 def trade(request, value):
@@ -62,26 +59,20 @@ def trade(request, value):
 
 def portfolio(request):
 	eq = Give_equivalent()
-	resJson = {}
-	i = 0
-	for item in Portfolio.objects.all().iterator():
+	resJson = dict()
+	for index, item in enumerate(Portfolio.objects.all().iterator()):
 		if item.cryptoName == 'USDT':
 			equivalentAmount = None
 		else:
 			equivalentAmount = eq.calc_equivalent(item.cryptoName, 'USDT', item.amount)[1]
-		resJson[i] = {'cryptoName': item.cryptoName, 'amount': item.amount, 'equivalentAmount': equivalentAmount}
-		i += 1
-
+		resJson[index] = {'cryptoName': item.cryptoName, 'amount': item.amount, 'equivalentAmount': equivalentAmount}
 	return JsonResponse(resJson)
 
 
 def tradinghistory(request):
-	resJson = {}
-	i = 0
-	for item in TradeHistory.objects.all().iterator():
-		resJson[i] = {'type': item.type, 'pair': item.pair, 'pairPrice': item.pairPrice, 'amount': item.amount,'price': item.price, 'timeStamp': item.timeStamp}
-		i += 1
-
+	resJson = dict()
+	for index, item in enumerate(TradeHistory.objects.all().iterator()):
+		resJson[index] = {'type': item.type, 'pair': item.pair, 'pairPrice': item.pairPrice, 'amount': item.amount,'price': item.price, 'timeStamp': item.time}
 	return JsonResponse(resJson)
 
 

@@ -1,6 +1,15 @@
 from django.contrib.auth import views
 from django.urls import path
-from .views import home, signUp, markets, symbolInfo, heatMap, trade, portfolio, tradinghistory
+from .views import (
+		home, 
+		signUp, 
+		markets, 
+		symbolInfo, 
+		heatMap, 
+		trade, 
+		portfolio, 
+		tradinghistory,
+	)
 
 app_name = 'exchange'
 urlpatterns = [

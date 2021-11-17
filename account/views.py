@@ -1,23 +1,23 @@
-from django.shortcuts import redirect, render
-from django.contrib.auth.views import LoginView
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth.decorators import login_required
-from django.views.generic import UpdateView
-from .forms import LoginForm, forms, ProfileForm
-from django.urls import reverse_lazy
-from .models import User
-from django.views.generic import CreateView
-from .forms import LoginForm, forms, SignupForm
-from django.http import HttpResponse
-from django.shortcuts import render, redirect
-from django.contrib.auth import login, authenticate
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.contrib.sites.shortcuts import get_current_site
 from django.utils.encoding import force_bytes, force_text
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import login, authenticate
 from django.template.loader import render_to_string
+from .forms import LoginForm, forms, ProfileForm
+from django.contrib.auth.views import LoginView
+from .forms import LoginForm, forms, SignupForm
+from django.shortcuts import redirect, render
+from django.shortcuts import render, redirect
 from .tokens import account_activation_token
+from django.views.generic import UpdateView
+from django.views.generic import CreateView
 from django.core.mail import EmailMessage
 from exchange.models import Portfolio
+from django.http import HttpResponse
+from django.urls import reverse_lazy
+from .models import User
 
 class Profile(LoginRequiredMixin, UpdateView):
 	model = User

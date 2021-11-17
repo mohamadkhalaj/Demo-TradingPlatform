@@ -4,6 +4,7 @@ from .models import Portfolio
 
 class Give_equivalent:
     def calc_equivalent(self, base, qoute, amount):
+        base = base.upper()
         response = requests.get("https://min-api.cryptocompare.com/data/pricemulti?fsyms=" + base + "," + qoute + "&tsyms=USDT,USDT")
         response = response.json()
         basePrice = float(response[base]['USDT'])
