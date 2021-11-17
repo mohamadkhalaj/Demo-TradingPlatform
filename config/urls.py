@@ -2,7 +2,11 @@ from django.conf.urls.static import static
 from django.urls import path, include , re_path
 from django.contrib import admin
 from django.conf import settings
-from account.views import Login, Register, activate
+from account.views import (
+        Login, 
+        Register, 
+        activate
+    )
 
 urlpatterns = [
     path('login/', Login.as_view(), name = 'login'),
