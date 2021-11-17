@@ -31,13 +31,11 @@ class Profile(LoginRequiredMixin, UpdateView):
 
 @login_required
 def wallet(request):
-	resJson = {}
-	all = Portfolio.objects.filter(usr=request.user)
-	i = 0
-	for item in all.iterator():
-		resJson[i] = {'cryptoName': item.cryptoName, 'amount': item.amount,
+	resJson = dict()
+	for index, item in enumerate(Portfolio.objects.filter(usr=request.user).iterator()):
+		resJson[index] = {'cryptoName': item.cryptoName, 'amount': round(item.amount, 10),
 					  'equivalentAmount': calc_equivalent(item.cryptoName, 'USDT', item.amount)[1]}
-		i += 1
+
 	return render(request, 'registration/wallet.html', {'resJson': resJson})
 
 @login_required
