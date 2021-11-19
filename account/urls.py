@@ -7,5 +7,6 @@ urlpatterns = [
 	path('wallet/', wallet, name='wallet'),
 	path('settings/', settings, name='settings'),
 	path('profile/', Profile.as_view(), name='profile'),
+	path('trade/<str:pair>', trade, name='trade'),
 	path('trade/', trade, name='trade'),
 ]

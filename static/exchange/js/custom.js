@@ -773,7 +773,7 @@
     });
   }
   // make tr linkable
-  $('.markets-pair-list tr').click(function () {
+  $('.markets-pair-list tbody tr').click(function () {
     window.location = $(this).data('href');
   });
 

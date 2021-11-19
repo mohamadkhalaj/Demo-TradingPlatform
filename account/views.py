@@ -10,11 +10,12 @@ from django.contrib.auth.views import LoginView
 from .forms import LoginForm, forms, SignupForm
 from django.shortcuts import redirect, render
 from django.shortcuts import render, redirect
+from exchange.common_functions import search
 from .tokens import account_activation_token
 from django.views.generic import UpdateView
 from django.views.generic import CreateView
 from django.core.mail import EmailMessage
-from exchange.models import Portfolio
+from exchange.models import Portfolio, TradeHistory
 import requests
 from django.urls import reverse_lazy
 from .models import User
@@ -42,10 +43,28 @@ def wallet(request):
 def settings(request):
 	return render(request, 'registration/settings.html')
 
-@login_required
-def trade(request):
-	print(Portfolio.objects.filter(usr=request.user))
-	return render(request, 'registration/trade.html')
+def trade(request, pair='BINANCE:BTCUSDT'):
+
+	if request.user.is_authenticated:
+		portfolio = Portfolio.objects.filter(usr=request.user)
+		history = TradeHistory.objects.filter(usr=request.user)
+	else:
+		portfolio = list()
+		history = list()
+		
+	if pair != 'BINANCE:BTCUSDT':
+		name = pair.split('-')[0]
+		pair = search(pair)
+	else:
+		name = 'BTC'
+	context = {
+		'pair' : pair,
+		'name' : name,
+		'history' : history,
+		'Portfolio' : portfolio
+	}
+	print(pair)
+	return render(request, 'registration/trade.html', context=context)
 
 
 def calc_equivalent(base, qoute, amount):

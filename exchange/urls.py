@@ -15,6 +15,7 @@ app_name = 'exchange'
 urlpatterns = [
 	path('', home, name='home'),
 	path('markets/', markets, name='markets'),
+	path('markets/<int:page>', markets, name='markets'),
 	path('symbolInfo/', symbolInfo, name='symbolInfo'),
 	path('heatMap/', heatMap, name='heatMap'),
 	path('trade/<str:value>', trade, name='trade'),
