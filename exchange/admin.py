@@ -3,10 +3,10 @@ from .models import Portfolio, TradeHistory
 
 
 class TradeHistoryAdmin(admin.ModelAdmin):
-	list_display = ('type', 'pair', 'pairPrice', 'amount', 'price', 'time')
+	list_display = ('type', 'pair', 'pairPrice', 'amount', 'price', 'time', 'usr')
 admin.site.register(TradeHistory, TradeHistoryAdmin)
 
 
 class PortfolioAdmin(admin.ModelAdmin):
-	list_display = ('cryptoName', 'amount', 'equivalentAmount')
+	list_display = ('cryptoName', 'amount', 'usr')
 admin.site.register(Portfolio, PortfolioAdmin)

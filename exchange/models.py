@@ -12,6 +12,9 @@ class TradeHistory(models.Model):
 	price = models.FloatField()
 	time = models.DateTimeField(auto_now=True)
 
+	class Meta:
+		verbose_name_plural = 'Trade histories'
+
 
 class Portfolio(models.Model):
 	usr = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default=None)

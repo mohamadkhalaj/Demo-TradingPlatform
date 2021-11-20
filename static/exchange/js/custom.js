@@ -777,6 +777,9 @@
     window.location = $(this).data('href');
   });
 
+  $('.markets-list-trade tr').click(function () {
+    window.location = $(this).data('href');
+  });
   // click to full screen
   function toggleFullscreen(elem) {
     elem = elem || document.documentElement;
