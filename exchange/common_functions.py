@@ -29,7 +29,7 @@ def pretify(float_num):
         return 'None'
     float_num = float(float_num)
     try:
-        return re.match(r"^.*\...", format(float_num, ",f"))[0]
+        return re.match(r"^.*\....", format(float_num, ",f"))[0]
     except:
         print(float_num)
 

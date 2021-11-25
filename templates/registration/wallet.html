@@ -14,7 +14,7 @@
           
           <a class="nav-link active" id="settings-wallet-tab" href="{% url 'account:wallet' %}"> Wallet</a>
           
-          <a class="nav-link" id="settings-tab" href="{% url 'account:settings' %}">Settings</a>
+          <a class="nav-link" id="settings-tab" href="{% url 'account:tradeHistory' %}">Trade history</a>
         </div>
       </div>
         <div class="col-md-12 col-lg-9">
@@ -51,6 +51,19 @@
                         Nothing...
                       {% endif %}
                     </div>
+              <div class="text-center mt-3">
+                {% if portfolio.has_previous %}
+                    <a href="{% url 'account:wallet' portfolio.previous_page_number %}" class="btn btn-primary">Previous Page</a>
+                {% endif %}
+
+                  <span class="green m-3">
+                      Page {{ portfolio.number }} of {{ portfolio.paginator.num_pages }}
+                  </span>
+
+                {% if portfolio.has_next %}
+                    <a href="{% url 'account:wallet' portfolio.next_page_number %}" class="btn btn-primary">Next Page</a>
+                {% endif %}
+              </div>
                   </div>
                   <div class="col-md-12 col-lg-8">
                     <div class="tab-content">
@@ -85,39 +98,6 @@
                                     <span class="errors">Coming soon...</span>
                                 </div>
                               </div>
-                          </div>
-                        </div>
-                        <div class="card">
-                          <div class="card-body">
-                            <h5 class="card-title">Latest Transactions</h5>
-                            <div class="wallet-history">
-                              <table class="table">
-                                <thead>
-                                  <tr>
-                                    <th>No.</th>
-                                    <th>Pair</th>
-                                    <th>Type</th>
-                                    <th>Date</th>
-                                    <th>Price</th>
-                                    <th>Amount</th>
-                                    <th>Total</th>
-                                  </tr>
-                                </thead>
-                                <tbody>
-                                  {% for item in history %}
-                                    <tr>
-                                      <td>{{forloop.counter}}</td>
-                                      <td>{{item.pair}}</td>
-                                      <td>{{item.type}}</td>
-                                      <td>{{item.time}}</td>
-                                      <td>{{item.price}}</td>
-                                      <td>{{item.amount}}</td>
-                                      <td>{{item.pairPrice}}</td>
-                                    </tr>
-                                  {% endfor %}
-                                </tbody>
-                              </table>
-                            </div>
                           </div>
                         </div>
                       </div>

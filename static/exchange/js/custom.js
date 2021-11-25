@@ -953,3 +953,5 @@
     }
   });
 })(jQuery);
+
+console.clear();

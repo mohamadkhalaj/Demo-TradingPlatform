@@ -11,6 +11,7 @@ DEBUG = True
 # DEBUG_PROPAGATE_EXCEPTIONS = True
 
 ALLOWED_HOSTS = ['*']
+CORS_ORIGIN_ALLOW_ALL = True
 LOGIN_REDIRECT_URL = 'exchange:home'
 LOGIN_URL = 'login'
 LOGOUT_REDIRECT_URL = 'login'
@@ -31,6 +32,7 @@ INSTALLED_APPS = [
     'django_gravatar',
     'social_django',
     'hcaptcha',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
@@ -42,6 +44,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
 ]
 
 CACHES = {

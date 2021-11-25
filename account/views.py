@@ -14,6 +14,7 @@ from django.shortcuts import redirect, render
 from django.shortcuts import render, redirect
 from .tokens import account_activation_token
 from django.views.generic import UpdateView
+from django.core.paginator import Paginator
 from django.views.generic import CreateView
 from django.core.mail import EmailMessage
 from django.shortcuts import redirect
@@ -32,27 +33,42 @@ class Profile(LoginRequiredMixin, UpdateView):
 		return User.objects.get(pk = self.request.user.pk)
 
 @login_required
-def wallet(request):
+def wallet(request, page=1):
 	total = float()
-	portfolio = Portfolio.objects.filter(usr=request.user)
-	history = TradeHistory.objects.filter(usr=request.user)
+	portfolio = Portfolio.objects.filter(usr=request.user, amount__gt=0).order_by('-equivalentAmount')
+	paginator = Paginator(portfolio, 7)
+	data = paginator.get_page(page)
 
-	for index, item in enumerate(portfolio):
+	total = pretify(sum([calc_equivalent(item.cryptoName, 'USDT', item.amount)[1] for item in portfolio]))
+
+	for index, item in enumerate(data):
 		usdt = calc_equivalent(item.cryptoName, 'USDT', item.amount)[1]
-		portfolio[index].equivalentAmount = pretify(usdt)
-		total += usdt
+		data[index].equivalentAmount = pretify(usdt)
+		data[index].amount = pretify(item.amount)
 
 	context = {
-		'portfolio' : portfolio,
-		'history' : history,
-		'total' : pretify(total),
+		'portfolio' : data,
+		'total' : total,
 	}
-	print(context)
 	return render(request, 'registration/wallet.html', context=context)
 
 @login_required
-def settings(request):
-	return render(request, 'registration/settings.html')
+def tradeHistory(request, page=1):
+	history = TradeHistory.objects.filter(usr=request.user, amount__gt=0).order_by('-time')
+
+	for index, item in enumerate(history):
+		history[index].price = pretify(item.price)
+		history[index].pairPrice = pretify(item.pairPrice)
+		history[index].amount = pretify(item.amount)
+
+	paginator = Paginator(history, 10)
+	data = paginator.get_page(page)
+
+	context = {
+		'history' : data,
+	}
+
+	return render(request, 'registration/tradeHistory.html', context = context)
 
 def trade(request, pair='BINANCE:BTCUSDT'):
 
@@ -68,27 +84,27 @@ def trade(request, pair='BINANCE:BTCUSDT'):
 			item['price_change_percentage_24h'] = pretify(item['price_change_percentage_24h'])
 
 	if request.user.is_authenticated:
-		portfolio = Portfolio.objects.filter(usr=request.user)
-		history = TradeHistory.objects.filter(usr=request.user)
+		portfolio = Portfolio.objects.filter(usr=request.user, amount__gt=0)
+		history = TradeHistory.objects.filter(usr=request.user, amount__gt=0).order_by('-time')
 	else:
 		portfolio = list()
 		history = list()
 	
-	recentTrades = TradeHistory.objects.all()
-
+	recentTrades = TradeHistory.objects.filter(amount__gt=0).order_by('-time')
+	for index, item in enumerate(recentTrades):
+		recentTrades[index].price = pretify(item.price)
+		recentTrades[index].pairPrice = pretify(item.pairPrice)
+		recentTrades[index].amount = pretify(item.amount)
+	
 	if pair != 'BINANCE:BTCUSDT':
 		name = pair.split('-')[0]
 		pair = search(pair)
 	else:
 		name = 'BTC'
 
-	if not pair:
-		pair = 'BINANCE:BTCUSDT'
-		name = 'BTC'
-
 	context = {
 		'pair' : pair,
-		'name' : name,
+		'name' : name.upper(),
 		'history' : history,
 		'Portfolio' : portfolio,
 		'data' : data,
@@ -96,7 +112,14 @@ def trade(request, pair='BINANCE:BTCUSDT'):
 	}
 
 	if not pair:
-		return redirect('account:trade/BTC-USDT')
+		pair = 'BINANCE:BTCUSDT'
+		name = 'BTC'
+
+		context = {
+			'pair' : pair,
+			'name' : name.upper(),
+		}
+		return redirect('/account/trade/BTC-USDT')
 	else:
 		return render(request, 'registration/trade.html', context=context)
 

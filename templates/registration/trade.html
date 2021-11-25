@@ -83,7 +83,7 @@
           <!-- TradingView Widget END -->
         </div>
         {% if user.is_authenticated %}
-        <div class="market-trade">
+        <div class="market-trade" >
           <ul class="nav nav-pills" role="tablist">
             <li class="nav-item">
               <a class="nav-link active" data-toggle="pill" href="#pills-trade-limit" role="tab"
@@ -95,57 +95,51 @@
               <div class="d-flex justify-content-between">
                 <div class="market-trade-buy">
                   <div class="input-group">
-                    <input type="number" class="form-control" placeholder="Price">
+                    <input type="number" class="form-control" placeholder="Amount" id="uValue" onkeypress='validate(event)'>
                     <div class="input-group-append">
-                      <span class="input-group-text">BTC</span>
+                      <span class="input-group-text">USDT</span>
                     </div>
                   </div>
-                  <div class="input-group">
-                    <input type="number" class="form-control" placeholder="Amount">
-                    <div class="input-group-append">
-                      <span class="input-group-text">ETH</span>
-                    </div>
-                  </div>
-                  <ul class="market-trade-list">
+                  <ul class="market-trade-list" id="usdtPercentage">
                     <li><a href="#!">25%</a></li>
                     <li><a href="#!">50%</a></li>
                     <li><a href="#!">75%</a></li>
                     <li><a href="#!">100%</a></li>
                   </ul>
-                  <p>Available: <span>0 BTC = 0 USD</span></p>
-                  <button class="btn buy">Buy</button>
+                  <p>Available: <span id="usdtAmount"></span></p>
+                  <button class="btn buy" onclick="trade('buy', '{{name}}')">Buy {{name}}</button>
                 </div>
                 <div class="market-trade-sell">
                   <div class="input-group">
-                    <input type="number" class="form-control" placeholder="Price">
+                    <input type="number" class="form-control" placeholder="Amount" id="pValue" onkeypress='validate(event)'>
                     <div class="input-group-append">
-                      <span class="input-group-text">BTC</span>
+                      <span class="input-group-text">{{name}}</span>
                     </div>
                   </div>
-                  <div class="input-group">
-                    <input type="number" class="form-control" placeholder="Amount">
-                    <div class="input-group-append">
-                      <span class="input-group-text">ETH</span>
-                    </div>
-                  </div>
-                  <ul class="market-trade-list">
+                  <ul class="market-trade-list" id="pairPercentage">
                     <li><a href="#!">25%</a></li>
                     <li><a href="#!">50%</a></li>
                     <li><a href="#!">75%</a></li>
                     <li><a href="#!">100%</a></li>
                   </ul>
-                  <p>Available: <span>0 BTC = 0 USD</span></p>
-                  <button class="btn sell">Sell</button>
+                  <p>Available: <span id="pairAmount"></span></p>
+                  <button class="btn sell" onclick="trade('sell', '{{name}}')">Sell {{name}}</button>
                 </div>
               </div>
             </div>
           </div>
         </div>
+        <script src="{% static 'exchange/js/trade.js' %}"></script>
+        <script type = "text/javascript">     
+          getPortfolio("{{name}}");
+        </script>  
         {% else %}
-          <div class="vh-100 d-flex justify-content-center">
-            <div class="form-access mt-2">
-                <span class="errors">You should Login.</span>
-                <a class="btn btn-primary d-block" href="{% url 'login' %}">Login</a>
+          <div class="mt-5 d-flex justify-content-center">
+            <div class="d-flex justify-content-center">
+                <div class="form-access">
+                  <span class="errors">You should Login.</span>
+                  <a class="btn btn-primary d-block" href="{% url 'login' %}">Login</a>
+              </div>
             </div>
           </div>
         {% endif %}
@@ -192,9 +186,9 @@
                   <tr>
                     <td>{{item.pair}}</td>
                     {% if item.type == 'buy' %}
-                      <td class="green">{{item.price}}1</td>
+                      <td class="green">{{item.pairPrice}}</td>
                     {% else %}
-                      <td class="red">{{item.price}}1</td>
+                      <td class="red">{{item.pairPrice}}</td>
                     {% endif %}
 
                     <td>{{item.amount}}</td>
@@ -214,25 +208,19 @@
                 history</span>
             </li>
           </ul>
-          <div class="tab-content">
+          <div class="tab-content" style="height:500px; overflow-y: auto;">
             <div class="tab-pane fade show active" id="open-orders" role="tabpanel">
-              <ul class="d-flex justify-content-between market-order-item">
+              <ul class="d-flex justify-content-between market-order-item ul">
                 <li>Time</li>
                 <li>All pairs</li>
                 <li>Buy/Sell</li>
                 <li>Price</li>
                 <li>Amount</li>
+                <li>Total</li>
               </ul>
+              <p style="display:none" id="before"></p>
               {% if user.is_authenticated %}
-                {% for item in history %}
-                  <ul class="d-flex justify-content-between market-order-item fixed">
-                    <li>{{item.time}}</li>
-                    <li>{{item.pair}}</li>
-                    <li>{{item.type}}</li>
-                    <li>{{item.price}}</li>
-                    <li>{{item.amount}}</li>
-                  </ul>
-                {% endfor %}
+
               {% else %}
                 <span class="no-data">
                   <i class="icon ion-md-document"></i>
@@ -246,4 +234,8 @@
     </div>
   </div>
 
+
+<div id="alert" class="alerts">
+
+</div>
 {% endblock %}
