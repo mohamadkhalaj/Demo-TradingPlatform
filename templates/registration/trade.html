@@ -8,12 +8,29 @@
     <div class="row sm-gutters">
       <div class="col-md-3">
         <div class="market-pairs">
+
           <div class="input-group">
-            <div class="input-group-prepend">
-              <span class="input-group-text" id="inputGroup-sizing-sm"><i class="icon ion-md-search"></i></span>
-            </div>
-            <input type="text" class="form-control" placeholder="Search" aria-describedby="inputGroup-sizing-sm">
+            <input type="text" class="live-search-box" placeholder="search here" />
+
+              <ul class="live-search-list" style="display: none; width:92%">
+              {% for obj in cryptoList %}
+                  <a href="{% url 'account:trade' obj.symbol.upper %}-USDT">
+                    {% if forloop.counter >= 11 %}
+                    <li style="display: none">
+                    {% else %}
+                    <li>
+                    {% endif %}
+                      <div class="row">
+                        <div class="col-1" >{{obj.market_cap_rank}}</div>
+                        <div class="col-9" ><img src={{obj.image}} style="height:18px"> {{obj.name}} ({{obj.symbol.upper}})</div>
+                        <div class="col-2" ></div>
+                      </div>
+                    </li>
+                  </a>
+              {% endfor %}
+              </ul>
           </div>
+
           <ul class="nav nav-pills" role="tablist">
             </li>
             <li class="nav-item">

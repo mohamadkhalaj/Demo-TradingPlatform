@@ -18,12 +18,12 @@ def signUp(request):
 
 def markets(request, page=1):
 	url = 'https://api.coingecko.com/api/v3/coins/markets?vs_currency=USD&order=market_cap_desc&per_page=250&page=1&sparkline=false'
-	data = requests.get(url).json()
+	cryptoList = requests.get(url).json()
 
 	url = 'https://api.coingecko.com/api/v3/coins/markets?vs_currency=USD&order=market_cap_desc&per_page=250&page=2&sparkline=false'
-	data.extend(requests.get(url).json())
+	cryptoList.extend(requests.get(url).json())
 
-	paginator = Paginator(data, 50)
+	paginator = Paginator(cryptoList, 50)
 	data = paginator.get_page(page)
 
 	for item in data:
@@ -39,7 +39,10 @@ def markets(request, page=1):
 		item['low_24h'] = pretify(item['low_24h'])
 		item['total_volume'] = pretify(item['total_volume'])
 
-	context = {'data': data}
+	context = {
+		'data': data,
+		'cryptoList': cryptoList,
+	}
 
 	return render(request, 'exchange/markets.html', context=context)
 

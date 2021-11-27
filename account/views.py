@@ -75,6 +75,9 @@ def trade(request, pair='BINANCE:BTCUSDT'):
 	url = 'https://api.coingecko.com/api/v3/coins/markets?vs_currency=USD&order=market_cap_desc&per_page=250&page=1&sparkline=false'
 	data = requests.get(url).json()
 
+	url = 'https://api.coingecko.com/api/v3/coins/markets?vs_currency=USD&order=market_cap_desc&per_page=250&page=2&sparkline=false'
+	cryptoList = data + requests.get(url).json()
+
 	for item in data:
 		item['current_price'] = pretify(item['current_price'])
 
@@ -108,6 +111,7 @@ def trade(request, pair='BINANCE:BTCUSDT'):
 		'history' : history,
 		'Portfolio' : portfolio,
 		'data' : data,
+		'cryptoList' : cryptoList,
 		'recentTrades' : recentTrades,
 	}
 

@@ -954,4 +954,47 @@
   });
 })(jQuery);
 
+var searchTerm = '';
+jQuery(document).ready(function($){
+
+  $('.live-search-list li').each(function(){
+    $(this).attr('data-search-term', $(this).text().toLowerCase());
+  });
+
+  $('.live-search-box').on('keyup', function(){
+    var lists = [];
+
+    searchTerm = $(this).val().toLowerCase();
+
+    $('.live-search-list li').each(function(){
+      if ($(this).filter('[data-search-term *= "' + searchTerm + '"]').length > 0 || searchTerm.length < 1) {
+        
+        $(this).show();
+      } 
+      else {
+        $(this).hide();
+      }
+    });
+
+    $('.live-search-list li').each(function(index, item) {
+      if (item.style.display == "") {
+        lists.push(item);
+      }
+    })
+
+    lists.forEach(function(item, index) {
+      
+      if (index >= 10) {
+        item.style.display = 'none'
+      }
+    })
+  });
+
+  $(function() {     
+      $('.live-search-box').on('click',function(e) {
+
+          $('.live-search-list').toggle();
+      });
+  });
+});
 console.clear();

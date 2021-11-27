@@ -6,134 +6,134 @@
 
 <meta http-equiv="content-type" content="text/html;charset=UTF-8" /><!-- /Added by HTTrack -->
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>Exchange | {% block title %}{% endblock %}</title>
-  <link rel="icon" href="{% static 'exchange/img/favicon.png' %}" type="image/x-icon">
-  <link rel="stylesheet" href="{% static 'exchange/css/style.css' %}">
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<title>Exchange | {% block title %}{% endblock %}</title>
+	<link rel="icon" href="{% static 'exchange/img/favicon.png' %}" type="image/x-icon">
+	<link rel="stylesheet" href="{% static 'exchange/css/style.css' %}">
 </head>
 
 <body id="dark">
-  <header class="dark-bb">
-    <nav class="navbar navbar-expand-lg">
-      <a class="navbar-brand" href="{% url 'exchange:home' %}"><img src="{% static 'exchange/img/logo-light.svg' %}" alt="logo"></a>
-      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#headerMenu"
-        aria-controls="headerMenu" aria-expanded="false" aria-label="Toggle navigation">
-        <i class="icon ion-md-menu"></i>
-      </button>
+	<header class="dark-bb">
+		<nav class="navbar navbar-expand-lg">
+			<a class="navbar-brand" href="{% url 'exchange:home' %}"><img src="{% static 'exchange/img/logo-light.svg' %}" alt="logo"></a>
+			<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#headerMenu"
+				aria-controls="headerMenu" aria-expanded="false" aria-label="Toggle navigation">
+				<i class="icon ion-md-menu"></i>
+			</button>
 
-      <div class="collapse navbar-collapse" id="headerMenu">
-        <ul class="navbar-nav mr-auto">
-          <li class="nav-item dropdown">
-            <a class="nav-link" href="{% url 'account:trade' %}" aria-haspopup="true"
-              aria-expanded="false">
-              Trade
-            </a>
-          </li>
-          <li class="nav-item dropdown">
-            <a class="nav-link" href="{% url 'exchange:markets' %}" aria-haspopup="true"
-              aria-expanded="false">
-              Markets
-            </a>
-          </li>
+			<div class="collapse navbar-collapse" id="headerMenu">
+				<ul class="navbar-nav mr-auto">
+					<li class="nav-item dropdown">
+						<a class="nav-link" href="{% url 'account:trade' %}" aria-haspopup="true"
+							aria-expanded="false">
+							Trade
+						</a>
+					</li>
+					<li class="nav-item dropdown">
+						<a class="nav-link" href="{% url 'exchange:markets' %}" aria-haspopup="true"
+							aria-expanded="false">
+							Markets
+						</a>
+					</li>
 
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true"
-              aria-expanded="false">
-              Dashboard
-            </a>
-            <div class="dropdown-menu">
-              <a class="dropdown-item" href="{% url 'account:profile' %}">Profile</a>
-              <a class="dropdown-item" href="{% url 'account:wallet' %}">Wallet</a>
-              <a class="dropdown-item" href="{% url 'account:tradeHistory' %}">Trade history</a>
-            </div>
-          </li>
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true"
-              aria-expanded="false">
-              Others
-            </a>
-            <div class="dropdown-menu">
-              <a class="dropdown-item" href="{% url 'exchange:symbolInfo' %}">Symbol Info</a>
-              <a class="dropdown-item" href="{% url 'exchange:heatMap' %}">Heat Map</a>
-            </div>
-          </li>
-        </ul>
-        {% if user.is_authenticated %}
-        <li class="nav-item dropdown header-img-icon">
-        <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true"
-              aria-expanded="false">
-              <img src="{% gravatar_url user.email 150 %}" class="img-circle" alt="{{user.username}}'s avatar">
-            </a>
-            <div class="dropdown-menu">
-              <div class="dropdown-header d-flex flex-column align-items-center">
-                <div class="figure mb-3">
-                  <img src="{% gravatar_url user.email 150 %}" class="img-circle" alt="{{user.username}}'s avatar">
-                </div>
-                <div class="info text-center">
-                  <p class="name font-weight-bold mb-0">
-                    {% if user.get_full_name %}
-                        {{ user.get_full_name }}
-                    {% else %}
-                        {{ user.username }}
-                    {% endif %}
-                  </p>
-                  <p class="email text-muted mb-3">
-                    {{user.email}}
-                  </p>
-                </div>
-              </div>
-              <div class="dropdown-body">
-                <ul class="profile-nav">
-                  <li class="nav-item">
-                    <a href="{% url 'account:profile' %}" class="nav-link">
-                      <i class="icon ion-md-person"></i>
-                      <span>Profile</span>
-                    </a>
-                  </li>
-                  <li class="nav-item">
-                    <a href="{% url 'account:wallet' %}" class="nav-link">
-                      <i class="icon ion-md-wallet"></i>
-                      <span>My Wallet</span>
-                    </a>
-                  </li>
-                  <li class="nav-item">
-                    <a href="{% url 'account:tradeHistory' %}" class="nav-link">
-                      <i class="icon ion-md-settings"></i>
-                      <span>Trade history</span>
-                    </a>
-                  </li>
-                  <li class="nav-item">
-                    <a href="{% url 'logout' %}" class="nav-link red">
-                      <i class="icon ion-md-power"></i>
-                      <span>Log Out</span>
-                    </a>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </li>
-        {% else %}
-          <ul class="navbar-nav ml-auto">
-            <a href="{% url 'login' %}" class="btn-1">Sign In</a>
-            <a href="{% url 'signUp' %}" class="btn-2">Get Started</a>
-          </ul>
-        {% endif %}
-      </div>
-    </nav>
-  </header>
+					<li class="nav-item dropdown">
+						<a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true"
+							aria-expanded="false">
+							Dashboard
+						</a>
+						<div class="dropdown-menu">
+							<a class="dropdown-item" href="{% url 'account:profile' %}">Profile</a>
+							<a class="dropdown-item" href="{% url 'account:wallet' %}">Wallet</a>
+							<a class="dropdown-item" href="{% url 'account:tradeHistory' %}">Trade history</a>
+						</div>
+					</li>
+					<li class="nav-item dropdown">
+						<a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true"
+							aria-expanded="false">
+							Others
+						</a>
+						<div class="dropdown-menu">
+							<a class="dropdown-item" href="{% url 'exchange:symbolInfo' %}">Symbol Info</a>
+							<a class="dropdown-item" href="{% url 'exchange:heatMap' %}">Heat Map</a>
+						</div>
+					</li>
+				</ul>
+				{% if user.is_authenticated %}
+				<li class="nav-item dropdown header-img-icon">
+				<a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true"
+							aria-expanded="false">
+							<img src="{% gravatar_url user.email 150 %}" class="img-circle" alt="{{user.username}}'s avatar">
+						</a>
+						<div class="dropdown-menu">
+							<div class="dropdown-header d-flex flex-column align-items-center">
+								<div class="figure mb-3">
+									<img src="{% gravatar_url user.email 150 %}" class="img-circle" alt="{{user.username}}'s avatar">
+								</div>
+								<div class="info text-center">
+									<p class="name font-weight-bold mb-0">
+										{% if user.get_full_name %}
+												{{ user.get_full_name }}
+										{% else %}
+												{{ user.username }}
+										{% endif %}
+									</p>
+									<p class="email text-muted mb-3">
+										{{user.email}}
+									</p>
+								</div>
+							</div>
+							<div class="dropdown-body">
+								<ul class="profile-nav">
+									<li class="nav-item">
+										<a href="{% url 'account:profile' %}" class="nav-link">
+											<i class="icon ion-md-person"></i>
+											<span>Profile</span>
+										</a>
+									</li>
+									<li class="nav-item">
+										<a href="{% url 'account:wallet' %}" class="nav-link">
+											<i class="icon ion-md-wallet"></i>
+											<span>My Wallet</span>
+										</a>
+									</li>
+									<li class="nav-item">
+										<a href="{% url 'account:tradeHistory' %}" class="nav-link">
+											<i class="icon ion-md-settings"></i>
+											<span>Trade history</span>
+										</a>
+									</li>
+									<li class="nav-item">
+										<a href="{% url 'logout' %}" class="nav-link red">
+											<i class="icon ion-md-power"></i>
+											<span>Log Out</span>
+										</a>
+									</li>
+								</ul>
+							</div>
+						</div>
+					</li>
+				{% else %}
+					<ul class="navbar-nav ml-auto">
+						<a href="{% url 'login' %}" class="btn-1">Sign In</a>
+						<a href="{% url 'signUp' %}" class="btn-2">Get Started</a>
+					</ul>
+				{% endif %}
+			</div>
+		</nav>
+	</header>
 
-  {% block main %}
+	{% block main %}
 
-  {% endblock %}
+	{% endblock %}
 
-  <script src="{% static 'exchange/js/jquery-3.4.1.min.js' %}"></script>
-  <script src="{% static 'exchange/js/popper.min.js' %}"></script>
-  <script src="{% static 'exchange/js/bootstrap.min.js' %}"></script>
-  <script src="{% static 'exchange/js/amcharts-core.min.js' %}"></script>
-  <script src="{% static 'exchange/js/amcharts.min.js' %}"></script>
-  <script src="{% static 'exchange/js/custom.js' %}"></script>
+	<script src="{% static 'exchange/js/jquery-3.4.1.min.js' %}"></script>
+	<script src="{% static 'exchange/js/popper.min.js' %}"></script>
+	<script src="{% static 'exchange/js/bootstrap.min.js' %}"></script>
+	<script src="{% static 'exchange/js/amcharts-core.min.js' %}"></script>
+	<script src="{% static 'exchange/js/amcharts.min.js' %}"></script>
+	<script src="{% static 'exchange/js/custom.js' %}"></script>
 </body>
 
 </html>

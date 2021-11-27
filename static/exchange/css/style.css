@@ -2529,3 +2529,44 @@ tbody.ob-heading {
   color: #C20000;
   border-color: #C20000;
 }
+
+.live-search-list {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    padding: 1em;
+    background-color: white;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    font-family: 'Lato', sans-serif;
+    color: #fff;
+    width: 100%;
+    z-index: 10;
+    position: absolute;
+    top: 55px;
+}
+
+.live-search-box {
+    width: 100%;
+    display: block;
+    padding: 1em;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    border: 1px solid #3498db;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+}
+
+.live-search-list li {
+    color: fff;
+    list-style: none;
+    padding: 0;
+    margin: 5px 0;
+}
+
+.live-search-list div .col-1{
+    max-width: 3.333%;
+}
