@@ -1,0 +1,78 @@
+{% extends 'registration/base.html' %}
+{% block title %}Settings{% endblock %}
+
+{% block main %}
+{% load static %}
+
+<div class="settings mtb15">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-12 col-lg-3">
+        <div class="nav flex-column nav-pills settings-nav" id="v-pills-tab" role="tablist"
+          aria-orientation="vertical">
+          <a class="nav-link" id="settings-profile-tab" href="{% url 'account:profile' %}">Profile</a>
+          
+          <a class="nav-link" id="settings-wallet-tab" href="{% url 'account:wallet' %}"> Wallet</a>
+          
+          <a class="nav-link active" id="settings-tab" href="{% url 'account:tradeHistory' %}">Trade history</a>
+        </div>
+      </div>
+        <div class="tab-pane fade show active" id="settings" role="tabpanel" aria-labelledby="settings-tab">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">Latest Transactions</h5>
+              <div class="wallet-history">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>No.</th>
+                      <th>Pair</th>
+                      <th>Type</th>
+                      <th>Date</th>
+                      <th>Price</th>
+                      <th>Amount</th>
+                      <th>Total</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for item in history %}
+                      <tr>
+                        <td>{{forloop.counter}}</td>
+                        <td>{{item.pair}}</td>
+                        {% if item.type == 'buy' %}
+                          <td class="green">{{item.type}}</td>
+                        {% else %}
+                          <td class="red">{{item.type}}</td>
+                        {% endif %}
+                        <td>{{item.time}}</td>
+                        <td>{{item.pairPrice}}</td>
+                        <td>{{item.amount}}</td>
+                        <td>{{item.price}}</td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+              <div class="text-center mt-3">
+                {% if history.has_previous %}
+                    <a href="{% url 'account:tradeHistory' history.previous_page_number %}" class="btn btn-primary">Previous Page</a>
+                {% endif %}
+
+                  <span class="green m-3">
+                      Page {{ history.number }} of {{ history.paginator.num_pages }}
+                  </span>
+
+                {% if history.has_next %}
+                    <a href="{% url 'account:tradeHistory' history.next_page_number %}" class="btn btn-primary">Next Page</a>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+{% endblock %}

@@ -773,10 +773,13 @@
     });
   }
   // make tr linkable
-  $('.markets-pair-list tr').click(function () {
+  $('.markets-pair-list tbody tr').click(function () {
     window.location = $(this).data('href');
   });
 
+  $('.markets-list-trade tr').click(function () {
+    window.location = $(this).data('href');
+  });
   // click to full screen
   function toggleFullscreen(elem) {
     elem = elem || document.documentElement;
@@ -950,3 +953,5 @@
     }
   });
 })(jQuery);
+
+console.clear();

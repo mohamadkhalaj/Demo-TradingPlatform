@@ -1,12 +1,12 @@
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, JsonResponse
 from django.contrib.auth import get_user_model
-from .common_functions import Give_equivalent
+from .common_functions import Give_equivalent, pretify
 from .models import TradeHistory, Portfolio
+from django.core.paginator import Paginator
 from django.shortcuts import render
 from .trade import Trade
-import json
-import re
+import json, re, requests
 
 
 def home(request):
@@ -16,8 +16,32 @@ def home(request):
 def signUp(request):
 	return render(request, 'registration/signup.html')
 
-def markets(request):
-	return render(request, 'exchange/markets.html')
+def markets(request, page=1):
+	url = 'https://api.coingecko.com/api/v3/coins/markets?vs_currency=USD&order=market_cap_desc&per_page=250&page=1&sparkline=false'
+	data = requests.get(url).json()
+
+	url = 'https://api.coingecko.com/api/v3/coins/markets?vs_currency=USD&order=market_cap_desc&per_page=250&page=2&sparkline=false'
+	data.extend(requests.get(url).json())
+
+	paginator = Paginator(data, 50)
+	data = paginator.get_page(page)
+
+	for item in data:
+		item['current_price'] = pretify(item['current_price'])
+		item['market_cap'] = pretify(item['market_cap'])
+
+		try:
+			item['price_change_percentage_24h'] = float(pretify(item['price_change_percentage_24h']))
+		except:
+			item['price_change_percentage_24h'] = pretify(item['price_change_percentage_24h'])
+
+		item['high_24h'] = pretify(item['high_24h'])
+		item['low_24h'] = pretify(item['low_24h'])
+		item['total_volume'] = pretify(item['total_volume'])
+
+	context = {'data': data}
+
+	return render(request, 'exchange/markets.html', context=context)
 
 def symbolInfo(request):
 	return render(request, 'exchange/symbol-info.html')
@@ -59,6 +83,6 @@ def portfolio(request):
 @login_required()
 def tradinghistory(request):
 	resJson = dict()
-	for index, item in enumerate(TradeHistory.objects.filter(usr=request.user).iterator()):
-		resJson[index] = {'type': item.type, 'pair': item.pair, 'pairPrice': item.pairPrice, 'amount': item.amount,'price': item.price, 'timeStamp': item.time}
+	for index, item in enumerate(TradeHistory.objects.filter(usr=request.user, amount__gt=0).order_by('-time').iterator()):
+		resJson[index] = {'type': item.type, 'pair': item.pair, 'pairPrice': item.pairPrice, 'amount': item.amount,'price': item.price, 'time': item.time}
 	return JsonResponse(resJson)

@@ -3,7 +3,9 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.utils.encoding import force_bytes, force_text
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
+from exchange.common_functions import search, pretify
 from django.contrib.auth import login, authenticate
+from exchange.models import Portfolio, TradeHistory
 from django.template.loader import render_to_string
 from .forms import LoginForm, forms, ProfileForm
 from django.contrib.auth.views import LoginView
@@ -12,12 +14,14 @@ from django.shortcuts import redirect, render
 from django.shortcuts import render, redirect
 from .tokens import account_activation_token
 from django.views.generic import UpdateView
+from django.core.paginator import Paginator
 from django.views.generic import CreateView
 from django.core.mail import EmailMessage
-from exchange.models import Portfolio
-import requests
+from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from .models import User
+import requests
+from django.conf import settings
 
 
 class Profile(LoginRequiredMixin, UpdateView):
@@ -31,27 +35,99 @@ class Profile(LoginRequiredMixin, UpdateView):
 
 
 @login_required
-def wallet(request):
-	resJson = dict()
-	for index, item in enumerate(Portfolio.objects.filter(usr=request.user).iterator()):
-		resJson[index] = {'cryptoName': item.cryptoName, 'amount': round(item.amount, 10),
-					  'equivalentAmount': calc_equivalent(item.cryptoName, 'USDT', item.amount)[1]}
+def wallet(request, page=1):
+	print(request.user.last_login)
+	total = float()
+	portfolio = Portfolio.objects.filter(usr=request.user, amount__gt=0).order_by('-equivalentAmount')
+	paginator = Paginator(portfolio, 7)
+	data = paginator.get_page(page)
 
-	return render(request, 'registration/wallet.html', {'resJson': resJson})
+	total = pretify(sum([calc_equivalent(item.cryptoName, 'USDT', item.amount)[1] for item in portfolio]))
+
+	for index, item in enumerate(data):
+		usdt = calc_equivalent(item.cryptoName, 'USDT', item.amount)[1]
+		data[index].equivalentAmount = pretify(usdt)
+		data[index].amount = pretify(item.amount)
+
+	context = {
+		'portfolio' : data,
+		'total' : total,
+	}
+	return render(request, 'registration/wallet.html', context=context)
 
 @login_required
-def settings(request):
-	return render(request, 'registration/settings.html')
+def tradeHistory(request, page=1):
+	history = TradeHistory.objects.filter(usr=request.user, amount__gt=0).order_by('-time')
 
-@login_required
-def trade(request):
-	print(Portfolio.objects.filter(usr=request.user))
-	return render(request, 'registration/trade.html')
+	for index, item in enumerate(history):
+		history[index].price = pretify(item.price)
+		history[index].pairPrice = pretify(item.pairPrice)
+		history[index].amount = pretify(item.amount)
+
+	paginator = Paginator(history, 10)
+	data = paginator.get_page(page)
+
+	context = {
+		'history' : data,
+	}
+
+	return render(request, 'registration/tradeHistory.html', context = context)
+
+def trade(request, pair='BINANCE:BTCUSDT'):
+	url = 'https://api.coingecko.com/api/v3/coins/markets?vs_currency=USD&order=market_cap_desc&per_page=250&page=1&sparkline=false'
+	data = requests.get(url).json()
+
+	for item in data:
+		item['current_price'] = pretify(item['current_price'])
+
+		try:
+			item['price_change_percentage_24h'] = float(pretify(item['price_change_percentage_24h']))
+		except:
+			item['price_change_percentage_24h'] = pretify(item['price_change_percentage_24h'])
+
+	if request.user.is_authenticated:
+		portfolio = Portfolio.objects.filter(usr=request.user, amount__gt=0)
+		history = TradeHistory.objects.filter(usr=request.user, amount__gt=0).order_by('-time')
+	else:
+		portfolio = list()
+		history = list()
+	
+	recentTrades = TradeHistory.objects.filter(amount__gt=0).order_by('-time')
+	for index, item in enumerate(recentTrades):
+		recentTrades[index].price = pretify(item.price)
+		recentTrades[index].pairPrice = pretify(item.pairPrice)
+		recentTrades[index].amount = pretify(item.amount)
+	
+	if pair != 'BINANCE:BTCUSDT':
+		name = pair.split('-')[0]
+		pair = search(pair)
+	else:
+		name = 'BTC'
+
+	context = {
+		'pair' : pair,
+		'name' : name.upper(),
+		'history' : history,
+		'Portfolio' : portfolio,
+		'data' : data,
+		'recentTrades' : recentTrades,
+	}
+
+	if not pair:
+		pair = 'BINANCE:BTCUSDT'
+		name = 'BTC'
+
+		context = {
+			'pair' : pair,
+			'name' : name.upper(),
+		}
+		return redirect('/account/trade/BTC-USDT')
+	else:
+		return render(request, 'registration/trade.html', context=context)
 
 
 def calc_equivalent(base, qoute, amount):
-	response = requests.get(
-		"https://min-api.cryptocompare.com/data/pricemulti?fsyms=" + base + "," + qoute + "&tsyms=USDT,USDT")
+	response = requests.get("https://min-api.cryptocompare.com/data/pricemulti?fsyms=" + base + "," + qoute + "&tsyms=USDT,USDT")
 	response = response.json()
 	basePrice = float(response[base]['USDT'])
 	qoutePrice = float(response[qoute]['USDT'])
@@ -63,7 +139,6 @@ def calc_equivalent(base, qoute, amount):
 class Login(LoginView):
 	form_class = LoginForm
 	redirect_authenticated_user = True
-
 
 class Register(CreateView):
 	form_class = SignupForm
@@ -128,5 +203,5 @@ def activate(request, uidb64, token):
 
 
 def allocate_USDT(user):
-	newObj = Portfolio(usr=user, cryptoName='USDT', amount=1000.0, equivalentAmount=None)
+	newObj = Portfolio(usr=user, cryptoName='USDT', amount=settings.DEFAULT_BALANCE, equivalentAmount=None)
 	newObj.save()

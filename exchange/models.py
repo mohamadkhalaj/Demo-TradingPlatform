@@ -12,10 +12,13 @@ class TradeHistory(models.Model):
 	price = models.FloatField()
 	time = models.DateTimeField(auto_now=True)
 
+	class Meta:
+		verbose_name_plural = 'Trade histories'
+
 
 class Portfolio(models.Model):
 	usr = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default=None)
-	cryptoName = models.CharField(max_length=10, default=None, primary_key=True)
+	cryptoName = models.CharField(max_length=10, default=None)
 	amount = models.FloatField(default=0, null=True)
 	equivalentAmount = models.FloatField(default=0, null=True)
 

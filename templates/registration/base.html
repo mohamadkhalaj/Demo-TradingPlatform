@@ -12,6 +12,8 @@
   <title>Exchange | {% block title %}{% endblock %}</title>
   <link rel="icon" href="{% static 'exchange/img/favicon.png' %}" type="image/x-icon">
   <link rel="stylesheet" href="{% static 'exchange/css/style.css' %}">
+  <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.1/css/font-awesome.min.css" rel="stylesheet" crossorigin="anonymous">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.1/animate.min.css" rel="stylesheet" crossorigin="anonymous">
 </head>
 
 <body id="dark">
@@ -46,7 +48,7 @@
             <div class="dropdown-menu">
               <a class="dropdown-item" href="{% url 'account:profile' %}">Profile</a>
               <a class="dropdown-item" href="{% url 'account:wallet' %}">Wallet</a>
-              <a class="dropdown-item" href="{% url 'account:settings' %}">Settings</a>
+              <a class="dropdown-item" href="{% url 'account:tradeHistory' %}">Trade history</a>
             </div>
           </li>
           <li class="nav-item dropdown">
@@ -170,9 +172,9 @@
                       </a>
                     </li>
                     <li class="nav-item">
-                      <a href="{% url 'account:settings' %}" class="nav-link">
+                      <a href="{% url 'account:tradeHistory' %}" class="nav-link">
                         <i class="icon ion-md-settings"></i>
-                        <span>Settings</span>
+                        <span>Trade history</span>
                       </a>
                     </li>
                     <li class="nav-item">
