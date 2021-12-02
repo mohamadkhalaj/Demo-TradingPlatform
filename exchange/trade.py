@@ -9,54 +9,66 @@ class Trade:
         self.result = None
         self.type = type
         self.pair = pair
-        self.amount = amount
+        self.amount = float(amount.split(' ')[0])
+        self.crp = amount.split(' ')[1]
         self.base = pair.split('|')[0]
         self.qoute = pair.split('|')[1]
         self.pairPrice = 0
         self.equivalent = 0
         self.callf()
-        # dict = {'pair':'ETH|USDT', 'type':'buy', 'amount':'0.002'}
+        # dict = {'pair':'ADA|USDT', 'type':'sell', 'amount':'30 USDT'}
 
     def callf(self):
         self.pairPrice, self.equivalent = self.calc_equivalent(self.base, self.qoute, self.amount)
-        # type = buy
         if self.type == 'buy':
-            state = self.check_available(self.equivalent, self.qoute)
+            if self.crp == self.base:
+                state = self.check_available(self.equivalent, self.qoute)
+                toSub = price = self.equivalent
+                toAdd = self.amount
+            else:
+                state = self.check_available(self.amount, self.qoute)
+                toSub = price = self.amount
+                toAdd = self.equivalent
             if state == 0:
                 # subtract
                 obj = self.portfo.get(cryptoName=self.qoute)
-                obj.amount = obj.amount - self.equivalent
+                obj.amount = obj.amount - toSub
                 obj.save()
                 # add
                 try:
                     obj = self.portfo.get(cryptoName=self.base)
-                    obj.amount = obj.amount + self.amount
+                    obj.amount = obj.amount + toAdd
                     obj.save()
                 except:
-                    newCrypto = Portfolio(usr=self.user, cryptoName=self.base, amount=self.amount,
-                                          equivalentAmount=self.calc_equivalent(self.base, 'USDT', self.amount)[1])
+                    newCrypto = Portfolio(usr=self.user, cryptoName=self.base, amount=toAdd, equivalentAmount=None)
                     newCrypto.save()
-        # type = sell
+    #     type = sell
         else:
-            state = self.check_available(self.amount, self.base)
+            if self.crp == self.base:
+                state = self.check_available(self.amount, self.base)
+                toSub = self.amount
+                toAdd = price = self.equivalent
+            else:
+                state = self.check_available(self.equivalent, self.base)
+                toSub = self.equivalent
+                toAdd = price = self.amount
             if state == 0:
                 # subtract
                 obj = self.portfo.get(cryptoName=self.base)
-                obj.amount = obj.amount - self.amount
+                obj.amount = obj.amount - toSub
                 obj.save()
                 # add
                 try:
                     obj = self.portfo.get(cryptoName=self.qoute)
-                    obj.amount = obj.amount + self.equivalent
+                    obj.amount = obj.amount + toAdd
                     obj.save()
                 except:
-                    newCrypto = Portfolio(usr=self.user, cryptoName=self.qoute, amount=self.equivalent,
-                                          equivalentAmount=self.calc_equivalent(self.qoute, 'USDT', self.equivalent)[1])
+                    newCrypto = Portfolio(usr=self.user, cryptoName=self.qoute, amount=toAdd, equivalentAmount=None)
                     newCrypto.save()
         # create history and give results
         if state == 0:
             newHistory = TradeHistory(usr=self.user, type=self.type, pair=self.pair, pairPrice=self.pairPrice,
-                                      amount=self.amount, price=self.equivalent)
+                                      amount=str(self.amount)+' '+self.crp, price=price)
             newHistory.save()
             self.result = {'state': 0, self.base: self.portfo.get(cryptoName=self.base).amount,
                            self.qoute: self.portfo.get(cryptoName=self.qoute).amount}
@@ -71,7 +83,10 @@ class Trade:
         basePrice = float(response[base]['USDT'])
         qoutePrice = float(response[qoute]['USDT'])
         pairPrice = basePrice / qoutePrice
-        equivalent = pairPrice * amount
+        if self.crp == base:
+            equivalent = pairPrice * amount
+        else:
+            equivalent = amount / pairPrice
 
         return pairPrice, equivalent
 

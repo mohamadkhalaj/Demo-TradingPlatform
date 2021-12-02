@@ -7,9 +7,19 @@ from django.core.paginator import Paginator
 from django.shortcuts import render
 from .trade import Trade
 import json, re, requests
-
+from account.models import User
+from django.contrib.auth import get_user_model
+from django.conf import settings
 
 def home(request):
+	if request.user.is_authenticated:
+		obj = User.objects.get(username=request.user)
+		if obj.first_login == True:
+			newObj = Portfolio(usr=request.user, cryptoName='USDT', amount=settings.DEFAULT_BALANCE, equivalentAmount=None)
+			newObj.save()
+			obj.first_login = False
+			obj.save()
+	# 	# User.objects.get(username='hasanzadehali214').delete()
 	return render(request, 'exchange/index.html')
 
 
@@ -18,12 +28,12 @@ def signUp(request):
 
 def markets(request, page=1):
 	url = 'https://api.coingecko.com/api/v3/coins/markets?vs_currency=USD&order=market_cap_desc&per_page=250&page=1&sparkline=false'
-	data = requests.get(url).json()
+	cryptoList = requests.get(url).json()
 
 	url = 'https://api.coingecko.com/api/v3/coins/markets?vs_currency=USD&order=market_cap_desc&per_page=250&page=2&sparkline=false'
-	data.extend(requests.get(url).json())
+	cryptoList.extend(requests.get(url).json())
 
-	paginator = Paginator(data, 50)
+	paginator = Paginator(cryptoList, 50)
 	data = paginator.get_page(page)
 
 	for item in data:
@@ -39,7 +49,10 @@ def markets(request, page=1):
 		item['low_24h'] = pretify(item['low_24h'])
 		item['total_volume'] = pretify(item['total_volume'])
 
-	context = {'data': data}
+	context = {
+		'data': data,
+		'cryptoList': cryptoList,
+	}
 
 	return render(request, 'exchange/markets.html', context=context)
 
@@ -54,17 +67,10 @@ def trade(request, value):
 	value = re.sub('\'', '\"', value)
 	value = json.loads(value)
 
-	# Portfolio.objects.filter(usr=request.user).get(cryptoName='BTC').delete()
-	tradeObject = Trade(request.user, value['type'], value['pair'], float(value['amount']))
+	tradeObject = Trade(request.user, value['type'], value['pair'], value['amount'])
 	result = tradeObject.result
 
-	# newObj = Portfolio(usr=request.user, cryptoName='USDT', amount=1000.0, equivalentAmount=None).save()
-
-	# User.objects.get(username='ali').delete()
-	# Portfolio(usr=request.user, cryptoName='BTC', amount=1.2, equivalentAmount=66000).save()
-
 	return JsonResponse(result)
-	# return HttpResponse(str(request.user))
 
 
 @login_required()

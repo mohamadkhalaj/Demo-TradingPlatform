@@ -21,7 +21,6 @@ from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from .models import User
 import requests
-from django.conf import settings
 
 
 class Profile(LoginRequiredMixin, UpdateView):
@@ -77,6 +76,9 @@ def trade(request, pair='BINANCE:BTCUSDT'):
 	url = 'https://api.coingecko.com/api/v3/coins/markets?vs_currency=USD&order=market_cap_desc&per_page=250&page=1&sparkline=false'
 	data = requests.get(url).json()
 
+	url = 'https://api.coingecko.com/api/v3/coins/markets?vs_currency=USD&order=market_cap_desc&per_page=250&page=2&sparkline=false'
+	cryptoList = data + requests.get(url).json()
+
 	for item in data:
 		item['current_price'] = pretify(item['current_price'])
 
@@ -92,11 +94,11 @@ def trade(request, pair='BINANCE:BTCUSDT'):
 		portfolio = list()
 		history = list()
 	
-	recentTrades = TradeHistory.objects.filter(amount__gt=0).order_by('-time')
+	recentTrades = TradeHistory.objects.filter(usr=request.user).order_by('-time')
 	for index, item in enumerate(recentTrades):
 		recentTrades[index].price = pretify(item.price)
 		recentTrades[index].pairPrice = pretify(item.pairPrice)
-		recentTrades[index].amount = pretify(item.amount)
+		recentTrades[index].amount = pretify(item.amount.split(' ')[0])
 	
 	if pair != 'BINANCE:BTCUSDT':
 		name = pair.split('-')[0]
@@ -110,6 +112,7 @@ def trade(request, pair='BINANCE:BTCUSDT'):
 		'history' : history,
 		'Portfolio' : portfolio,
 		'data' : data,
+		'cryptoList' : cryptoList,
 		'recentTrades' : recentTrades,
 	}
 
@@ -139,6 +142,7 @@ def calc_equivalent(base, qoute, amount):
 class Login(LoginView):
 	form_class = LoginForm
 	redirect_authenticated_user = True
+
 
 class Register(CreateView):
 	form_class = SignupForm
@@ -183,8 +187,6 @@ def activate(request, uidb64, token):
 	if user is not None and account_activation_token.check_token(user, token):
 		user.is_active = True
 		user.save()
-		# allocate 1000 USDT to the new user
-		allocate_USDT(user)
 		context = {
 			'title' : 'Signup',
 			'redirect' : 'login',

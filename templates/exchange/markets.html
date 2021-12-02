@@ -80,12 +80,30 @@
         </div>
         <div class="col-md-12">
           <div class="markets-pair-list">
+
             <div class="input-group">
-              <div class="input-group-prepend">
-                <span class="input-group-text" id="inputGroup-sizing-sm"><i class="icon ion-md-search"></i></span>
-              </div>
-              <input type="text" class="form-control" placeholder="Search" aria-describedby="inputGroup-sizing-sm">
+    
+              <input type="text" class="live-search-box" placeholder="search here" />
+
+              <ul class="live-search-list" style="display: none">
+              {% for obj in cryptoList %}
+                  <a href="{% url 'account:trade' obj.symbol.upper %}-USDT">
+                    {% if forloop.counter >= 11 %}
+                    <li style="display: none">
+                    {% else %}
+                    <li>
+                    {% endif %}
+                      <div class="row">
+                        <div class="col-1" >{{obj.market_cap_rank}}</div>
+                        <div class="col-5" ><img src={{obj.image}} style="height:18px"> {{obj.name}} ({{obj.symbol.upper}})</div>
+                        <div class="col-6" ></div>
+                      </div>
+                    </li>
+                  </a>
+              {% endfor %}
+              </ul>
             </div>
+
             <div class="tab-content">
               <div class="tab-pane fade show" style="display:block">
                 <table class="table">
@@ -106,7 +124,7 @@
                       {% for obj in data %}
                         <tr data-href="{% url 'account:trade' obj.symbol.upper %}-USDT">
                           <td>{{obj.market_cap_rank}}</td>
-                          <td><img src={{obj.image}} height='70'>{{obj.name}}</td>
+                          <td><img src={{obj.image}} height='70'>{{obj.name}} ({{obj.symbol.upper}})</td>
                           <td>{{obj.current_price}}</td>
                           <td>{{obj.market_cap}}</td>
                           {% if obj.price_change_percentage_24h > 0 %}
