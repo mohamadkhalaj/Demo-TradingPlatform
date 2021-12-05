@@ -7,6 +7,8 @@ uValue.value = 0;
 pValue.value = 0;
 var globPair = 'BTC'
 var createdHistory = [];
+var createdRecentTrades = [];
+var activeAlerts = [];
 
 function getPortfolio(pair) {
 
@@ -51,6 +53,9 @@ function getPortfolio(pair) {
 }
 
 function trade(type, pair) {
+
+    clearAllAlerts();
+
     var amount = 0;
     if (type == 'buy') {
         amount = `${uValue.value} USDT`;
@@ -59,7 +64,7 @@ function trade(type, pair) {
         amount = `${pValue.value} ${pair}`;
     }
     var reqJson = {
-        'pair' : `${pair}|USDT`,
+        'pair' : `${pair}-USDT`,
         'type' : type,
         'amount' : amount,
     }
@@ -84,6 +89,7 @@ function trade(type, pair) {
                 createAlert('danger', 'Insufficient balance!')
             }
             getPortfolio(globPair);
+            recentTrades()
             getHistory()
         }
         else if (this.status != 200){
@@ -104,6 +110,20 @@ function removeHistory() {
     createdHistory = []
 }
 
+function removeRecentTrades() {
+    createdRecentTrades.forEach(function(item, index) {
+        item.remove();
+    })
+    createdRecentTrades = []
+}
+
+function clearAllAlerts() {
+    activeAlerts.forEach(function(item, index) {
+        item.remove();
+    })
+    activeAlerts = []
+}
+
 function getHistory() {
 
     removeHistory()
@@ -121,7 +141,6 @@ function getHistory() {
             var parent = document.getElementById("open-orders")
             var before = document.getElementById("before")
             Object.keys(res).forEach(function(item, index) {
-                console.log(res[index])
                 var newNode = document.createElement("ul")
                 newNode.classList.add("d-flex", "justify-content-between", "market-order-item", "ul")
 
@@ -156,6 +175,62 @@ function getHistory() {
                 createdHistory.push(newNode)
 
                 parent.insertBefore(newNode, before)
+            })
+        }
+        else {
+            console.log(this.status)
+        }
+    };
+    try {
+        xhr.send();
+    } catch(err) {
+        console.log('error')
+    }
+}
+
+function recentTrades() {
+
+    removeRecentTrades()
+    const url = `${main_url}/recentTrades`
+    console.log(url);
+    const xhr = new XMLHttpRequest();
+    xhr.open('GET', url);
+    xhr.timeout = 30000;
+    xhr.ontimeout = function () { console.log('time out'); }
+    xhr.responseType = 'json';
+
+    xhr.onreadystatechange = function(e) {
+        if (this.status === 200 && xhr.readyState == 4) {
+            res = this.response;
+            var parent = document.getElementById("recentTradesHistory")
+            var before = document.getElementById("beforeRecent")
+            Object.keys(res).forEach(function(item, index) {
+                console.log(res[index])
+                var newNode = document.createElement("tr")
+
+                var pair = document.createElement("td")
+                var price = document.createElement("td")
+                var amount = document.createElement("td")
+
+                pair.innerText = res[index]['pair']
+                price.innerText = res[index]['pairPrice'].toFixed(5)
+                amount.innerText = parseFloat(res[index]['amount'].split(' ')[0]).toFixed(5) + ' ' + res[index]['amount'].split(' ')[1]
+
+                if (res[index]['type'] == 'buy') {
+                    price.classList.add('green')
+                }
+                else {
+                    price.classList.add('red')
+                }
+
+                newNode.appendChild(pair)
+                newNode.appendChild(price)
+                newNode.appendChild(amount)
+
+                createdRecentTrades.push(newNode)
+
+                parent.appendChild(newNode)
+                // parent.insertBefore(newNode, before)
             })
         }
         else {
@@ -271,8 +346,10 @@ function createAlert(type, message) {
     mainDiv.appendChild(lastDiv)
     mainDiv.appendChild(close)
 
+    activeAlerts.push(mainDiv)
     parent.appendChild(mainDiv)
 }
 
 percentage();
-getHistory()
+getHistory();
+recentTrades();

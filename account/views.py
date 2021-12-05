@@ -61,7 +61,7 @@ def tradeHistory(request, page=1):
 	for index, item in enumerate(history):
 		history[index].price = pretify(item.price)
 		history[index].pairPrice = pretify(item.pairPrice)
-		history[index].amount = pretify(item.amount)
+		history[index].amount = pretify(item.amount.split(' ')[0])
 
 	paginator = Paginator(history, 10)
 	data = paginator.get_page(page)
@@ -94,12 +94,6 @@ def trade(request, pair='BINANCE:BTCUSDT'):
 		portfolio = list()
 		history = list()
 	
-	recentTrades = TradeHistory.objects.filter(usr=request.user).order_by('-time')
-	for index, item in enumerate(recentTrades):
-		recentTrades[index].price = pretify(item.price)
-		recentTrades[index].pairPrice = pretify(item.pairPrice)
-		recentTrades[index].amount = pretify(item.amount.split(' ')[0])
-	
 	if pair != 'BINANCE:BTCUSDT':
 		name = pair.split('-')[0]
 		pair = search(pair)
@@ -113,7 +107,6 @@ def trade(request, pair='BINANCE:BTCUSDT'):
 		'Portfolio' : portfolio,
 		'data' : data,
 		'cryptoList' : cryptoList,
-		'recentTrades' : recentTrades,
 	}
 
 	if not pair:

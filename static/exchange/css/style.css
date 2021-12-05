@@ -2453,8 +2453,8 @@ tbody.ob-heading {
 }
 
 .alerts {
-  position: absolute;
-  top: 120px;
+  position: fixed;
+  top: 40px;
   right: 30px;
   width: 400px;
   min-height: 300px;

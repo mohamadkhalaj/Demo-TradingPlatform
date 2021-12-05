@@ -19,7 +19,6 @@ def home(request):
 			newObj.save()
 			obj.first_login = False
 			obj.save()
-	# 	# User.objects.get(username='hasanzadehali214').delete()
 	return render(request, 'exchange/index.html')
 
 
@@ -56,12 +55,6 @@ def markets(request, page=1):
 
 	return render(request, 'exchange/markets.html', context=context)
 
-def symbolInfo(request):
-	return render(request, 'exchange/symbol-info.html')
-
-def heatMap(request):
-	return render(request, 'exchange/heatmap.html')
-
 @login_required()
 def trade(request, value):
 	value = re.sub('\'', '\"', value)
@@ -91,4 +84,10 @@ def tradinghistory(request):
 	resJson = dict()
 	for index, item in enumerate(TradeHistory.objects.filter(usr=request.user, amount__gt=0).order_by('-time').iterator()):
 		resJson[index] = {'type': item.type, 'pair': item.pair, 'pairPrice': item.pairPrice, 'amount': item.amount,'price': item.price, 'time': item.time}
+	return JsonResponse(resJson)
+
+def recentTrades(request):
+	resJson = dict()
+	for index, item in enumerate(TradeHistory.objects.filter(amount__gt=0).order_by('-time').iterator()):
+		resJson[index] = {'type': item.type, 'pair': item.pair, 'pairPrice': item.pairPrice, 'amount': item.amount}
 	return JsonResponse(resJson)

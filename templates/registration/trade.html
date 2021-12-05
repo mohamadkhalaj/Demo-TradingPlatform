@@ -198,19 +198,8 @@
                     <th>Amount</th>
                   </tr>
                 </thead>
-                <tbody>
-                  {% for item in recentTrades %}
-                  <tr>
-                    <td>{{item.pair}}</td>
-                    {% if item.type == 'buy' %}
-                      <td class="green">{{item.pairPrice}}</td>
-                    {% else %}
-                      <td class="red">{{item.pairPrice}}</td>
-                    {% endif %}
-
-                    <td>{{item.amount}}</td>
-                  </tr>
-                  {% endfor %}
+                <tbody id='recentTradesHistory'>
+                  <p style="display:none" id="beforeRecent"></p>
                 </tbody>
               </table>
             </div>

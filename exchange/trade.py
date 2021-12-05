@@ -11,8 +11,8 @@ class Trade:
         self.pair = pair
         self.amount = float(amount.split(' ')[0])
         self.crp = amount.split(' ')[1]
-        self.base = pair.split('|')[0]
-        self.qoute = pair.split('|')[1]
+        self.base = pair.split('-')[0]
+        self.qoute = pair.split('-')[1]
         self.pairPrice = 0
         self.equivalent = 0
         self.callf()
