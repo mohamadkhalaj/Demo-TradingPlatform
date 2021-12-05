@@ -53,10 +53,10 @@ function getPortfolio(pair) {
 function trade(type, pair) {
     var amount = 0;
     if (type == 'buy') {
-        amount = uValue.value;
+        amount = `${uValue.value} USDT`;
     }
     else {
-        amount = pValue.value;
+        amount = `${pValue.value} ${pair}`;
     }
     var reqJson = {
         'pair' : `${pair}|USDT`,
@@ -121,7 +121,7 @@ function getHistory() {
             var parent = document.getElementById("open-orders")
             var before = document.getElementById("before")
             Object.keys(res).forEach(function(item, index) {
-
+                console.log(res[index])
                 var newNode = document.createElement("ul")
                 newNode.classList.add("d-flex", "justify-content-between", "market-order-item", "ul")
 
@@ -136,7 +136,7 @@ function getHistory() {
                 type.innerText = res[index]['type']
                 pair.innerText = res[index]['pair']
                 price.innerText = res[index]['pairPrice'].toFixed(5)
-                amount.innerText = res[index]['amount'].toFixed(5)
+                amount.innerText = parseFloat(res[index]['amount'].split(' ')[0]).toFixed(5) + ' ' + res[index]['amount'].split(' ')[1]
                 total.innerText = res[index]['price'].toFixed(5)
 
                 if (res[index]['type'] == 'buy') {
