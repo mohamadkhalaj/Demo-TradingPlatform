@@ -80,6 +80,7 @@ def trade(request, pair='BINANCE:BTCUSDT'):
 	cryptoList = data + requests.get(url).json()
 
 	for item in data:
+		print(item)
 		item['current_price'] = pretify(item['current_price'])
 
 		try:

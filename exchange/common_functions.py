@@ -27,7 +27,10 @@ class Give_equivalent:
 def pretify(float_num):
     if float_num == 'None':
         return 'None'
-    float_num = float(float_num)
+    try:
+        float_num = float(float_num)
+    except:
+        return 'None'
     try:
         return re.match(r"^.*\....", format(float_num, ",f"))[0]
     except:
