@@ -5,8 +5,8 @@
 
 <p style="margin: 0 0 16px;">Hi {{ user.username }},</p>
 <p style="margin: 0 0 16px;">Click below link for activate your account.</p>
-<a style="  background-color: #cab49c;
-  border: 1px solid #cab49c;
+<a style="  background-color: #bf4543;
+  border: 1px solid #bf4543;
   font-size: 20px;
   color: #FFFFFF;
   width: 150px;
@@ -17,7 +17,7 @@
   border-radius: 10%;
   margin-bottom:5px;" href="http://{{ domain }}{% url 'activate' uidb64=uid token=token %}">Click</a>
 
-<p style="margin-top:15px">Or click here: </p>
+<p style="margin-top:15px">or click here: </p>
 <a style="margin: 0 0 16px;" href="http://{{ domain }}{% url 'activate' uidb64=uid token=token %}">http://{{ domain }}{% url 'activate' uidb64=uid token=token %}</a>
 
 {% endblock %}

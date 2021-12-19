@@ -169,6 +169,7 @@ class Register(CreateView):
 		email = EmailMessage(
 					mail_subject, message, to=[to_email]
 		)
+		email.content_subtype = 'html'
 		email.send()
 		
 		context = {
