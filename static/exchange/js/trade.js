@@ -1,6 +1,7 @@
 var main_url = window.location.origin;
 var usdtValue = 0;
 var pairValue = 0;
+var pairUsdtValue = 0;
 var uValue = document.getElementById('uValue');
 var pValue = document.getElementById('pValue');
 uValue.value = 0;
@@ -33,6 +34,7 @@ function getPortfolio(pair) {
 
                 if (res[item]['cryptoName'] == pair && pair != 'USDT') {
                     pairAmount.innerText = `${res[item]['amount'].toFixed(5)} ${pair} = ${res[item]['equivalentAmount'].toFixed(5)} USDT`
+                    pairUsdtValue = res[item]['equivalentAmount'].toFixed(5);
                     pairValue = res[item]['amount']
                 }
                 if (res[item]['cryptoName'] == 'USDT') {
@@ -58,10 +60,10 @@ function trade(type, pair) {
 
     var amount = 0;
     if (type == 'buy') {
-        amount = `${uValue.value} USDT`;
+        amount = `${uValue.value} ${$('#buyPairChanger').text()}`;
     }
     else {
-        amount = `${pValue.value} ${pair}`;
+        amount = `${pValue.value} ${$('#sellPairChanger').text()}`;
     }
     var reqJson = {
         'pair' : `${pair}-USDT`,
@@ -205,7 +207,7 @@ function recentTrades() {
             var parent = document.getElementById("recentTradesHistory")
             var before = document.getElementById("beforeRecent")
             Object.keys(res).forEach(function(item, index) {
-                console.log(res[index])
+                // console.log(res[index])
                 var newNode = document.createElement("tr")
 
                 var pair = document.createElement("td")
@@ -245,11 +247,27 @@ function recentTrades() {
 }
 
 function calcAmount(change, object) {
+    var baseValue;
     if (change == 'usdt') {
-        uValue.value = usdtValue * parseFloat(object.innerText.replace('%', '')) / 100
+        if ($('#buyPairChanger').text() == 'USDT')
+        {
+            baseValue = usdtValue;
+        }
+        else {
+            var price = parseFloat($('#priceLoaded').text())
+            baseValue = usdtValue / price;
+        }
+        uValue.value = baseValue * parseFloat(object.innerText.replace('%', '')) / 100
     }
     else {
-        pValue.value = pairValue * parseFloat(object.innerText.replace('%', '')) / 100
+        if ($('#sellPairChanger').text() == 'USDT')
+        {
+            baseValue = pairUsdtValue;
+        }
+        else {
+            baseValue = pairValue;
+        }
+        pValue.value = baseValue * parseFloat(object.innerText.replace('%', '')) / 100
     }
 }
 
@@ -349,7 +367,6 @@ function createAlert(type, message) {
     activeAlerts.push(mainDiv)
     parent.appendChild(mainDiv)
 }
-
 percentage();
 getHistory();
 recentTrades();

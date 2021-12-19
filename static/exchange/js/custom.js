@@ -997,4 +997,24 @@ jQuery(document).ready(function($){
       });
   });
 });
+
+$(function() {     
+      $('#buyPairChanger').on('click',function(e) {
+
+          if ($(this).text() == "USDT")
+             $(this).text(globPair)
+          else
+             $(this).text("USDT");
+      });
+  });
+
+$(function() {     
+      $('#sellPairChanger').on('click',function(e) {
+
+          if ($(this).text() == "USDT")
+             $(this).text(globPair)
+          else
+             $(this).text("USDT");
+      });
+  });
 console.clear();

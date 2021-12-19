@@ -80,7 +80,6 @@ def trade(request, pair='BINANCE:BTCUSDT'):
 	cryptoList = data + requests.get(url).json()
 
 	for item in data:
-		print(item)
 		item['current_price'] = pretify(item['current_price'])
 
 		try:
@@ -101,6 +100,10 @@ def trade(request, pair='BINANCE:BTCUSDT'):
 	else:
 		name = 'BTC'
 
+	for item in cryptoList:
+		if item['symbol'].upper() == name:
+			price = item['current_price']
+
 	context = {
 		'pair' : pair,
 		'name' : name.upper(),
@@ -108,6 +111,7 @@ def trade(request, pair='BINANCE:BTCUSDT'):
 		'Portfolio' : portfolio,
 		'data' : data,
 		'cryptoList' : cryptoList,
+		'price' : price,
 	}
 
 	if not pair:

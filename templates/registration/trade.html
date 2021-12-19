@@ -4,6 +4,7 @@
 {% block main %}
 {% load static %}
 
+<span style="display: none" id='priceLoaded'>{{price}}</span>
   <div class="container-fluid mtb15 no-fluid">
     <div class="row sm-gutters">
       <div class="col-md-3">
@@ -114,7 +115,7 @@
                   <div class="input-group">
                     <input type="number" class="form-control" placeholder="Amount" id="uValue" onkeypress='validate(event)'>
                     <div class="input-group-append">
-                      <span class="input-group-text">USDT</span>
+                      <span id="buyPairChanger" class="input-group-text btn">USDT</span>
                     </div>
                   </div>
                   <ul class="market-trade-list" id="usdtPercentage">
@@ -130,7 +131,7 @@
                   <div class="input-group">
                     <input type="number" class="form-control" placeholder="Amount" id="pValue" onkeypress='validate(event)'>
                     <div class="input-group-append">
-                      <span class="input-group-text">{{name}}</span>
+                      <span id="sellPairChanger" class="input-group-text btn">{{name}}</span>
                     </div>
                   </div>
                   <ul class="market-trade-list" id="pairPercentage">
