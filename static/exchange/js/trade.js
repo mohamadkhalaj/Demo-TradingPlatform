@@ -254,7 +254,7 @@ function calcAmount(change, object) {
             baseValue = usdtValue;
         }
         else {
-            var price = parseFloat($('#priceLoaded').text())
+            var price = parseFloat($('#priceLoaded').text().replace(',', ''))
             baseValue = usdtValue / price;
         }
         uValue.value = baseValue * parseFloat(object.innerText.replace('%', '')) / 100
