@@ -21,7 +21,9 @@ from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from .models import User
 import requests
-
+# import datetime as dt
+# import matplotlib.pyplot as plt
+# import pandas	
 
 class Profile(LoginRequiredMixin, UpdateView):
 	model = User
@@ -205,3 +207,4 @@ def activate(request, uidb64, token):
 def allocate_USDT(user):
 	newObj = Portfolio(usr=user, cryptoName='USDT', amount=settings.DEFAULT_BALANCE, equivalentAmount=None)
 	newObj.save()
+

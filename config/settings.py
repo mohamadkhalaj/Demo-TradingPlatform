@@ -128,7 +128,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'account.User'
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_USE_TLS = True
 EMAIL_PORT = 587
@@ -140,7 +140,7 @@ HCAPTCHA_SECRET = config('HCAPTCHA_SECRET')
 HCAPTCHA_SITEKEY = config('HCAPTCHA_SITEKEY')
 HCAPTCHA_TIMEOUT = 5
 # django_heroku.settings(locals())
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 # social auth configuration
 AUTH_USER_MODEL = 'account.User'
