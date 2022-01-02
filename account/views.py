@@ -21,9 +21,9 @@ from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from .models import User
 import requests
-from .charts import Charts
-import shutil
-
+# import datetime as dt
+# import matplotlib.pyplot as plt
+# import pandas	
 
 class Profile(LoginRequiredMixin, UpdateView):
 	model = User
@@ -37,16 +37,13 @@ class Profile(LoginRequiredMixin, UpdateView):
 
 @login_required
 def wallet(request, page=1):
-	try:
-		shutil.rmtree('static\exchange\img\charts')
-		Charts(request.user)
-	except Exception as e:
-		print(e)
+	print(request.user.last_login)
 	total = float()
 	portfolio = Portfolio.objects.filter(usr=request.user, amount__gt=0).order_by('-equivalentAmount')
 	paginator = Paginator(portfolio, 7)
 	data = paginator.get_page(page)
 
+	
 	total = pretify(sum([calc_equivalent(item.cryptoName, 'USDT', item.amount)[1] for item in portfolio]))
 
 	for index, item in enumerate(data):
@@ -54,9 +51,28 @@ def wallet(request, page=1):
 		data[index].equivalentAmount = pretify(usdt)
 		data[index].amount = pretify(item.amount)
 
+	CryptoNames = []
+	CryptoAmounts = []
+	prices = []
+	total = []
+	portfo = Portfolio.objects.filter(usr=request.user)
+	for index, item in enumerate(portfo):
+		CryptoNames.append(item.cryptoName)
+		# CryptoNames = (portfo.get(item.cryptoName))
+		CryptoAmounts.append(item.amount)
+	print(CryptoNames,CryptoAmounts)
+	# print(CryptoNames)
+	# print(CryptoAmount)
+	# for name in CryptoNames:
+	# 	# df = web.DataReader(name, 'yahoo', dt.datetime(2021,8,1), dt.datetime.now())
+	# 	price = df[-1:]['Close'][0]
+	# 	prices.append(price)
+	# 	index = prices.index(price)
+	# 	total.append(price * CryptoAmounts[index])
+	
 	context = {
-		'portfolio': data,
-		'total': total,
+		'portfolio' : data,
+		'total' : total,
 	}
 	return render(request, 'registration/wallet.html', context=context)
 
@@ -106,10 +122,6 @@ def trade(request, pair='BINANCE:BTCUSDT'):
 	else:
 		name = 'BTC'
 
-	for item in cryptoList:
-		if item['symbol'].upper() == name:
-			price = item['current_price']
-
 	context = {
 		'pair' : pair,
 		'name' : name.upper(),
@@ -117,7 +129,6 @@ def trade(request, pair='BINANCE:BTCUSDT'):
 		'Portfolio' : portfolio,
 		'data' : data,
 		'cryptoList' : cryptoList,
-		'price' : price,
 	}
 
 	if not pair:
@@ -166,20 +177,19 @@ class Register(CreateView):
 		message = render_to_string('registration/activate_account.html', {
 			'user': user,
 			'domain': current_site.domain,
-			'uid': urlsafe_base64_encode(force_bytes(user.pk)),
-			'token': account_activation_token.make_token(user),
+			'uid':urlsafe_base64_encode(force_bytes(user.pk)),
+			'token':account_activation_token.make_token(user),
 		})
 		to_email = form.cleaned_data.get('email')
 		email = EmailMessage(
 					mail_subject, message, to=[to_email]
 		)
-		email.content_subtype = 'html'
 		email.send()
 		
 		context = {
-			'title': 'Signup',
-			'redirect': 'exchange:home',
-			'message': 'Please confirm your email address to complete the registration.',
+			'title' : 'Signup',
+			'redirect' : 'exchange:home',
+			'message' : 'Please confirm your email address to complete the registration.',
 		}
 		return render(self.request, 'registration/messages.html', context=context)
 
