@@ -12,9 +12,10 @@ from django.contrib.auth import get_user_model
 from django.conf import settings
 
 def home(request):
+	# User.objects.get(username=request.user).delete()
 	if request.user.is_authenticated:
 		obj = User.objects.get(username=request.user)
-		if obj.first_login == True:
+		if obj.first_login:
 			newObj = Portfolio(usr=request.user, cryptoName='USDT', amount=settings.DEFAULT_BALANCE, equivalentAmount=None)
 			newObj.save()
 			obj.first_login = False
@@ -68,6 +69,7 @@ def trade(request, value):
 
 @login_required()
 def portfolio(request):
+	print('__________________________________________________________________________-')
 	eq = Give_equivalent()
 	resJson = dict()
 	for index, item in enumerate(Portfolio.objects.filter(usr=request.user).iterator()):
@@ -82,8 +84,9 @@ def portfolio(request):
 @login_required()
 def tradinghistory(request):
 	resJson = dict()
+
 	for index, item in enumerate(TradeHistory.objects.filter(usr=request.user, amount__gt=0).order_by('-time').iterator()):
-		resJson[index] = {'type': item.type, 'pair': item.pair, 'pairPrice': item.pairPrice, 'amount': item.amount,'price': item.price, 'time': item.time}
+		resJson[index] = {'type': item.type, 'pair': item.pair, 'histAmount': item.histAmount, 'amount': item.amount,'price': item.price, 'time': item.time}
 	return JsonResponse(resJson)
 
 def recentTrades(request):

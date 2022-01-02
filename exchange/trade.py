@@ -16,10 +16,10 @@ class Trade:
         self.pairPrice = 0
         self.equivalent = 0
         self.callf()
-        # dict = {'pair':'ADA|USDT', 'type':'sell', 'amount':'30 USDT'}
+        # dict = {'pair':'MANA-USDT', 'type':'buy', 'amount':'20 MANA'}
 
     def callf(self):
-        self.pairPrice, self.equivalent = self.calc_equivalent(self.base, self.qoute, self.amount)
+        self.equivalent = self.calc_equivalent(self.base, self.qoute, self.amount)
         if self.type == 'buy':
             if self.crp == self.base:
                 state = self.check_available(self.equivalent, self.qoute)
@@ -67,11 +67,16 @@ class Trade:
                     newCrypto.save()
         # create history and give results
         if state == 0:
-            newHistory = TradeHistory(usr=self.user, type=self.type, pair=self.pair, pairPrice=self.pairPrice,
-                                      amount=str(self.amount)+' '+self.crp, price=price)
+            histAmount =dict()
+            for index, item in enumerate(self.portfo.iterator()):
+                histAmount[index] = {'cryptoName':item.cryptoName, 'amount':item.amount}
+
+            baseAmount = self.portfo.get(cryptoName=self.base).amount
+            quoteAmount = self.portfo.get(cryptoName=self.qoute).amount
+            newHistory = TradeHistory(usr=self.user, type=self.type, pair=self.pair,
+                            histAmount=histAmount, amount=str(self.amount)+' '+self.crp, price=price)
             newHistory.save()
-            self.result = {'state': 0, self.base: self.portfo.get(cryptoName=self.base).amount,
-                           self.qoute: self.portfo.get(cryptoName=self.qoute).amount}
+            self.result = {'state': 0, self.base: baseAmount, self.qoute: quoteAmount}
         else:
             self.result = {'state': state}
 
@@ -88,7 +93,7 @@ class Trade:
         else:
             equivalent = amount / pairPrice
 
-        return pairPrice, equivalent
+        return equivalent
 
     def check_available(self, amount, name):
         try:

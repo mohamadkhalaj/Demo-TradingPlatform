@@ -21,9 +21,9 @@ from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from .models import User
 import requests
-# import datetime as dt
-# import matplotlib.pyplot as plt
-# import pandas	
+from .charts import Charts
+import shutil
+
 
 class Profile(LoginRequiredMixin, UpdateView):
 	model = User
@@ -37,7 +37,11 @@ class Profile(LoginRequiredMixin, UpdateView):
 
 @login_required
 def wallet(request, page=1):
-	print(request.user.last_login)
+	try:
+		shutil.rmtree('static\exchange\img\charts')
+		Charts(request.user)
+	except Exception as e:
+		print(e)
 	total = float()
 	portfolio = Portfolio.objects.filter(usr=request.user, amount__gt=0).order_by('-equivalentAmount')
 	paginator = Paginator(portfolio, 7)
@@ -51,8 +55,8 @@ def wallet(request, page=1):
 		data[index].amount = pretify(item.amount)
 
 	context = {
-		'portfolio' : data,
-		'total' : total,
+		'portfolio': data,
+		'total': total,
 	}
 	return render(request, 'registration/wallet.html', context=context)
 
@@ -162,8 +166,8 @@ class Register(CreateView):
 		message = render_to_string('registration/activate_account.html', {
 			'user': user,
 			'domain': current_site.domain,
-			'uid':urlsafe_base64_encode(force_bytes(user.pk)),
-			'token':account_activation_token.make_token(user),
+			'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+			'token': account_activation_token.make_token(user),
 		})
 		to_email = form.cleaned_data.get('email')
 		email = EmailMessage(
@@ -173,9 +177,9 @@ class Register(CreateView):
 		email.send()
 		
 		context = {
-			'title' : 'Signup',
-			'redirect' : 'exchange:home',
-			'message' : 'Please confirm your email address to complete the registration.',
+			'title': 'Signup',
+			'redirect': 'exchange:home',
+			'message': 'Please confirm your email address to complete the registration.',
 		}
 		return render(self.request, 'registration/messages.html', context=context)
 

@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+# from django.conf import DEFAULT_CONTENT_TYPE_DEPRECATED_MSG
 
 
 class TradeHistory(models.Model):
@@ -7,7 +8,7 @@ class TradeHistory(models.Model):
 	id = models.AutoField(primary_key=True)
 	type = models.CharField(max_length=4)
 	pair = models.CharField(max_length=10, default=None)
-	pairPrice = models.FloatField()
+	histAmount = models.JSONField(default=None)
 	amount = models.CharField(max_length=20)
 	price = models.FloatField()
 	time = models.DateTimeField(auto_now=True)

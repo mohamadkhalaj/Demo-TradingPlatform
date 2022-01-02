@@ -3,7 +3,7 @@ from .models import Portfolio, TradeHistory
 
 
 class TradeHistoryAdmin(admin.ModelAdmin):
-	list_display = ('type', 'pair', 'pairPrice', 'amount', 'price', 'time', 'usr')
+	list_display = ('type', 'pair','histAmount', 'amount', 'price', 'time', 'usr')
 admin.site.register(TradeHistory, TradeHistoryAdmin)
 
 
