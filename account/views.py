@@ -24,7 +24,7 @@ from typing import ByteString
 from .charts import Charts
 import requests, uuid, os
 from .models import User
-
+import shutil
 class Profile(LoginRequiredMixin, UpdateView):
 	model = User
 	form_class = ProfileForm
@@ -38,6 +38,11 @@ class Profile(LoginRequiredMixin, UpdateView):
 @login_required
 def wallet(request, page=1):
 	total = float()
+	try:
+		shutil.rmtree('static\exchange\img\charts')
+		Charts(request.user)
+	except Exception as e:
+		print(e)
 	portfolio = Portfolio.objects.filter(usr=request.user, amount__gt=0).order_by('-equivalentAmount')
 	paginator = Paginator(portfolio, 7)
 	data = paginator.get_page(page)
