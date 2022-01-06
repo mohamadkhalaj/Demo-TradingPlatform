@@ -57,7 +57,10 @@ class Charts:
         uId = uuid.uuid4().hex[:25].upper()
         obj = User.objects.get(username=self.user)
         if obj.assetUUID != 0:
-            os.remove('static/exchange/img/charts/asset' + obj.assetUUID + '.png')
+            try:
+                os.remove('static/exchange/img/charts/asset' + obj.assetUUID + '.png')
+            except Exception as e:
+                print(e)
         obj.assetUUID = uId
         obj.save()
         fileName = 'asset' + uId + '.png'
