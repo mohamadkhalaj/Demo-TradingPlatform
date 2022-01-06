@@ -15,9 +15,9 @@
   cursor: pointer;
   padding: 6px;
   border-radius: 10%;
-  margin-bottom:5px;" href="http://{{ domain }}{% url 'activate' uidb64=uid token=token %}">Click</a>
+  margin-bottom:5px;" href="https://{{ domain }}{% url 'activate' uidb64=uid token=token %}">Click</a>
 
 <p style="margin-top:15px">or click here: </p>
-<a style="margin: 0 0 16px;" href="http://{{ domain }}{% url 'activate' uidb64=uid token=token %}">http://{{ domain }}{% url 'activate' uidb64=uid token=token %}</a>
+<a style="margin: 0 0 16px;" href="https://{{ domain }}{% url 'activate' uidb64=uid token=token %}">https://{{ domain }}{% url 'activate' uidb64=uid token=token %}</a>
 
 {% endblock %}

@@ -69,7 +69,6 @@ def trade(request, value):
 
 @login_required()
 def portfolio(request):
-	print('__________________________________________________________________________-')
 	eq = Give_equivalent()
 	resJson = dict()
 	for index, item in enumerate(Portfolio.objects.filter(usr=request.user).iterator()):
@@ -92,5 +91,5 @@ def tradinghistory(request):
 def recentTrades(request):
 	resJson = dict()
 	for index, item in enumerate(TradeHistory.objects.filter(amount__gt=0).order_by('-time').iterator()):
-		resJson[index] = {'type': item.type, 'pair': item.pair, 'pairPrice': item.pairPrice, 'amount': item.amount}
+		resJson[index] = {'type': item.type, 'pair': item.pair, 'pairPrice': item.price, 'amount': item.amount}
 	return JsonResponse(resJson)

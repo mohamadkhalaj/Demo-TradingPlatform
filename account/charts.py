@@ -1,11 +1,10 @@
+from exchange.common_functions import calc_equivalent
 from exchange.models import Portfolio, TradeHistory
 from datetime import datetime, timedelta
-import time
-import requests
 import matplotlib.pyplot as plt
+import os, uuid, time, requests
+from .models import User
 import pandas as pd
-import os
-
 
 class Charts:
     def __init__(self, user):
@@ -16,7 +15,7 @@ class Charts:
         self.values = []
         self.percents = []
         self.prices = dict()
-        self.func()
+        # self.func()
 
     def func(self):
         os.mkdir('static\exchange\img\charts')
@@ -39,6 +38,32 @@ class Charts:
             self.get_latest()
 
         self.bar_chart(self.dates, self.values)
+
+    def assetAllocation(self):
+        cryptoDic = {}
+        totalCR = []
+        for index, item in enumerate(self.portfo):
+            cryptoDic[item.cryptoName] = calc_equivalent(item.cryptoName, 'USDT', item.amount)[1]
+        
+        labels = list(cryptoDic.keys())
+        fig, ax = plt.subplots(figsize=(6,4))
+        ax.figure.set_facecolor('#121212')
+        ax.tick_params(axis='x', colors='white')
+        ax.tick_params(axis='y', colors='white')
+        patches, texts, autotexts = ax.pie(list(cryptoDic.values()),labels = labels ,autopct='%1.1f%%', pctdistance=0.8)
+        [text.set_color('white') for text in texts]
+        my_circle = plt.Circle((0, 0), 0.55, color='#1e222d')
+        plt.gca().add_artist(my_circle)
+        uId = uuid.uuid4().hex[:25].upper()
+        obj = User.objects.get(username=self.user)
+        if obj.assetUUID != 0:
+            os.remove('static/exchange/img/charts/asset' + obj.assetUUID + '.png')
+        obj.assetUUID = uId
+        obj.save()
+        fileName = 'asset' + uId + '.png'
+        plt.savefig('static/exchange/img/charts/' + fileName, transparent=True)
+
+        return fileName
 
     def pnl(self, start_date, end_date):
         delta = timedelta(days=1)
@@ -80,6 +105,7 @@ class Charts:
         self.percents.append((total - 1000) / 10)
         self.values.append(total - 1000)
 
+
     def bar_chart(self, x, y):
         data = pd.DataFrame({'date': x, 'values': y, 'Percentage': self.percents})
         data['negative'] = data['values'] < 0
@@ -99,6 +125,11 @@ class Charts:
 
         plt.axhline(y=0, color='white', linewidth=0.2)
         plt.xlabel('date')
-        plt.ylabel('P&L amount (USDT)')
-        plt.savefig('static\exchange\img\charts\pnl.png')
+        plt.ylabel('PNL amount (USDT)')
+        uId = uuid.uuid4().hex[:25].upper()
+        obj = User.objects.get(username=self.user)
+        obj.pnlUUID = uId
+        obj.save()
+        fileName = 'pnl' + uId + '.png'
+        plt.savefig('static\\exchange\\img\\charts\\' + fileName)
         plt.title('P&L chart')

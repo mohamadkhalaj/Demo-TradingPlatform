@@ -1,10 +1,9 @@
-from typing import ByteString
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from exchange.common_functions import search, pretify, calc_equivalent
 from django.contrib.sites.shortcuts import get_current_site
 from django.utils.encoding import force_bytes, force_text
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
-from exchange.common_functions import search, pretify
 from django.contrib.auth import login, authenticate
 from exchange.models import Portfolio, TradeHistory
 from django.template.loader import render_to_string
@@ -20,11 +19,11 @@ from django.views.generic import CreateView
 from django.core.mail import EmailMessage
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
-from .models import User
-import requests
-# import datetime as dt
 import matplotlib.pyplot as plt
-# import pandas as pd
+from typing import ByteString
+from .charts import Charts
+import requests, uuid, os
+from .models import User
 
 class Profile(LoginRequiredMixin, UpdateView):
 	model = User
@@ -43,37 +42,21 @@ def wallet(request, page=1):
 	portfolio = Portfolio.objects.filter(usr=request.user, amount__gt=0).order_by('-equivalentAmount')
 	paginator = Paginator(portfolio, 7)
 	data = paginator.get_page(page)
-
 	
 	total = pretify(sum([calc_equivalent(item.cryptoName, 'USDT', item.amount)[1] for item in portfolio]))
-
 	for index, item in enumerate(data):
 		usdt = calc_equivalent(item.cryptoName, 'USDT', item.amount)[1]
 		data[index].equivalentAmount = pretify(usdt)
 		data[index].amount = pretify(item.amount)
-
-# asset allocation chart
-	cryptoDic = {}
-	totalCR = []
-	portfo = Portfolio.objects.filter(usr=request.user)
-	for index, item in enumerate(portfo):
-		cryptoDic[item.cryptoName] = calc_equivalent(item.cryptoName, 'USDT', item.amount)[1]
 	
-	labels = list(cryptoDic.keys())
-	fig, ax = plt.subplots(figsize=(8,4))
-	ax.set_facecolor('black')
-	ax.figure.set_facecolor('#121212')
-	ax.tick_params(axis='x', colors='white')
-	ax.tick_params(axis='y', colors='white')
-	patches, texts, autotexts = ax.pie(list(cryptoDic.values()),labels = labels ,autopct='%1.1f%%', pctdistance=0.8)
-	[text.set_color('white') for text in texts]
-	my_circle = plt.Circle((0, 0), 0.55, color='black')
-	plt.gca().add_artist(my_circle)
-	plt.savefig('static/exchange/img/charts/assetAllocationPlot.png')
-# end of asset allocation plot	
+
+	chart = Charts(request.user)
+	asset = chart.assetAllocation()
+
 	context = {
 		'portfolio' : data,
 		'total' : total,
+		'asset' : asset,
 	}
 	return render(request, 'registration/wallet.html', context=context)
 
@@ -83,7 +66,7 @@ def tradeHistory(request, page=1):
 
 	for index, item in enumerate(history):
 		history[index].price = pretify(item.price)
-		history[index].pairPrice = pretify(item.pairPrice)
+		history[index].pairPrice = pretify(item.price)
 		history[index].amount = pretify(item.amount.split(' ')[0])
 
 	paginator = Paginator(history, 10)
@@ -143,17 +126,6 @@ def trade(request, pair='BINANCE:BTCUSDT'):
 		return redirect('/account/trade/BTC-USDT')
 	else:
 		return render(request, 'registration/trade.html', context=context)
-
-
-def calc_equivalent(base, qoute, amount):
-	response = requests.get("https://min-api.cryptocompare.com/data/pricemulti?fsyms=" + base + "," + qoute + "&tsyms=USDT,USDT")
-	response = response.json()
-	basePrice = float(response[base]['USDT'])
-	qoutePrice = float(response[qoute]['USDT'])
-	pairPrice = basePrice / qoutePrice
-	equivalent = pairPrice * amount
-
-	return pairPrice, equivalent
 
 class Login(LoginView):
 	form_class = LoginForm

@@ -92,10 +92,24 @@
                         </div>
                         <div class="card">
                           <div class="card-body">
-                            <h5 class="card-title">Portfolio chart</h5>
+                            <h5 class="card-title">Assets allocation</h5>
                               <div class="d-flex justify-content-center">
                                 <div class="form-access">
-                                    <span class="errors">Coming soon...</span>
+                                    <span class="errors">
+                                      <img src="{% static 'exchange/img/charts/' %}{{asset}}" alt="">
+                                    </span>
+                                </div>
+                              </div>
+                          </div>
+                        </div>
+                        <div class="card">
+                          <div class="card-body">
+                            <h5 class="card-title">PNL</h5>
+                              <div class="d-flex justify-content-center">
+                                <div class="form-access">
+                                    <span class="errors">
+                                      <img src="{% static 'exchange/img/charts/' %}{{pnl}}" alt="">
+                                    </span>
                                 </div>
                               </div>
                           </div>

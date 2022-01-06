@@ -1,5 +1,5 @@
-import requests, re
 from .models import Portfolio
+import requests, re
 
 
 class Give_equivalent:
@@ -23,6 +23,16 @@ class Give_equivalent:
                 return 1
         except:
             return 2
+
+def calc_equivalent(base, qoute, amount):
+    response = requests.get("https://min-api.cryptocompare.com/data/pricemulti?fsyms=" + base + "," + qoute + "&tsyms=USDT,USDT")
+    response = response.json()
+    basePrice = float(response[base]['USDT'])
+    qoutePrice = float(response[qoute]['USDT'])
+    pairPrice = basePrice / qoutePrice
+    equivalent = pairPrice * amount
+
+    return pairPrice, equivalent
 
 def pretify(float_num):
     if float_num == 'None':
