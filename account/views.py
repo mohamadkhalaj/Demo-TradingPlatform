@@ -69,7 +69,7 @@ def wallet(request, page=1):
 	[text.set_color('white') for text in texts]
 	my_circle = plt.Circle((0, 0), 0.55, color='black')
 	plt.gca().add_artist(my_circle)
-	plt.savefig('static/assetAllocationPlot.png')
+	plt.savefig('static/exchange/img/charts/assetAllocationPlot.png')
 # end of asset allocation plot	
 	context = {
 		'portfolio' : data,
