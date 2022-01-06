@@ -21,6 +21,8 @@ from django.core.mail import EmailMessage
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from .models import User
+from .charts import Charts
+import shutil 
 import requests
 # import datetime as dt
 import matplotlib.pyplot as plt
@@ -39,6 +41,10 @@ class Profile(LoginRequiredMixin, UpdateView):
 @login_required
 def wallet(request, page=1):
 	print(request.user.last_login)
+	try:
+		shutil.rmtree('static\exchange\img\charts')
+	except Exception as e:
+		print(e)
 	total = float()
 	portfolio = Portfolio.objects.filter(usr=request.user, amount__gt=0).order_by('-equivalentAmount')
 	paginator = Paginator(portfolio, 7)
@@ -54,7 +60,6 @@ def wallet(request, page=1):
 
 # asset allocation chart
 	cryptoDic = {}
-	totalCR = []
 	portfo = Portfolio.objects.filter(usr=request.user)
 	for index, item in enumerate(portfo):
 		cryptoDic[item.cryptoName] = calc_equivalent(item.cryptoName, 'USDT', item.amount)[1]
