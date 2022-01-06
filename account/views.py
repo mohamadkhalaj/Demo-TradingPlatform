@@ -1,3 +1,4 @@
+from typing import ByteString
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.contrib.sites.shortcuts import get_current_site
 from django.utils.encoding import force_bytes, force_text
@@ -22,8 +23,8 @@ from django.urls import reverse_lazy
 from .models import User
 import requests
 # import datetime as dt
-# import matplotlib.pyplot as plt
-# import pandas	
+import matplotlib.pyplot as plt
+# import pandas as pd
 
 class Profile(LoginRequiredMixin, UpdateView):
 	model = User
@@ -51,25 +52,25 @@ def wallet(request, page=1):
 		data[index].equivalentAmount = pretify(usdt)
 		data[index].amount = pretify(item.amount)
 
-	CryptoNames = []
-	CryptoAmounts = []
-	prices = []
-	total = []
+# asset allocation chart
+	cryptoDic = {}
+	totalCR = []
 	portfo = Portfolio.objects.filter(usr=request.user)
 	for index, item in enumerate(portfo):
-		CryptoNames.append(item.cryptoName)
-		# CryptoNames = (portfo.get(item.cryptoName))
-		CryptoAmounts.append(item.amount)
-	print(CryptoNames,CryptoAmounts)
-	# print(CryptoNames)
-	# print(CryptoAmount)
-	# for name in CryptoNames:
-	# 	# df = web.DataReader(name, 'yahoo', dt.datetime(2021,8,1), dt.datetime.now())
-	# 	price = df[-1:]['Close'][0]
-	# 	prices.append(price)
-	# 	index = prices.index(price)
-	# 	total.append(price * CryptoAmounts[index])
+		cryptoDic[item.cryptoName] = calc_equivalent(item.cryptoName, 'USDT', item.amount)[1]
 	
+	labels = list(cryptoDic.keys())
+	fig, ax = plt.subplots(figsize=(8,4))
+	ax.set_facecolor('black')
+	ax.figure.set_facecolor('#121212')
+	ax.tick_params(axis='x', colors='white')
+	ax.tick_params(axis='y', colors='white')
+	patches, texts, autotexts = ax.pie(list(cryptoDic.values()),labels = labels ,autopct='%1.1f%%', pctdistance=0.8)
+	[text.set_color('white') for text in texts]
+	my_circle = plt.Circle((0, 0), 0.55, color='black')
+	plt.gca().add_artist(my_circle)
+	plt.savefig('static/assetAllocationPlot.png')
+# end of asset allocation plot	
 	context = {
 		'portfolio' : data,
 		'total' : total,
