@@ -4,6 +4,7 @@ __pycache__/
 *$py.class
 .env
 venv
+static/exchange/charts/*
 staticfiles
 db.sqlite3
 # C extensions

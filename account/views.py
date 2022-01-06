@@ -37,7 +37,6 @@ class Profile(LoginRequiredMixin, UpdateView):
 
 @login_required
 def wallet(request, page=1):
-	print(request.user.last_login)
 	total = float()
 	portfolio = Portfolio.objects.filter(usr=request.user, amount__gt=0).order_by('-equivalentAmount')
 	paginator = Paginator(portfolio, 7)
@@ -48,7 +47,6 @@ def wallet(request, page=1):
 		usdt = calc_equivalent(item.cryptoName, 'USDT', item.amount)[1]
 		data[index].equivalentAmount = pretify(usdt)
 		data[index].amount = pretify(item.amount)
-	
 
 	chart = Charts(request.user)
 	asset = chart.assetAllocation()
