@@ -15,12 +15,19 @@ class Charts:
         self.values = []
         self.percents = []
         self.prices = dict()
-        # self.func()
+        self.haveTrade = True
+        self.func()
 
     def func(self):
-        os.mkdir('static\exchange\img\charts')
+        if not os.path.exists('static/exchange/img/charts'):
+            os.mkdir('static/exchange/img/charts')
 
-        all_start_date = self.histories.first().time.replace(tzinfo=None)
+        try:
+            all_start_date = self.histories.first().time.replace(tzinfo=None)
+        except:
+            self.haveTrade = False
+            print('This user has\'nt any trade.')
+            return
         now_timestamp = time.time()
         all_start_date = all_start_date + (datetime.fromtimestamp(now_timestamp) - datetime.utcfromtimestamp(now_timestamp))
         end_date = datetime.now()
@@ -37,8 +44,6 @@ class Charts:
             self.dates.append(end_date.strftime('%m-%d'))
             self.get_latest()
 
-        self.bar_chart(self.dates, self.values)
-
     def assetAllocation(self):
         cryptoDic = {}
         totalCR = []
@@ -52,15 +57,17 @@ class Charts:
         ax.tick_params(axis='y', colors='white')
         patches, texts, autotexts = ax.pie(list(cryptoDic.values()),labels = labels ,autopct='%1.1f%%', pctdistance=0.8)
         [text.set_color('white') for text in texts]
-        my_circle = plt.Circle((0, 0), 0.55, color='#1e222d')
+        my_circle = plt.Circle((0, 0), 0.45, color='#1e222d')
         plt.gca().add_artist(my_circle)
         uId = uuid.uuid4().hex[:25].upper()
         obj = User.objects.get(username=self.user)
-        if obj.assetUUID != 0:
+
+        if obj.assetUUID != '0':
             try:
                 os.remove('static/exchange/img/charts/asset' + obj.assetUUID + '.png')
-            except Exception as e:
-                print(e)
+            except:
+                pass
+
         obj.assetUUID = uId
         obj.save()
         fileName = 'asset' + uId + '.png'
@@ -109,10 +116,13 @@ class Charts:
         self.values.append(total - 1000)
 
 
-    def bar_chart(self, x, y):
+    def bar_chart(self):
+        if self.haveTrade == False:
+            return False
+        x = self.dates 
+        y = self.values
         data = pd.DataFrame({'date': x, 'values': y, 'Percentage': self.percents})
         data['negative'] = data['values'] < 0
-        plt.style.use('dark_background')
         plt.figure(figsize=(9, 7))
         graph = plt.bar(x, y, color=data.negative.map({True: 'r', False: 'g'}))
 
@@ -131,8 +141,15 @@ class Charts:
         plt.ylabel('PNL amount (USDT)')
         uId = uuid.uuid4().hex[:25].upper()
         obj = User.objects.get(username=self.user)
+        if obj.pnlUUID != '0':
+            try:
+                os.remove('static/exchange/img/charts/pnl' + obj.pnlUUID + '.png')
+            except:
+                pass
         obj.pnlUUID = uId
         obj.save()
         fileName = 'pnl' + uId + '.png'
-        plt.savefig('static\\exchange\\img\\charts\\' + fileName)
-        plt.title('P&L chart')
+        plt.savefig('static/exchange/img/charts/' + fileName, transparent = True)
+        plt.title('PNL chart')
+
+        return fileName

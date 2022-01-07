@@ -38,11 +38,6 @@ class Profile(LoginRequiredMixin, UpdateView):
 @login_required
 def wallet(request, page=1):
 	total = float()
-	try:
-		shutil.rmtree('static\exchange\img\charts')
-		Charts(request.user)
-	except Exception as e:
-		print(e)
 	portfolio = Portfolio.objects.filter(usr=request.user, amount__gt=0).order_by('-equivalentAmount')
 	paginator = Paginator(portfolio, 7)
 	data = paginator.get_page(page)
@@ -55,11 +50,13 @@ def wallet(request, page=1):
 
 	chart = Charts(request.user)
 	asset = chart.assetAllocation()
+	pnl = chart.bar_chart()
 
 	context = {
 		'portfolio' : data,
 		'total' : total,
 		'asset' : asset,
+		'pnl' : pnl,
 	}
 	return render(request, 'registration/wallet.html', context=context)
 
@@ -82,6 +79,13 @@ def tradeHistory(request, page=1):
 	return render(request, 'registration/tradeHistory.html', context = context)
 
 def trade(request, pair='BINANCE:BTCUSDT'):
+	if request.user.is_authenticated:
+		obj = User.objects.get(username=request.user)
+		if obj.first_login:
+			newObj = Portfolio(usr=request.user, cryptoName='USDT', amount=settings.DEFAULT_BALANCE, equivalentAmount=None)
+			newObj.save()
+			obj.first_login = False
+			obj.save()
 	url = 'https://api.coingecko.com/api/v3/coins/markets?vs_currency=USD&order=market_cap_desc&per_page=250&page=1&sparkline=false'
 	data = requests.get(url).json()
 
@@ -133,7 +137,6 @@ def trade(request, pair='BINANCE:BTCUSDT'):
 class Login(LoginView):
 	form_class = LoginForm
 	redirect_authenticated_user = True
-
 
 class Register(CreateView):
 	form_class = SignupForm

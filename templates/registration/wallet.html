@@ -102,18 +102,20 @@
                               </div>
                           </div>
                         </div>
-                        <div class="card">
-                          <div class="card-body">
-                            <h5 class="card-title">PNL</h5>
-                              <div class="d-flex justify-content-center">
-                                <div class="form-access">
-                                    <span class="errors">
-                                      <img src="{% static 'exchange/img/charts/' %}{{pnl}}" alt="">
-                                    </span>
+                        {% if pnl %}
+                          <div class="card">
+                            <div class="card-body">
+                              <h5 class="card-title">PNL</h5>
+                                <div class="d-flex justify-content-center">
+                                  <div class="form-access">
+                                      <span class="errors">
+                                        <img src="{% static 'exchange/img/charts/' %}{{pnl}}" alt="">
+                                      </span>
+                                  </div>
                                 </div>
-                              </div>
+                            </div>
                           </div>
-                        </div>
+                        {% endif %}
                       </div>
                   </div>
                 </div>
