@@ -38,11 +38,11 @@ class Profile(LoginRequiredMixin, UpdateView):
 @login_required
 def wallet(request, page=1):
 	total = float()
-	try:
-		shutil.rmtree('static\exchange\img\charts')
-		Charts(request.user)
-	except Exception as e:
-		print(e)
+	# try:
+	# 	shutil.rmtree('static\exchange\img\charts')
+	# 	Charts(request.user)
+	# except Exception as e:
+	# 	print(e)
 	portfolio = Portfolio.objects.filter(usr=request.user, amount__gt=0).order_by('-equivalentAmount')
 	paginator = Paginator(portfolio, 7)
 	data = paginator.get_page(page)
@@ -55,11 +55,12 @@ def wallet(request, page=1):
 
 	chart = Charts(request.user)
 	asset = chart.assetAllocation()
-
+	pnl = chart
 	context = {
 		'portfolio' : data,
 		'total' : total,
 		'asset' : asset,
+		'pnl' : pnl,
 	}
 	return render(request, 'registration/wallet.html', context=context)
 

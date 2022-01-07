@@ -15,10 +15,10 @@ class Charts:
         self.values = []
         self.percents = []
         self.prices = dict()
-        # self.func()
+        self.func()
 
     def func(self):
-        os.mkdir('static\exchange\img\charts')
+        # os.mkdir('static\exchange\img\charts')
 
         all_start_date = self.histories.first().time.replace(tzinfo=None)
         now_timestamp = time.time()
@@ -60,7 +60,7 @@ class Charts:
             try:
                 os.remove('static/exchange/img/charts/asset' + obj.assetUUID + '.png')
             except Exception as e:
-                print(e)
+                print
         obj.assetUUID = uId
         obj.save()
         fileName = 'asset' + uId + '.png'
@@ -136,3 +136,4 @@ class Charts:
         fileName = 'pnl' + uId + '.png'
         plt.savefig('static\\exchange\\img\\charts\\' + fileName)
         plt.title('P&L chart')
+        return fileName
