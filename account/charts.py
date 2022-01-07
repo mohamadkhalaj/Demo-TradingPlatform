@@ -133,12 +133,14 @@ class Charts:
             x, y = p.get_xy()
             if height < 0:
                 height -= 0.1
-            plt.text(x + width / 2, height, str(self.percents[i]) + '%', ha='center', weight='bold')
+            plt.text(x + width / 2, height, str(self.percents[i]) + '%', ha='center', weight='bold', color = 'white')
             i += 1
 
         plt.axhline(y=0, color='white', linewidth=0.2)
-        plt.xlabel('date')
-        plt.ylabel('PNL amount (USDT)')
+        plt.xlabel('date', color='white')
+        plt.ylabel('PNL amount (USDT)', color='white')
+        plt.tick_params(axis='x', colors='white')
+        plt.tick_params(axis='y', colors='white')
         uId = uuid.uuid4().hex[:25].upper()
         obj = User.objects.get(username=self.user)
         if obj.pnlUUID != '0':
