@@ -12,14 +12,13 @@ from django.contrib.auth import get_user_model
 from django.conf import settings
 
 def home(request):
-	# User.objects.get(username=request.user).delete()
 	if request.user.is_authenticated:
 		obj = User.objects.get(username=request.user)
 		if obj.first_login:
 			newObj = Portfolio(usr=request.user, cryptoName='USDT', amount=settings.DEFAULT_BALANCE, equivalentAmount=None)
 			newObj.save()
 			obj.first_login = False
-			obj.save()
+			obj.save()	
 	return render(request, 'exchange/index.html')
 
 
