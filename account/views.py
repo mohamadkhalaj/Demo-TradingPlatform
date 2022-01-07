@@ -201,4 +201,3 @@ def activate(request, uidb64, token):
 def allocate_USDT(user):
 	newObj = Portfolio(usr=user, cryptoName='USDT', amount=settings.DEFAULT_BALANCE, equivalentAmount=None)
 	newObj.save()
-

@@ -48,7 +48,8 @@ class Charts:
         cryptoDic = {}
         totalCR = []
         for index, item in enumerate(self.portfo):
-            cryptoDic[item.cryptoName] = calc_equivalent(item.cryptoName, 'USDT', item.amount)[1]
+            if calc_equivalent(item.cryptoName, 'USDT', item.amount)[1] != 0:
+                cryptoDic[item.cryptoName] = calc_equivalent(item.cryptoName, 'USDT', item.amount)[1]
         
         labels = list(cryptoDic.keys())
         fig, ax = plt.subplots(figsize=(6,4))
