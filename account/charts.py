@@ -23,25 +23,27 @@ class Charts:
             os.mkdir('static/exchange/img/charts')
 
         try:
-            all_start_date = self.histories.first().time.replace(tzinfo=None)
+            first_date = self.histories.first().time.replace(tzinfo=None)
         except:
             self.haveTrade = False
             print('This user has\'nt any trade.')
             return
         now_timestamp = time.time()
-        all_start_date = all_start_date + (datetime.fromtimestamp(now_timestamp) - datetime.utcfromtimestamp(now_timestamp))
+        first_date = first_date + (datetime.fromtimestamp(now_timestamp) - datetime.utcfromtimestamp(now_timestamp))
         end_date = datetime.now()
+        start_date = end_date - timedelta(days=30)
 
-        daysAgo = (end_date - all_start_date).days
+        daysAgo = (end_date - first_date).days
         if daysAgo >= 1:
-            self.get_prices(daysAgo)
-            self.pnl(all_start_date, end_date)
-            if daysAgo > 30:
-                self.dates = self.dates[-30:]
-                self.values = self.values[-30:]
-                self.percents = self.percents[-30:]
+            self.get_prices((end_date - start_date).days)
+            self.pnl(start_date, end_date)
         else:
-            self.dates.append(end_date.strftime('%m-%d'))
+            self.values = [0] * 30
+            self.percents = [0] * 30
+            delta = timedelta(days=1)
+            while start_date <= end_date:
+                self.dates.append(start_date.strftime('%m-%d'))
+                start_date += delta
             self.get_latest()
 
     def assetAllocation(self):
@@ -79,21 +81,27 @@ class Charts:
     def pnl(self, start_date, end_date):
         delta = timedelta(days=1)
         price_index = -1
+        hastrade = False
         while start_date <= end_date:
             total = 0
             price_index += 1
             try:
                 hst_dict = self.histories.filter(time__year=start_date.year, time__month=start_date.month,
                                                  time__day=start_date.day).last().histAmount
+                hastrade = True
             except:
                 pass
-            for dc in hst_dict:
-                crp = hst_dict[dc]['cryptoName']
-                amount = float(hst_dict[dc]['amount'])
-                total += self.prices[crp][price_index] * amount
 
-            self.values.append(total - 1000)
-            self.percents.append(round(((total - 1000) / 10), 2))
+            if hastrade:
+                for dc in hst_dict:
+                    crp = hst_dict[dc]['cryptoName']
+                    amount = float(hst_dict[dc]['amount'])
+                    total += self.prices[crp][price_index] * amount
+                self.values.append(total - 1000)
+                self.percents.append(round(((total - 1000) / 10), 2))
+            else:
+                self.values.append(0)
+                self.percents.append(0)
             self.dates.append(start_date.strftime('%m-%d'))
 
             start_date += delta
@@ -113,28 +121,32 @@ class Charts:
             response = requests.get('https://min-api.cryptocompare.com/data/price?fsym='+item.cryptoName+'&tsyms=USDT')
             price = float(response.json()['USDT'])
             total += price * item.amount
-        self.percents.append((total - 1000) / 10)
+        self.percents.append(round((total - 1000) / 10, 2))
         self.values.append(total - 1000)
 
-
     def bar_chart(self):
-        if self.haveTrade == False:
+        if not self.haveTrade:
             return False
         x = self.dates 
         y = self.values
         data = pd.DataFrame({'date': x, 'values': y, 'Percentage': self.percents})
         data['negative'] = data['values'] < 0
-        plt.figure(figsize=(9, 7))
+        plt.figure(figsize=(9, 5))
         graph = plt.bar(x, y, color=data.negative.map({True: 'r', False: 'g'}))
 
         i = 0
+        axes = plt.gca()
+        di = max(axes.get_ylim())/100
         for p in graph:
             width = p.get_width()
             height = p.get_height()
             x, y = p.get_xy()
             if height < 0:
-                height -= 0.1
-            plt.text(x + width / 2, height, str(self.percents[i]) + '%', ha='center', weight='bold', color = 'white')
+                height -= di
+            else:
+                height += di
+            if self.percents[i]:
+                plt.text(x + width / 2, height, str(self.percents[i]) + '%', ha='center', color='white', size=7)
             i += 1
 
         plt.axhline(y=0, color='white', linewidth=0.2)
@@ -152,7 +164,11 @@ class Charts:
         obj.pnlUUID = uId
         obj.save()
         fileName = 'pnl' + uId + '.png'
-        plt.savefig('static/exchange/img/charts/' + fileName, transparent = True)
-        plt.title('PNL chart')
+        plt.xticks(rotation=45, fontsize=7)
+        plt.tick_params(axis='x', colors='white')
+        plt.tick_params(axis='y', colors='white')
+        axes.spines['right'].set_color('none')
+        axes.spines['top'].set_color('none')
+        plt.savefig('static/exchange/img/charts/' + fileName, transparent=True)
 
         return fileName
