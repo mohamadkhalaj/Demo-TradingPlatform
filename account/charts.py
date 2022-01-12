@@ -1,8 +1,8 @@
 from exchange.common_functions import calc_equivalent
 from exchange.models import Portfolio, TradeHistory
 from datetime import datetime, timedelta
+import os, uuid, time, requests, random
 import matplotlib.pyplot as plt
-import os, uuid, time, requests
 from .models import User
 import pandas as pd
 
@@ -131,27 +131,32 @@ class Charts:
         y = self.values
         data = pd.DataFrame({'date': x, 'values': y, 'Percentage': self.percents})
         data['negative'] = data['values'] < 0
-        plt.figure(figsize=(9, 5))
-        graph = plt.bar(x, y, color=data.negative.map({True: 'r', False: 'g'}))
+        plt.figure(figsize=(11, 6))
+        graph = plt.bar(x, [value/10 for value in self.values], color=data.negative.map({True: 'r', False: 'g'}), width = 0.6)
 
         i = 0
         axes = plt.gca()
         di = max(axes.get_ylim())/100
+        diTemp = abs(di)
         for p in graph:
             width = p.get_width()
             height = p.get_height()
             x, y = p.get_xy()
+            barTextHeight = int()
             if height < 0:
+                barTextHeight = - random.uniform(diTemp * 30, diTemp * 45) 
                 height -= di
             else:
+                barTextHeight = random.uniform(diTemp * 30, diTemp * 45)
                 height += di
             if self.percents[i]:
-                plt.text(x + width / 2, height, str(self.percents[i]) + '%', ha='center', color='white', size=7)
+
+                plt.text(x + width / 2, height + barTextHeight, str(round(self.percents[i], 1)) + '%', ha='center', color='white', size=6)
             i += 1
 
         plt.axhline(y=0, color='white', linewidth=0.2)
         plt.xlabel('date', color='white')
-        plt.ylabel('PNL amount (USDT)', color='white')
+        plt.ylabel('PNL Percentage(%)', color='white')
         plt.tick_params(axis='x', colors='white')
         plt.tick_params(axis='y', colors='white')
         uId = uuid.uuid4().hex[:25].upper()
