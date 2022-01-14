@@ -141,5 +141,4 @@ HCAPTCHA_SITEKEY = config('HCAPTCHA_SITEKEY')
 HCAPTCHA_TIMEOUT = 5
 
 # social auth configuration
-AUTH_USER_MODEL = 'account.User'
 DEFAULT_BALANCE = 1000.0

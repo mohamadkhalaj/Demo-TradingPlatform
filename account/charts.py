@@ -137,21 +137,18 @@ class Charts:
         i = 0
         axes = plt.gca()
         di = max(axes.get_ylim())/100
-        diTemp = abs(di)
         for p in graph:
             width = p.get_width()
             height = p.get_height()
             x, y = p.get_xy()
             barTextHeight = int()
             if height < 0:
-                barTextHeight = - random.uniform(diTemp * 30, diTemp * 45) 
                 height -= di
             else:
-                barTextHeight = random.uniform(diTemp * 30, diTemp * 45)
                 height += di
             if self.percents[i]:
 
-                plt.text(x + width / 2, height + barTextHeight, str(round(self.percents[i], 1)) + '%', ha='center', color='white', size=6)
+                plt.text(x + width / 2, height, str(round(self.percents[i], 1)) + '%', ha='center', color='white', size=6)
             i += 1
 
         plt.axhline(y=0, color='white', linewidth=0.2)
