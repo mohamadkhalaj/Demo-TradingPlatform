@@ -3,9 +3,10 @@ import requests
 
 
 class Trade:
-    def __init__(self, user, type, pair, amount):
+    def __init__(self, user, orderType, type, pair, amount):
         self.user = user
-        self.portfo = Portfolio.objects.filter(usr=self.user)
+        self.orderType = orderType
+        self.portfo = Portfolio.objects.filter(usr=self.user, marketType='spot')
         self.result = None
         self.type = type
         self.pair = pair
@@ -70,11 +71,20 @@ class Trade:
             histAmount =dict()
             for index, item in enumerate(self.portfo.iterator()):
                 histAmount[index] = {'cryptoName':item.cryptoName, 'amount':item.amount}
-
             baseAmount = self.portfo.get(cryptoName=self.base).amount
             quoteAmount = self.portfo.get(cryptoName=self.qoute).amount
-            newHistory = TradeHistory(usr=self.user, type=self.type, pair=self.pair,
-                            histAmount=histAmount, amount=str(self.amount)+' '+self.crp, price=price)
+            newHistory = TradeHistory(
+                usr=self.user,
+                type=self.type,
+                pair=self.pair,
+                histAmount=histAmount,
+                amount=str(self.amount)+' '+self.crp,
+                price=price,
+                complete=True,
+                orderType=self.orderType
+            )
+               
+                    
             newHistory.save()
             self.result = {'state': 0, self.base: baseAmount, self.qoute: quoteAmount}
         else:
