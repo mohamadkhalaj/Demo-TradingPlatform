@@ -1,39 +1,58 @@
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
-import asyncio
+import asyncio, cryptocompare, requests, json
+from decouple import config
+
+def getCryptoList(page, limit):
+    url = f'https://min-api.cryptocompare.com/data/top/mktcap?limit={limit}&tsym=USD&page={page}'
+    cryptos = requests.get(url).json()['Data']
+    dictionary = {}
+    for crypto in cryptos:
+        cr = crypto['CoinInfo']
+        dictionary[cr['Name']] = cr['FullName']
+    return dictionary
+
+def cryptoJson(data):
+    global dictionary
+    data = data['DISPLAY']
+    domain = 'https://cryptocompare.com'
+    array = []
+    for item in data:
+        tmp = data[item]["USD"]
+        array.append(
+                {
+                    "symbol": item,
+                    "name": dictionary.get(item, ''),
+                    "price": tmp["PRICE"].strip('$ '),
+                    "24c": tmp["CHANGEPCT24HOUR"],
+                    "mc": tmp["MKTCAP"].strip('$ '),
+                    "vol": tmp["VOLUME24HOURTO"].strip('$ '),
+                    "img": domain + tmp["IMAGEURL"],
+                }
+            )
+    return array
 
 class EchoConsumer(AsyncJsonWebsocketConsumer):
     async def connect(self):
-        self.room_id = "echo_1"
-
-        await self.channel_layer.group_add(
-            self.room_id,
-            self.channel_name
-        )
         await self.accept()
 
-        while True:
-            await asyncio.ensure_future(self.periodMessage())
+    async def sendList(self, subs):
 
-    async def periodMessage(self):
-        await self.send('hello!')
-        await asyncio.sleep(1)
+        CRYPTO_COMPARE_API = config('CRYPTO_COMPARE_API')
+        cryptocompare.cryptocompare._set_api_key_parameter(CRYPTO_COMPARE_API)  
+
+        data = cryptocompare.get_price(subs, currency='USD', full=True)
+
+        await self.send_json(cryptoJson(data))
+        # await asyncio.sleep(1)
 
     async def disconnect(self, close_code):
-        await self.channel_layer.group_discard(
-            self.room_id,
-            self.channel_name
-        )
+        self.close()
 
     async def receive(self, text_data=None, bytes_data=None):
+        global dictionary
         if text_data:
-            await self.channel_layer.group_send(
-                self.room_id,
-                {
-                    'type': 'echo_message',
-                    'message': text_data + " - Sent By Server"
-                }
-            )
-
-    async def echo_message(self, event):
-        message = event['message']
-        await self.send_json(event)
+            page = json.loads(text_data)['page']
+            dictionary = getCryptoList(page, 10)
+            subs = list(dictionary.keys())
+            while True:
+                await asyncio.ensure_future(self.sendList(subs))

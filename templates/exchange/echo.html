@@ -34,7 +34,7 @@
         document.querySelector('#text-submit').onclick = function(e) {
             var messageInputDom = document.querySelector('#text-input');
             var message = messageInputDom.value;
-            socket.send(message);
+            socket.send(JSON.stringify({"page":message}));
 
             messageInputDom.value = '';
         };
