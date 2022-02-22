@@ -25,6 +25,7 @@ from .charts import Charts
 import requests, uuid, os
 from .models import User
 import shutil
+
 class Profile(LoginRequiredMixin, UpdateView):
 	model = User
 	form_class = ProfileForm

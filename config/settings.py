@@ -33,6 +33,7 @@ INSTALLED_APPS = [
     'social_django',
     'hcaptcha',
     'corsheaders',
+    'channels',
 ]
 
 MIDDLEWARE = [
@@ -77,7 +78,17 @@ AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
 )
 
-WSGI_APPLICATION = 'config.wsgi.application'
+# WSGI_APPLICATION = 'config.wsgi.application'
+ASGI_APPLICATION = "config.routing.application"
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [('localhost', 6379)],
+        },
+    },
+}
 
 DATABASES = {
     'default': {

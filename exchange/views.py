@@ -92,3 +92,7 @@ def recentTrades(request):
 	for index, item in enumerate(TradeHistory.objects.filter(amount__gt=0).order_by('-time').iterator()):
 		resJson[index] = {'type': item.type, 'pair': item.pair, 'pairPrice': item.price, 'amount': item.amount}
 	return JsonResponse(resJson)
+
+
+def echo(request):
+	return render(request, 'exchange/echo.html')
