@@ -60,7 +60,7 @@ def trade(request, value):
 	value = re.sub('\'', '\"', value)
 	value = json.loads(value)
 
-	tradeObject = Trade(request.user, value['type'], value['pair'], value['amount'])
+	tradeObject = Trade(request.user, 'market', value['type'], value['pair'], value['amount'])
 	result = tradeObject.result
 
 	return JsonResponse(result)
@@ -75,7 +75,7 @@ def portfolio(request):
 			equivalentAmount = None
 		else:
 			equivalentAmount = eq.calc_equivalent(item.cryptoName, 'USDT', item.amount)[1]
-		resJson[index] = {'cryptoName': item.cryptoName, 'amount': item.amount, 'equivalentAmount': equivalentAmount}
+		resJson[index] = {'cryptoName': item.cryptoName, 'amount': item.amount, 'equivalentAmount': equivalentAmount, 'marketType': item.marketType}
 	return JsonResponse(resJson)
 
 
@@ -84,7 +84,7 @@ def tradinghistory(request):
 	resJson = dict()
 
 	for index, item in enumerate(TradeHistory.objects.filter(usr=request.user, amount__gt=0).order_by('-time').iterator()):
-		resJson[index] = {'type': item.type, 'pair': item.pair, 'histAmount': item.histAmount, 'amount': item.amount,'price': item.price, 'time': item.time}
+		resJson[index] = {'type': item.type, 'pair': item.pair, 'histAmount': item.histAmount, 'amount': item.amount,'price': item.price, 'time': item.time, 'complete':item.complete, 'orderType': item.orderType}
 	return JsonResponse(resJson)
 
 def recentTrades(request):

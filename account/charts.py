@@ -9,8 +9,8 @@ import pandas as pd
 class Charts:
     def __init__(self, user):
         self.user = user
-        self.portfo = Portfolio.objects.filter(usr=self.user)
-        self.histories = TradeHistory.objects.filter(usr=self.user)
+        self.portfo = Portfolio.objects.filter(usr=self.user, marketType='spot')
+        self.histories = TradeHistory.objects.filter(usr=self.user, complete=True)
         self.dates = []
         self.values = []
         self.percents = []
