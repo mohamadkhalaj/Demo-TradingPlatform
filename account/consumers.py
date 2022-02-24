@@ -6,14 +6,16 @@ def getCryptoList(page, limit):
     url = f'https://min-api.cryptocompare.com/data/top/mktcap?limit={limit}&tsym=USD&page={page}'
     cryptos = requests.get(url).json()['Data']
     dictionary = {}
-    for crypto in cryptos:
+    for index, crypto in enumerate(cryptos):
         cr = crypto['CoinInfo']
         dictionary[cr['Name']] = cr['FullName']
+        dictionary[cr['Name'] + '_rank'] = index + 1
     return dictionary
 
 def cryptoJson(data):
     global dictionary
     data = data['DISPLAY']
+
     domain = 'https://cryptocompare.com'
     array = []
     for item in data:
@@ -22,16 +24,19 @@ def cryptoJson(data):
                 {
                     "symbol": item,
                     "name": dictionary.get(item, ''),
+                    "rank": dictionary.get(item + '_rank', ''),
                     "price": tmp["PRICE"].strip('$ '),
                     "24c": tmp["CHANGEPCT24HOUR"],
                     "mc": tmp["MKTCAP"].strip('$ '),
+                    "24h": tmp["HIGH24HOUR"].strip('$ '),
+                    "24l": tmp["LOW24HOUR"].strip('$ '),
                     "vol": tmp["VOLUME24HOURTO"].strip('$ '),
                     "img": domain + tmp["IMAGEURL"],
                 }
             )
     return array
 
-class EchoConsumer(AsyncJsonWebsocketConsumer):
+class MarketConsumer(AsyncJsonWebsocketConsumer):
     async def connect(self):
         await self.accept()
 
@@ -43,7 +48,7 @@ class EchoConsumer(AsyncJsonWebsocketConsumer):
         data = cryptocompare.get_price(subs, currency='USD', full=True)
 
         await self.send_json(cryptoJson(data))
-        # await asyncio.sleep(1)
+        await asyncio.sleep(1)
 
     async def disconnect(self, close_code):
         self.close()
@@ -52,7 +57,11 @@ class EchoConsumer(AsyncJsonWebsocketConsumer):
         global dictionary
         if text_data:
             page = json.loads(text_data)['page']
-            dictionary = getCryptoList(page, 10)
-            subs = list(dictionary.keys())
+            dictionary = getCryptoList(page, 20)
+            temp = list(dictionary.keys())
+            subs = []
+            for item in temp:
+                if '_rank' not in item:
+                    subs.append(item)
             while True:
                 await asyncio.ensure_future(self.sendList(subs))

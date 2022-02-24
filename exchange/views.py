@@ -25,35 +25,8 @@ def home(request):
 def signUp(request):
 	return render(request, 'registration/signup.html')
 
-def markets(request, page=1):
-	url = 'https://api.coingecko.com/api/v3/coins/markets?vs_currency=USD&order=market_cap_desc&per_page=250&page=1&sparkline=false'
-	cryptoList = requests.get(url).json()
-
-	url = 'https://api.coingecko.com/api/v3/coins/markets?vs_currency=USD&order=market_cap_desc&per_page=250&page=2&sparkline=false'
-	cryptoList.extend(requests.get(url).json())
-
-	paginator = Paginator(cryptoList, 50)
-	data = paginator.get_page(page)
-
-	for item in data:
-		item['current_price'] = pretify(item['current_price'])
-		item['market_cap'] = pretify(item['market_cap'])
-
-		try:
-			item['price_change_percentage_24h'] = float(pretify(item['price_change_percentage_24h']))
-		except:
-			item['price_change_percentage_24h'] = pretify(item['price_change_percentage_24h'])
-
-		item['high_24h'] = pretify(item['high_24h'])
-		item['low_24h'] = pretify(item['low_24h'])
-		item['total_volume'] = pretify(item['total_volume'])
-
-	context = {
-		'data': data,
-		'cryptoList': cryptoList,
-	}
-
-	return render(request, 'exchange/markets.html', context=context)
+def markets(request):
+	return render(request, 'exchange/markets.html')
 
 @login_required()
 def trade(request, value):

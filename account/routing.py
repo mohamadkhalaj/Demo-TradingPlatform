@@ -4,5 +4,5 @@ from account import consumers
 
 app_name = 'account_ws'
 websocket_urlpatterns = [
-    path('ws/', consumers.EchoConsumer.as_asgi()),
+    path('ws/', consumers.MarketConsumer.as_asgi()),
 ]
