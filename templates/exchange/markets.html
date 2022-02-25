@@ -83,28 +83,20 @@
         <div class="col-md-12">
           <div class="markets-pair-list">
 
-<!--             <div class="input-group">
+            <div class="input-group">
     
               <input type="text" class="live-search-box" placeholder="search here" />
+              
+              <ul class="live-search-list" id='searchParent'>
+                
+                <li id='res' class="d-none">
+                  <p style="color: black;">Nothing found!</p>
+                </li>
+                <div id="searchBefore"></div>
 
-              <ul class="live-search-list" style="display: none">
-              {% for obj in cryptoList %}
-                  <a href="{% url 'account:trade' obj.symbol.upper %}-USDT">
-                    {% if forloop.counter >= 11 %}
-                    <li style="display: none">
-                    {% else %}
-                    <li>
-                    {% endif %}
-                      <div class="row">
-                        <div class="col-1" >{{obj.market_cap_rank}}</div>
-                        <div class="col-5" ><img src={{obj.image}} style="height:18px"> {{obj.name}} ({{obj.symbol.upper}})</div>
-                        <div class="col-6" ></div>
-                      </div>
-                    </li>
-                  </a>
-              {% endfor %}
               </ul>
-            </div> -->
+
+            </div>
 
             <div class="tab-content">
               <div class="tab-pane fade show" style="display:block">
@@ -144,4 +136,5 @@
 
 <script src="{% static 'exchange/js/pagination.js' %}"></script>
 <script src="{% static 'exchange/js/markets.js' %}"></script>
+<script src="{% static 'exchange/js/search.js' %}"></script>
 {% endblock %}

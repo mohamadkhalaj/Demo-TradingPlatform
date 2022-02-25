@@ -13,7 +13,6 @@ socket.onclose = function(e) {
     console.error('Socket closed unexpectedly');
 };
 
-console.clear()
 
 function fillData(data) {
     Object.keys(data).forEach(function(item, index) {
@@ -129,7 +128,7 @@ function pagination(page) {
     }
 
     next.onclick = function(event) {
-        if (page <= 30) {
+        if (page < 29) {
             socket.close()
             page ++
 
