@@ -1,3 +1,7 @@
+from ast import Await
+from curses.ascii import HT
+import imp
+import asgiref
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, JsonResponse
 from django.contrib.auth import get_user_model
@@ -10,6 +14,8 @@ import json, re, requests
 from account.models import User
 from django.contrib.auth import get_user_model
 from django.conf import settings
+import channels.layers
+from asgiref.sync import async_to_sync
 
 def home(request):
 	if request.user.is_authenticated:
@@ -69,3 +75,16 @@ def recentTrades(request):
 
 def echo(request):
 	return render(request, 'exchange/echo.html')
+
+
+def test(request, value):
+	channel_layer = channels.layers.get_channel_layer()
+	async_to_sync (channel_layer.group_send)(
+            'bookOrder',
+		    {
+                'type': 'order.display',
+                'content': 'valueee'
+		    }
+        )
+	
+	return render(request, 'exchange/test.html')

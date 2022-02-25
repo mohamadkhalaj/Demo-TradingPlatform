@@ -4,5 +4,5 @@ from exchange import consumers
 
 app_name = 'exchange_ws'
 websocket_urlpatterns = [
-    # path('ws/chat/<str:chat_id>/', consumers.ChatConsumer),
+    path('ws/orders/', consumers.OrdersConsumer.as_asgi()),
 ]

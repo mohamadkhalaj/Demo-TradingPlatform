@@ -9,6 +9,7 @@ from .views import (
 		tradinghistory,
 		recentTrades,
 		echo,
+		test
 	)
 
 app_name = 'exchange'
@@ -20,4 +21,5 @@ urlpatterns = [
 	path('tradinghistory/', tradinghistory, name='tradinghistory'),
 	path('recentTrades/', recentTrades, name='recentTrades'),
 	path('echo/', echo, name='echo'),
+	path('test/<str:value>', test, name='test'),
 ]

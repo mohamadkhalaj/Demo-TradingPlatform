@@ -2,9 +2,11 @@ from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.auth import AuthMiddlewareStack
 from channels.sessions import SessionMiddlewareStack
 from channels.security.websocket import OriginValidator, AllowedHostsOriginValidator
+from charset_normalizer import from_path
 
 from account import routing as account_routing
 from exchange import routing as exchange_routing
+
 
 application = ProtocolTypeRouter({
     'websocket': AllowedHostsOriginValidator(
