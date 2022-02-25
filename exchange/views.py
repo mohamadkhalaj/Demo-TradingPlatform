@@ -3,19 +3,20 @@ from curses.ascii import HT
 import imp
 import asgiref
 from django.contrib.auth.decorators import login_required
+from requests.structures import CaseInsensitiveDict
 from django.http import HttpResponse, JsonResponse
-from django.contrib.auth import get_user_model
 from .common_functions import Give_equivalent, pretify
+from django.contrib.auth import get_user_model
 from .models import TradeHistory, Portfolio
 from django.core.paginator import Paginator
 from django.shortcuts import render
-from .trade import Trade
-import json, re, requests
-from account.models import User
-from django.contrib.auth import get_user_model
 from django.conf import settings
 import channels.layers
 from asgiref.sync import async_to_sync
+from account.models import User
+import json, re, requests
+from .trade import Trade
+import urllib.parse
 
 def home(request):
 	if request.user.is_authenticated:
@@ -27,6 +28,24 @@ def home(request):
 			obj.save()	
 	return render(request, 'exchange/index.html')
 
+def search(request, value):
+
+	headers = CaseInsensitiveDict()
+	url = "https://arzdigital.com/wp-admin/admin-ajax.php"
+	headers["Content-Type"] = "application/x-www-form-urlencoded"
+
+	encoddedValue = urllib.parse.quote_plus(json.dumps({"s":value}))
+	data = f"action=arzAjax&query=search&data={encoddedValue}"
+
+	try:
+		resp = requests.post(url, headers=headers, data=data).json().get('coins', 'null')
+	except:
+		resp = 'null'
+		
+	if resp != 'null':
+		for item in resp:
+			item['image'] = f'https://cdn.arzdigital.com/uploads/assets/coins/icons/32x32/{item["slug"]}.png'
+	return JsonResponse(resp, safe=False)
 
 def signUp(request):
 	return render(request, 'registration/signup.html')

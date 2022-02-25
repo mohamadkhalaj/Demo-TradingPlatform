@@ -83,28 +83,24 @@
         <div class="col-md-12">
           <div class="markets-pair-list">
 
-<!--             <div class="input-group">
+            <div class="input-group">
     
-              <input type="text" class="live-search-box" placeholder="search here" />
+              <input id="inputBox" type="text" class="live-search-box" placeholder="search here" />
+              
+              <ul class="live-search-list" style="display:none;" id='searchParent'>
+                
+                <li id='res' class="d-none">
+                  <p style="color: black;">Nothing found!</p>
+                </li>
 
-              <ul class="live-search-list" style="display: none">
-              {% for obj in cryptoList %}
-                  <a href="{% url 'account:trade' obj.symbol.upper %}-USDT">
-                    {% if forloop.counter >= 11 %}
-                    <li style="display: none">
-                    {% else %}
-                    <li>
-                    {% endif %}
-                      <div class="row">
-                        <div class="col-1" >{{obj.market_cap_rank}}</div>
-                        <div class="col-5" ><img src={{obj.image}} style="height:18px"> {{obj.name}} ({{obj.symbol.upper}})</div>
-                        <div class="col-6" ></div>
-                      </div>
-                    </li>
-                  </a>
-              {% endfor %}
+                <li id='loading' class="d-none">
+                  <p style="color: black;">Loading...</p>
+                </li>
+                <div id="searchBefore"></div>
+
               </ul>
-            </div> -->
+
+            </div>
 
             <div class="tab-content">
               <div class="tab-pane fade show" style="display:block">
@@ -131,7 +127,7 @@
               
                 <button id="paginationPrev" href="#" style="margin-right: 10px" class="load-more btn">Previous Page</button>
 
-                <span id="paginationText" class="green" style="position:absolute; bottom:0;"></span>
+                <span id="paginationText" class="green" style="position: absolute; bottom: 8px;margin-left: 21px;"></span>
 
                 <button id="paginationNext" href="#" style="margin-left: 90px" class="load-more btn">Next Page</button>
 
@@ -144,4 +140,5 @@
 
 <script src="{% static 'exchange/js/pagination.js' %}"></script>
 <script src="{% static 'exchange/js/markets.js' %}"></script>
+<script src="{% static 'exchange/js/search.js' %}"></script>
 {% endblock %}

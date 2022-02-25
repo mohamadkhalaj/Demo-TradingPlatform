@@ -9,7 +9,7 @@ def getCryptoList(page, limit):
     for index, crypto in enumerate(cryptos):
         cr = crypto['CoinInfo']
         dictionary[cr['Name']] = cr['FullName']
-        dictionary[cr['Name'] + '_rank'] = index + 1
+        dictionary[cr['Name'] + '_rank'] = (page * limit) + (index + 1)
     return dictionary
 
 def cryptoJson(data):
