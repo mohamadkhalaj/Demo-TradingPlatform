@@ -31,7 +31,11 @@ def search(request, value):
 	encoddedValue = urllib.parse.quote_plus(json.dumps({"s":value}))
 	data = f"action=arzAjax&query=search&data={encoddedValue}"
 
-	resp = requests.post(url, headers=headers, data=data).json().get('coins', 'null')
+	try:
+		resp = requests.post(url, headers=headers, data=data).json().get('coins', 'null')
+	except:
+		resp = 'null'
+		
 	if resp != 'null':
 		for item in resp:
 			item['image'] = f'https://cdn.arzdigital.com/uploads/assets/coins/icons/32x32/{item["slug"]}.png'

@@ -1,3 +1,4 @@
+document.getElementById("inputBox").value = '';
 var createdObj = []
 function removeObj() {
     createdObj.forEach(function(item, index) {
@@ -17,15 +18,19 @@ function getCoins(query){
 
     xhr.onreadystatechange = function(e) {
         if (this.status === 200 && xhr.readyState == 4) {
+            var loading = document.getElementById("loading");
+            var res = document.getElementById("res");
             resp = this.response;
             if (resp != 'null') {
             	Object.keys(resp).forEach(function(item, index) {
-					console.log(resp['index'])
+                    loading.classList.remove('d-block')
+                    loading.classList.add('d-none')
 					createReasult(resp[index]);
 				})
             }
             else {
-            	var res = document.getElementById("res");
+                loading.classList.remove('d-block')
+                loading.classList.add('d-none')
             	res.classList.remove('d-none')
 				res.classList.add('d-block')
             }
@@ -59,9 +64,9 @@ function createReasult(data) {
     col.classList.add('col-6')
 
     image.src = data['image']
-    image.setAttribute('style', 'height:18px')
+    image.setAttribute('style', 'height:18px; margin-right: 10px;')
     coin.setAttribute('style', 'display:block ruby')
-    name.innerText = ' ' + data['name'] + ` (${data["symbol"]})`
+    name.innerText = data['name'] + ` (${data["symbol"]})`
     a.href = `/account/trade/${data["symbol"]}-USDT`
 
     coin.appendChild(image)
@@ -92,12 +97,15 @@ jQuery(document).ready(function($){
 
 	$('.live-search-box').keyup(delay(function (e) {
 		var res = document.getElementById("res");
+        var loading = document.getElementById("loading");
 		removeObj()
 		searchTerm = $(this).val().toLowerCase();
 		console.log(searchTerm)
 		if (searchTerm != '') {
 			res.classList.remove('d-block')
 			res.classList.add('d-none')
+            loading.classList.remove('d-none')
+            loading.classList.add('d-block')
 			getCoins(searchTerm)
 		}
 		else {
@@ -109,6 +117,7 @@ jQuery(document).ready(function($){
   $(function() {     
 	$('.live-search-box').on('click',function(e) {
 			$('.live-search-list').toggle();
+            document.getElementById("inputBox").value = '';
 			if (searchTerm == '') {
 				res.classList.remove('d-none')
 				res.classList.add('d-block')

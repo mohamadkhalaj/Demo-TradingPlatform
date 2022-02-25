@@ -85,12 +85,16 @@
 
             <div class="input-group">
     
-              <input type="text" class="live-search-box" placeholder="search here" />
+              <input id="inputBox" type="text" class="live-search-box" placeholder="search here" />
               
-              <ul class="live-search-list" id='searchParent'>
+              <ul class="live-search-list" style="display:none;" id='searchParent'>
                 
                 <li id='res' class="d-none">
                   <p style="color: black;">Nothing found!</p>
+                </li>
+
+                <li id='loading' class="d-none">
+                  <p style="color: black;">Loading...</p>
                 </li>
                 <div id="searchBefore"></div>
 
