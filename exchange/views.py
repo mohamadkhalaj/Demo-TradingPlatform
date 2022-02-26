@@ -98,7 +98,7 @@ def echo(request):
 
 def test(request, value):
 	channel_layer = channels.layers.get_channel_layer()
-	async_to_sync (channel_layer.group_send)(
+	channel_layer.group_send(
             'bookOrder',
 		    {
                 'type': 'order.display',
