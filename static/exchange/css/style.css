@@ -1,9 +1,9 @@
-@import url("http://fonts.googleapis.com/css?family=Overpass:300,400,600,700&amp;display=swap");
+@import url("http://fonts.googleapis.com/css?family=Montserrat:300,400,600,700&amp;display=swap");
 @import url("bootstrap.min.css");
 @import url("ionicons.min.css");
 @import url("jquery.mCustomScrollbar.min.css");
 body {
-    font-family: 'Overpass', sans-serif;
+    font-family: 'Montserrat', sans-serif;
     font-size: 14px;
     line-height: 1.5;
     color: #18214D;
@@ -1100,18 +1100,16 @@ tbody.ob-heading {
 
 .market-trade button.buy,
 .market-trade button.sell {
-    background: #26de81;
+    background: green;
     color: #fff;
     text-transform: uppercase;
     padding: 10px;
     margin-top: 30px;
     width: 100%;
-    box-shadow: 0px 0px 15px 0px #26de81ad;
 }
 
 .market-trade button.sell {
     background: #ff231f;
-    box-shadow: 0px 0px 15px 0px #ff231fad;
 }
 
 .market-trade p {
@@ -1353,7 +1351,7 @@ tbody.ob-heading {
 }
 
 .markets-pair-list td img {
-    width: 20px;
+    width: 28px;
     vertical-align: text-top;
     margin-right: 5px;
 }
@@ -2554,10 +2552,16 @@ tbody.ob-heading {
     -webkit-box-sizing: border-box;
     -moz-box-sizing: border-box;
     box-sizing: border-box;
-    border: 1px solid #3498db;
+    border: 1px solid #fff;
     -webkit-border-radius: 5px;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+    border-bottom-left-radius: 5px;
     -moz-border-radius: 5px;
     border-radius: 5px;
+    background-color: #131722;
+    color: white;
 }
 
 .live-search-list li {

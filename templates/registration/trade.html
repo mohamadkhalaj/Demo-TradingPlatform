@@ -10,7 +10,7 @@
       <div class="col-md-3">
         <div class="market-pairs">
 
-          <div class="input-group">
+          <!-- <div class="input-group">
             <input type="text" class="live-search-box" placeholder="search here" />
 
               <ul class="live-search-list" style="display: none; width:92%">
@@ -30,15 +30,14 @@
                   </a>
               {% endfor %}
               </ul>
-          </div>
-
+          </div> -->
           <ul class="nav nav-pills" role="tablist">
             </li>
             <li class="nav-item">
-              <a class="nav-link active">USDT</a>
+              <a class="nav-link active">{{pair}}</a>
             </li>
           </ul>
-          <div class="tab-content">
+          <div class="tab-content d-none d-lg-block">
             <div class="tab-pane fade show d-block">
               <table class="table">
                 <thead>
@@ -163,7 +162,7 @@
         {% endif %}
       </div>
       <div class="col-md-3">
-        <div class="order-book mb15">
+        <div class="order-book mb15 d-none d-lg-block">
           <h2 class="heading">Technical analysis</h2>
             <div class="tradingview-widget-container tradingview-tecnical-analys">
             <div class="tradingview-widget-container__widget"></div>
