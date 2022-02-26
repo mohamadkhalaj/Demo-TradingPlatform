@@ -60,7 +60,15 @@ def trade(request, value):
 
 	tradeObject = Trade(request.user, 'market', value['type'], value['pair'], value['amount'])
 	result = tradeObject.result
-
+	if result['state'] == 0:
+		channel_layer = channels.layers.get_channel_layer()
+		async_to_sync (channel_layer.group_send)(
+			'orderBook',
+			{
+				'type': 'order.display',
+				'content': result
+			}
+		)
 	return JsonResponse(result)
 
 
@@ -94,16 +102,3 @@ def recentTrades(request):
 
 def echo(request):
 	return render(request, 'exchange/echo.html')
-
-
-def test(request, value):
-	channel_layer = channels.layers.get_channel_layer()
-	channel_layer.group_send(
-            'bookOrder',
-		    {
-                'type': 'order.display',
-                'content': 'valueee'
-		    }
-        )
-	
-	return render(request, 'exchange/test.html')

@@ -1,6 +1,6 @@
 from .models import TradeHistory, Portfolio
 import requests
-
+from datetime import datetime
 
 class Trade:
     def __init__(self, user, orderType, type, pair, amount):
@@ -86,9 +86,13 @@ class Trade:
                
                     
             newHistory.save()
-            self.result = {'state': 0, self.base: baseAmount, self.qoute: quoteAmount}
+            time = datetime.now()
+            time = time.strftime("%H:%M:%S")
+            pair = self.pair.replace('-', '')
+            self.result  ={'state': 0, 'price': self.amount, 'amount': self.equivalent, 'time': time, 'type': self.type, 'pair': pair.upper()} 
         else:
             self.result = {'state': state}
+
 
     def calc_equivalent(self, base, qoute, amount):
         base = base.upper()

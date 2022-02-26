@@ -9,7 +9,6 @@ from .views import (
 		tradinghistory,
 		recentTrades,
 		echo,
-		test,
 		search,
 	)
 
@@ -22,6 +21,5 @@ urlpatterns = [
 	path('tradinghistory/', tradinghistory, name='tradinghistory'),
 	path('recentTrades/', recentTrades, name='recentTrades'),
 	path('echo/', echo, name='echo'),
-	path('test/<str:value>', test, name='test'),
 	path('search/<str:value>', search, name='search'),
 ]

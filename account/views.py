@@ -80,13 +80,6 @@ def tradeHistory(request, page=1):
 	return render(request, 'registration/tradeHistory.html', context = context)
 
 def trade(request, pair='BINANCE:BTCUSDT'):
-	if request.user.is_authenticated:
-		obj = User.objects.get(username=request.user)
-		if obj.first_login:
-			newObj = Portfolio(usr=request.user, cryptoName='USDT', amount=settings.DEFAULT_BALANCE, equivalentAmount=None)
-			newObj.save()
-			obj.first_login = False
-			obj.save()
 	url = 'https://api.coingecko.com/api/v3/coins/markets?vs_currency=USD&order=market_cap_desc&per_page=250&page=1&sparkline=false'
 	data = requests.get(url).json()
 
@@ -197,8 +190,3 @@ def activate(request, uidb64, token):
 		}
 		return render(
 			request, 'registration/messages.html', context=context)
-
-
-def allocate_USDT(user):
-	newObj = Portfolio(usr=user, cryptoName='USDT', amount=settings.DEFAULT_BALANCE, equivalentAmount=None)
-	newObj.save()

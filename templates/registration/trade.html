@@ -185,7 +185,7 @@
           <ul class="nav nav-pills" role="tablist">
             <li class="nav-item">
               <a class="nav-link active" data-toggle="pill" href="#recent-trades" role="tab" aria-selected="true">Recent
-                Trades</a>
+                Trades for {{ pair|slice:"8:" }}</a>
             </li>
           </ul>
           <div class="tab-content">
@@ -193,9 +193,9 @@
               <table class="table">
                 <thead>
                   <tr>
-                    <th>Pair</th>
                     <th>Price</th>
                     <th>Amount</th>
+                    <th>Time</th>
                   </tr>
                 </thead>
                 <tbody id='recentTradesHistory'>
@@ -244,4 +244,48 @@
 <div id="alert" class="alerts">
 
 </div>
+<script>
+  var socket = new WebSocket('ws://' + window.location.host + '/ws/orders/');
+  var pair = '{{pair}}'.slice(8);
+  var parent = document.getElementById("recentTradesHistory");
+  var createdRecentTrades = [];
+
+  socket.onopen = function(e){
+      console.log('socket is on !!!');
+  }
+  socket.onmessage = function(e){
+      data = JSON.parse(e.data);
+      console.log(data);
+      if(pair == data['pair']){
+        append_order(data);
+      }   
+  }
+  socket.onclose = function(e){
+      console.log('socket is off !!!!!!');
+  }
+
+  function append_order(data){
+    var newNode = document.createElement("tr");
+    var price = document.createElement("td");
+    var amount = document.createElement("td");
+    var time = document.createElement("td");
+
+    price.innerText = data['price'].toFixed(2);
+    amount.innerText = data['amount'].toFixed(5);
+    time.innerText = data['time'];
+
+    if (data['type'] == 'buy') {
+            price.classList.add('green')
+        }
+        else {
+            price.classList.add('red')
+        }
+
+    newNode.appendChild(price)
+    newNode.appendChild(amount)
+    newNode.appendChild(time)
+    createdRecentTrades.push(newNode)
+    parent.appendChild(newNode)
+  }
+</script>
 {% endblock %}
