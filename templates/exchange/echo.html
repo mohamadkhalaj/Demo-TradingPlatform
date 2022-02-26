@@ -13,7 +13,7 @@
     <script>
         var socket = new WebSocket(
             'ws://' + window.location.host +
-            '/ws/');
+            '/ws/wallet/');
 
         socket.onmessage = function(e) {
             var message = e.data;

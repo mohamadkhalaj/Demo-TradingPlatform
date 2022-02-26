@@ -21,7 +21,6 @@ from django.shortcuts import redirect
 from django.urls import reverse_lazy
 import matplotlib.pyplot as plt
 from typing import ByteString
-from .charts import Charts
 import requests, uuid, os
 from .models import User
 import shutil
@@ -39,25 +38,15 @@ class Profile(LoginRequiredMixin, UpdateView):
 @login_required
 def wallet(request, page=1):
 	total = float()
-	portfolio = Portfolio.objects.filter(usr=request.user, amount__gt=0).order_by('-equivalentAmount')
+	portfolio = Portfolio.objects.filter(usr=request.user, amount__gt=0)
 	paginator = Paginator(portfolio, 7)
 	data = paginator.get_page(page)
 	
-	total = pretify(sum([calc_equivalent(item.cryptoName, 'USDT', item.amount)[1] for item in portfolio]))
 	for index, item in enumerate(data):
-		usdt = calc_equivalent(item.cryptoName, 'USDT', item.amount)[1]
-		data[index].equivalentAmount = pretify(usdt)
 		data[index].amount = pretify(item.amount)
-
-	chart = Charts(request.user)
-	asset = chart.assetAllocation()
-	pnl = chart.bar_chart()
 
 	context = {
 		'portfolio' : data,
-		'total' : total,
-		'asset' : asset,
-		'pnl' : pnl,
 	}
 	return render(request, 'registration/wallet.html', context=context)
 
