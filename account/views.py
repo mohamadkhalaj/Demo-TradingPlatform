@@ -21,7 +21,6 @@ from django.shortcuts import redirect
 from django.urls import reverse_lazy
 import matplotlib.pyplot as plt
 from typing import ByteString
-from .charts import Charts
 import requests, uuid, os
 from .models import User
 import shutil
@@ -39,25 +38,15 @@ class Profile(LoginRequiredMixin, UpdateView):
 @login_required
 def wallet(request, page=1):
 	total = float()
-	portfolio = Portfolio.objects.filter(usr=request.user, amount__gt=0).order_by('-equivalentAmount')
+	portfolio = Portfolio.objects.filter(usr=request.user, amount__gt=0)
 	paginator = Paginator(portfolio, 7)
 	data = paginator.get_page(page)
 	
-	total = pretify(sum([calc_equivalent(item.cryptoName, 'USDT', item.amount)[1] for item in portfolio]))
 	for index, item in enumerate(data):
-		usdt = calc_equivalent(item.cryptoName, 'USDT', item.amount)[1]
-		data[index].equivalentAmount = pretify(usdt)
 		data[index].amount = pretify(item.amount)
-
-	chart = Charts(request.user)
-	asset = chart.assetAllocation()
-	pnl = chart.bar_chart()
 
 	context = {
 		'portfolio' : data,
-		'total' : total,
-		'asset' : asset,
-		'pnl' : pnl,
 	}
 	return render(request, 'registration/wallet.html', context=context)
 
@@ -80,13 +69,6 @@ def tradeHistory(request, page=1):
 	return render(request, 'registration/tradeHistory.html', context = context)
 
 def trade(request, pair='BINANCE:BTCUSDT'):
-	if request.user.is_authenticated:
-		obj = User.objects.get(username=request.user)
-		if obj.first_login:
-			newObj = Portfolio(usr=request.user, cryptoName='USDT', amount=settings.DEFAULT_BALANCE, equivalentAmount=None)
-			newObj.save()
-			obj.first_login = False
-			obj.save()
 	url = 'https://api.coingecko.com/api/v3/coins/markets?vs_currency=USD&order=market_cap_desc&per_page=250&page=1&sparkline=false'
 	data = requests.get(url).json()
 
@@ -197,8 +179,3 @@ def activate(request, uidb64, token):
 		}
 		return render(
 			request, 'registration/messages.html', context=context)
-
-
-def allocate_USDT(user):
-	newObj = Portfolio(usr=user, cryptoName='USDT', amount=settings.DEFAULT_BALANCE, equivalentAmount=None)
-	newObj.save()

@@ -37,13 +37,13 @@
                               <img src="https://creepy-corp.eu/git/jsupa/crypto-icons/get.php?token={{item.cryptoName}}" alt="{{item.cryptoName}}">
                               <div>
                                 <h2>{{item.cryptoName}}</h2>
-                                <p>{{item.cryptoName}}</p>
+                                <p>---</p>
                               </div>
                             </div>
                             <div>
                               <h3 class="float-right">{{item.amount}}</h3>
                               <br>
-                              <p class="float-right">total: {{item.equivalentAmount}}</p>
+                              <p class="float-right">total: ---</p>
                             </div>
                           </a>
                         {% endfor %}
@@ -78,12 +78,7 @@
                                   <h2>Total Margin (USDT)</h2>
                                 </div>
                                 <div>
-                                  <h3>
-                                    {% if total %}
-                                      {{total}}$
-                                    {% else %}
-                                      ---
-                                    {% endif %}
+                                  <h3 id="totalMargin">
                                   </h3>
                                 </div>
                               </li>
@@ -96,26 +91,24 @@
                               <div class="d-flex justify-content-center">
                                 <div class="form-access">
                                     <span class="errors">
-                                      <img src="{% static 'exchange/img/charts/' %}{{asset}}" alt="">
+                                      <div id="assetAllocation" style="min-width: 500px; min-height: 500px;"></div>
                                     </span>
                                 </div>
                               </div>
                           </div>
                         </div>
-                        {% if pnl %}
-                          <div class="card">
-                            <div class="card-body">
+                          <div class="card d-none" id="pnlDiv">
+                            <div class="card-body" style="overflow: auto;">
                               <h5 class="card-title">PNL</h5>
                                 <div class="d-flex justify-content-center">
                                   <div class="form-access">
                                       <span class="errors">
-                                        <img style="max-width:870px !important" src="{% static 'exchange/img/charts/' %}{{pnl}}" alt="">
+                                        <canvas id="pnl" style="min-width: 500px; min-height: 300px;"></canvas>
                                       </span>
                                   </div>
                                 </div>
                             </div>
                           </div>
-                        {% endif %}
                       </div>
                   </div>
                 </div>
@@ -126,5 +119,9 @@
       </div>
     </div>
   </div>
+
+<script src="https://www.gstatic.com/charts/loader.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+<script src="{% static 'exchange/js/wallet.js' %}"></script>
 
 {% endblock %}

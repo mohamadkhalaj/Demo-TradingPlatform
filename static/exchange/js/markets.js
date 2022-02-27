@@ -1,5 +1,4 @@
 var socket = new WebSocket('ws://' + window.location.host + '/ws/');
-
 socket.onopen = function () {
     socket.send(JSON.stringify({"page":0}));
 };
@@ -11,8 +10,9 @@ socket.onmessage = function(e) {
 };
 
 socket.onclose = function(e) {
-    console.error('Socket closed unexpectedly');
+    console.log('Socket closed unexpectedly');
 };
+
 
 function fillData(data) {
     Object.keys(data).forEach(function(item, index) {
@@ -95,29 +95,67 @@ function initial() {
     }
 }
 
-function pagination(page, socket) {
-    var prev = document.getElementById('paginationPrev')
-    var now = document.getElementById('paginationText')
-    var next = document.getElementById('paginationNext')
-    now.innerText = page + '/' + 30
+function pagination(page) {
 
-    prev.onclick = function(event) {
-        if (page > 1) {
+    var clickTimeout;
+    $('#paginationText').text(page + 1 + '/' + 30)
+
+    $('#paginationPrev').click(function (e) {
+        if (page > 0) {
+            clearTimeout(clickTimeout);
             page --
-            socket.send(JSON.stringify({"page":page}));
-            now.innerText = page + '/' + 30
-        }
-    }
 
-    next.onclick = function(event) {
-      if (page <= 30) {
-            page ++
-            socket.send(JSON.stringify({"page":page}));
-            now.innerText = page + '/' + 30
+            $('#paginationText').text(page + 1 + '/' + 30)
+
+            clickTimeout = setTimeout(function(){
+                socket.close()
+                socket = new WebSocket('ws://' + window.location.host + '/ws/');
+
+                socket.onopen = function () {
+                    socket.send(JSON.stringify({"page":page}));
+                };
+
+                socket.onmessage = function(e) {
+                    var message = e.data;
+                    data = JSON.parse(message)
+                    fillData(data)
+                };
+
+                socket.onclose = function(e) {
+                    console.log('Socket closed unexpectedly');
+                };
+            }, 500);
         }
-    }
-    return socket
+    });
+
+    $('#paginationNext').click(function (e) {
+        if (page < 29) {
+            clearTimeout(clickTimeout);
+            page ++
+
+            $('#paginationText').text(page + 1 + '/' + 30)
+
+            clickTimeout = setTimeout(function(){
+                socket.close()
+                socket = new WebSocket('ws://' + window.location.host + '/ws/');
+
+                socket.onopen = function () {
+                    socket.send(JSON.stringify({"page":page}));
+                };
+
+                socket.onmessage = function(e) {
+                    var message = e.data;
+                    data = JSON.parse(message)
+                    fillData(data)
+                };
+
+                socket.onclose = function(e) {
+                    console.log('Socket closed unexpectedly');
+                };
+            }, 500);
+        }
+    });
 }
 var page = 0
 initial()
-pagination(page, socket)
+pagination(page)

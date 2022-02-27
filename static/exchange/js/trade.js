@@ -91,7 +91,7 @@ function trade(type, pair) {
                 createAlert('danger', 'Insufficient balance!')
             }
             getPortfolio(globPair);
-            recentTrades()
+            // recentTrades()
             getHistory()
         }
         else if (this.status != 200){
@@ -156,7 +156,7 @@ function getHistory() {
                 time.innerText = res[index]['time']
                 type.innerText = res[index]['type']
                 pair.innerText = res[index]['pair']
-                price.innerText = res[index]['pairPrice'].toFixed(5)
+                // price.innerText = res[index]['pairPrice'].toFixed(5)
                 amount.innerText = parseFloat(res[index]['amount'].split(' ')[0]).toFixed(5) + ' ' + res[index]['amount'].split(' ')[1]
                 total.innerText = res[index]['price'].toFixed(5)
 
@@ -369,4 +369,4 @@ function createAlert(type, message) {
 }
 percentage();
 getHistory();
-recentTrades();
+// recentTrades();
