@@ -9,7 +9,7 @@ assetSocket.onopen = function () {
 assetSocket.onmessage = function(e) {
     var message = e.data;
     assetData = JSON.parse(message);
-    $('#totalMargin').text(assetData['total']);
+    $('#totalMargin').text(assetData['total'] + ' $');
     $('#waiting').remove();
     $('#waitingTotal').remove();
 
@@ -59,7 +59,7 @@ function createAssets(data) {
         h3.innerText = obj['amount'].toFixed(6)
         h3.classList.add('float-right')
 
-        p.innerText = 'total: ' + obj['total'].toFixed(4)
+        p.innerText = obj['total'].toFixed(4) + ' $'
         p.classList.add('float-right')
 
         second.appendChild(h2)
