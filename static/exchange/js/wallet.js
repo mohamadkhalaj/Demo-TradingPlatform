@@ -106,8 +106,8 @@ socket.onmessage = function(e) {
       backgroundColor: { fill:'transparent' },
       color: 'white',
       pieHole: 0.4,
-      legend: {position: 'top', textStyle: {color: 'white', fontSize: 16}},
-      pieSliceText: 'percentage',
+      legend: {position: 'top', textStyle: {color: 'gray', fontSize: 16}},
+      pieSliceText: 'label',
     };
 
     var chart = new google.visualization.PieChart(document.getElementById('assetAllocation'));

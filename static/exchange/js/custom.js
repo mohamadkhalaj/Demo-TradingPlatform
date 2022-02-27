@@ -925,31 +925,55 @@
   var ThemeOn = false;
   $('#changeThemeLight').on('click', function (e) {
     ThemeOn = !ThemeOn;
+    localStorage.setItem('theme', ThemeOn);
     if (ThemeOn) {
       $('#changeThemeLight a i').attr('class', 'icon ion-md-moon');
       $('header').attr('class', 'dark-bb');
       $('body').attr('id', 'dark');
-      $('.navbar-brand img').attr('src', 'assets/img/logo-light.svg');
+
+      $('#searchParent').attr('style', 'background-Color: white');
+      $('#inputBox').attr('style', 'background-Color: #131722');
+
+      $('.navbar-brand img').attr('src', '/static/exchange/img/logo-light.svg');
     } else {
       $('#changeThemeLight a i').attr('class', 'icon ion-md-sunny');
       $('header').attr('class', 'light-bb');
       $('body').attr('id', 'light');
-      $('.navbar-brand img').attr('src', 'assets/img/logo-dark.svg');
+
+      $('#searchParent').attr('style', 'background-Color: aliceblue');
+      $('#inputBox').attr('style', 'background-Color: aliceblue');
+
+      $('.navbar-brand img').attr('src', '/static/exchange/img/logo-dark.svg');
     }
   });
 
   $('#changeThemeDark').on('click', function (e) {
     ThemeOn = !ThemeOn;
+    localStorage.setItem('theme', ThemeOn);
+    if (window.location.pathname.includes("/account/trade/") && !auto) {
+      window.location.reload()
+    }
+    if (window.location.pathname.includes("/account/trade/")) {
+      auto = false;
+    }
     if (ThemeOn) {
       $('#changeThemeDark a i').attr('class', 'icon ion-md-sunny');
+
+      $('#searchParent').attr('style', 'background-Color: aliceblue');
+      $('#inputBox').attr('style', 'background-Color: aliceblue');
+
       $('header').attr('class', 'light-bb');
       $('body').attr('id', 'light');
-      $('.navbar-brand img').attr('src', 'assets/img/logo-dark.svg');
+      $('.navbar-brand img').attr('src', '/static/exchange/img/logo-dark.svg');
     } else {
       $('#changeThemeDark a i').attr('class', 'icon ion-md-moon');
+
+      $('#searchParent').attr('style', 'background-Color: white');
+      $('#inputBox').attr('style', 'background-Color: #131722');
+
       $('header').attr('class', 'dark-bb');
       $('body').attr('id', 'dark');
-      $('.navbar-brand img').attr('src', 'assets/img/logo-light.svg');
+      $('.navbar-brand img').attr('src', '/static/exchange/img/logo-light.svg');
     }
   });
 })(jQuery);

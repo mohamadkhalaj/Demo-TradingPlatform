@@ -2561,7 +2561,7 @@ tbody.ob-heading {
     -moz-border-radius: 5px;
     border-radius: 5px;
     background-color: #131722;
-    color: white;
+    color: gray !important;
 }
 
 .live-search-list li {

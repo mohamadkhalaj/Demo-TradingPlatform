@@ -1,3 +1,4 @@
+from exchange.common_functions import calc_equivalent
 from exchange.models import Portfolio, TradeHistory
 from datetime import datetime, timedelta
 from .models import User
@@ -94,3 +95,24 @@ class Charts:
         x = self.dates 
         y = self.values
         return x, y
+
+    def assetAllocation(self):
+        cryptoDic = {}
+        for index, item in enumerate(self.portfo):
+            if calc_equivalent(item.cryptoName, 'USDT', item.amount)[1] != 0:
+                cryptoDic[item.cryptoName] = calc_equivalent(
+                                                    item.cryptoName, 
+                                                    'USDT', 
+                                                    item.amount)[1]
+        
+        labels = list(cryptoDic.keys())
+        data = list(cryptoDic.values())
+
+        assetAllocation = [['Asset', 'Percent']]
+        for label, item in zip(labels, data):
+            temp = []
+            temp.append(label)
+            temp.append(float(item))
+            assetAllocation.append(temp)
+
+        return assetAllocation

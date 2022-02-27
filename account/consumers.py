@@ -85,25 +85,9 @@ class ChartSocket(AsyncJsonWebsocketConsumer):
         trades = await self.getTrades()
 
         dictionary = {}
-        cryptoDic = {}
-        for index, item in enumerate(portfolio):
-            if calc_equivalent(item.cryptoName, 'USDT', item.amount)[1] != 0:
-                cryptoDic[item.cryptoName] = calc_equivalent(
-                                                    item.cryptoName, 
-                                                    'USDT', 
-                                                    item.amount)[1]
-        
-        labels = list(cryptoDic.keys())
-        data = list(cryptoDic.values())
-
-        assetAllocation = [['Asset', 'Percent']]
-        for label, item in zip(labels, data):
-            temp = []
-            temp.append(label)
-            temp.append(float(item))
-            assetAllocation.append(temp)
 
         chart = Charts(self.user, portfolio, trades)
+        assetAllocation = chart.assetAllocation()
         pnl = chart.bar_chart()
 
         dictionary['assetAllocation'] = assetAllocation

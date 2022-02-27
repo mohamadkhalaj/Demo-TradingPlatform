@@ -51,6 +51,7 @@
 						</div>
 					</li>
 				</ul>
+			
 				{% if user.is_authenticated %}
 				<li class="nav-item dropdown header-img-icon">
 				<a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true"
@@ -95,6 +96,12 @@
 											<span>Trade history</span>
 										</a>
 									</li>
+									<li class="nav-item" id="changeThemeDark">
+					                    <a href="#!" class="nav-link">
+					                      <i class="icon ion-md-moon"></i>
+					                      <span>Theme</span>
+					                    </a>
+					              	</li>
 									<li class="nav-item">
 										<a href="{% url 'logout' %}" class="nav-link red">
 											<i class="icon ion-md-power"></i>
@@ -124,6 +131,11 @@
 	<script src="{% static 'exchange/js/amcharts-core.min.js' %}"></script>
 	<script src="{% static 'exchange/js/amcharts.min.js' %}"></script>
 	<script src="{% static 'exchange/js/custom.js' %}"></script>
+	<script>
+		if (localStorage.getItem('theme') == 'true'){
+			$('#changeThemeDark').click()
+		}
+	</script>
 </body>
 
 </html>
