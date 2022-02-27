@@ -72,7 +72,7 @@ function trade(type, pair) {
     }
 
     const url = `${main_url}/trade/${JSON.stringify(reqJson)}`
-    console.log(url);
+    // console.log(url);
     const xhr = new XMLHttpRequest();
     xhr.open('GET', url);
     xhr.timeout = 30000;
@@ -130,7 +130,7 @@ function getHistory() {
 
     removeHistory()
     const url = `${main_url}/tradinghistory`
-    console.log(url);
+    // console.log(url);
     const xhr = new XMLHttpRequest();
     xhr.open('GET', url);
     xhr.timeout = 30000;
@@ -194,7 +194,7 @@ function recentTrades() {
 
     removeRecentTrades()
     const url = `${main_url}/recentTrades`
-    console.log(url);
+    // console.log(url);
     const xhr = new XMLHttpRequest();
     xhr.open('GET', url);
     xhr.timeout = 30000;
@@ -321,6 +321,20 @@ function createAlert(type, message) {
     var parent = document.getElementById('alert');
     var mainDiv = document.createElement("div")
 
+    var errorTitle = ''
+    if (type == 'info') {
+
+        errorTitle = 'Caution'
+    }
+    else if (type == 'success') {
+
+        errorTitle = 'Success'
+    }
+    else if (type == 'danger') {
+
+        errorTitle = 'Error'
+    }
+
     mainDiv.classList.add('alert', 'animated', `alert-${type}`, 'bounceInRight')
     
     var secondDiv = document.createElement("div")    
@@ -347,7 +361,7 @@ function createAlert(type, message) {
     var lastDiv = document.createElement("div")    
     lastDiv.classList.add('copy')
     var title = document.createElement("h4")
-    title.innerText = type    
+    title.innerText = errorTitle    
     var text = document.createElement("p")    
     text.innerText = message    
     lastDiv.appendChild(title)
@@ -366,6 +380,10 @@ function createAlert(type, message) {
 
     activeAlerts.push(mainDiv)
     parent.appendChild(mainDiv)
+
+    setTimeout(function(param){
+        mainDiv.remove()
+    }.bind(null), 5000);
 }
 percentage();
 getHistory();
