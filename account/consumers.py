@@ -72,7 +72,7 @@ class MarketConsumer(AsyncJsonWebsocketConsumer):
                 await asyncio.ensure_future(self.sendList(subs))
 
 
-class WalletSocket(AsyncJsonWebsocketConsumer):
+class ChartSocket(AsyncJsonWebsocketConsumer):
     async def connect(self):
         self.user = self.scope["user"]
         if self.user.is_authenticated:
@@ -105,19 +105,9 @@ class WalletSocket(AsyncJsonWebsocketConsumer):
 
         chart = Charts(self.user, portfolio, trades)
         pnl = chart.bar_chart()
-        
-        total = pretify(
-            sum(
-                    [calc_equivalent(
-                        item.cryptoName, 
-                        'USDT', 
-                        item.amount)[1] for item in portfolio]
-                )
-            )
-        
+
         dictionary['assetAllocation'] = assetAllocation
         dictionary['pnl'] = pnl
-        dictionary['total'] = total
 
         await self.send_json(dictionary)
         await asyncio.sleep(60)
@@ -137,3 +127,65 @@ class WalletSocket(AsyncJsonWebsocketConsumer):
     @database_sync_to_async
     def getTrades(self):
         return list(TradeHistory.objects.all().filter(usr=self.user, complete=True))
+
+
+class WalletSocket(AsyncJsonWebsocketConsumer):
+    async def connect(self):
+        self.user = self.scope["user"]
+        if self.user.is_authenticated:
+            await self.accept()
+        else:
+            self.close()
+
+    async def sendData(self):
+        domain = 'https://cryptocompare.com'
+
+        CRYPTO_COMPARE_API = config('CRYPTO_COMPARE_API')
+        cryptocompare.cryptocompare._set_api_key_parameter(CRYPTO_COMPARE_API)  
+        portfolio = await self.getPortfolio()
+        dictionary = {}
+        totalMargin = pretify(
+            sum(
+                    [calc_equivalent(
+                        item.cryptoName, 
+                        'USDT', 
+                        item.amount)[1] for item in portfolio]
+                )
+            )
+        
+        assets = {}
+        for item in portfolio:
+            assets[item.cryptoName] = float(item.amount)
+
+        array = []
+        data = cryptocompare.get_price(list(assets.keys()), currency='USD', full=True)['RAW']
+        for item in data:
+            tmp = data[item]["USD"]
+            price = float(tmp["PRICE"])
+            total = price * assets[item]
+            array.append(
+                    {
+                        "symbol": item,
+                        "amount": assets[item],
+                        "total" : total,
+                        "img": domain + tmp["IMAGEURL"],
+                    }
+                )
+
+        dictionary['total'] = totalMargin
+        dictionary['assets'] = array
+
+        await self.send_json(dictionary)
+        await asyncio.sleep(1)
+
+    async def disconnect(self, close_code):
+        self.close()
+
+    async def receive(self, text_data=None, bytes_data=None):
+        if text_data:
+            while True:
+                await asyncio.ensure_future(self.sendData())
+
+    @database_sync_to_async
+    def getPortfolio(self):
+        return list(Portfolio.objects.all().filter(usr=self.user, marketType='spot'))

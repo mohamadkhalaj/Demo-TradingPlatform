@@ -1,17 +1,102 @@
-socket = new WebSocket('ws://' + window.location.host + '/ws/wallet/');
+// assets socket data
+var assetsObj = [];
+assetSocket = new WebSocket('ws://' + window.location.host + '/ws/wallet/');
+
+assetSocket.onopen = function () {
+    assetSocket.send(JSON.stringify({"start":1}));
+};
+
+assetSocket.onmessage = function(e) {
+    var message = e.data;
+    assetData = JSON.parse(message);
+    $('#totalMargin').text(assetData['total'] + ' $');
+    $('#waiting').remove();
+    $('#waitingTotal').remove();
+
+    removeAssets();
+    createAssets(assetData['assets']);
+};
+
+assetSocket.onclose = function(e) {
+    console.log('Socket closed unexpectedly');
+};
+
+function removeAssets() {
+    assetsObj.forEach(function(item, index) {
+        item.remove();
+    })
+    assetsObj = []
+}
+
+function createAssets(data) {
+
+    var parent = document.getElementById("assetsDiv")
+    var before = document.getElementById("beforeAssets")
+
+    Object.keys(data).forEach(function(item, index) {
+        obj = data[index]
+
+        var a = document.createElement("a")
+
+        var first = document.createElement("div")
+        var image = document.createElement("img")
+        var second = document.createElement("div")
+        var h2 = document.createElement("h2")
+
+        var third = document.createElement("div")
+        var h3 = document.createElement("h3")
+        var br = document.createElement("br")
+        var p = document.createElement("p")
+
+        a.setAttribute('href',`/account/trade/${obj["symbol"]}-USDT`)
+        a.classList.add('nav-link', 'd-flex', 'justify-content-between', 'align-items-center')
+        a.setAttribute('target','_blank')
+
+        first.classList.add('d-flex')
+        image.src = `${obj["img"]}`
+        h2.innerText = `${obj["symbol"]}`
+
+        h3.innerText = obj['amount'].toFixed(6)
+        h3.classList.add('float-right')
+
+        p.innerText = obj['total'].toFixed(4) + ' $'
+        p.classList.add('float-right')
+
+        second.appendChild(h2)
+        first.appendChild(image)
+        first.appendChild(second)
+
+        third.appendChild(h3)
+        third.appendChild(br)
+        third.appendChild(p)
+
+        a.appendChild(first)
+        a.appendChild(third)
+        
+        assetsObj.push(a)
+
+        parent.insertBefore(a, before)
+    })
+}
+// end asset socket
+
+
+
+// charts socket data
+socket = new WebSocket('ws://' + window.location.host + '/ws/wallet/chart/');
 
 socket.onopen = function () {
-    socket.send(JSON.stringify({"page":0}));
+    socket.send(JSON.stringify({"start":1}));
 };
 
 socket.onmessage = function(e) {
     var message = e.data;
     chartData = JSON.parse(message)
 
-    document.getElementById('totalMargin').innerText = chartData['total']
     google.charts.load('current', {'packages':['corechart']});
     google.charts.setOnLoadCallback(drawChart);
 
+    $('#waitingAssetAllocation').remove();
     function drawChart() {
     var data = google.visualization.arrayToDataTable(chartData['assetAllocation']);
 
@@ -102,5 +187,6 @@ socket.onmessage = function(e) {
 };
 
 socket.onclose = function(e) {
-    console.error('Socket closed unexpectedly');
+    console.log('Socket closed unexpectedly');
 };
+// end char socket data

@@ -36,19 +36,8 @@ class Profile(LoginRequiredMixin, UpdateView):
 
 
 @login_required
-def wallet(request, page=1):
-	total = float()
-	portfolio = Portfolio.objects.filter(usr=request.user, amount__gt=0)
-	paginator = Paginator(portfolio, 7)
-	data = paginator.get_page(page)
-	
-	for index, item in enumerate(data):
-		data[index].amount = pretify(item.amount)
-
-	context = {
-		'portfolio' : data,
-	}
-	return render(request, 'registration/wallet.html', context=context)
+def wallet(request):
+	return render(request, 'registration/wallet.html')
 
 @login_required
 def tradeHistory(request, page=1):
