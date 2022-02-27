@@ -24,45 +24,20 @@
               <div class="wallet">
                 <div class="row">
                   <div class="col-md-12 col-lg-4">
-                    <div class="nav flex-column nav-pills" role="tablist" aria-orientation="vertical">
-                      {% if portfolio %}
-                        {% for item in portfolio %}
-                          {% if item.cryptoName == 'USDT' %}
-                          <a class="nav-link d-flex justify-content-between align-items-center">
-                          {% else %}
-                          <a class="nav-link d-flex justify-content-between align-items-center"
-                            href="{% url 'account:trade' item.cryptoName %}-USDT" target="_blank">
-                          {% endif %}
-                            <div class="d-flex">
-                              <img src="https://creepy-corp.eu/git/jsupa/crypto-icons/get.php?token={{item.cryptoName}}" alt="{{item.cryptoName}}">
-                              <div>
-                                <h2>{{item.cryptoName}}</h2>
-                                <p>---</p>
-                              </div>
-                            </div>
-                            <div>
-                              <h3 class="float-right">{{item.amount}}</h3>
-                              <br>
-                              <p class="float-right">total: ---</p>
-                            </div>
+                    <div id="assetsDiv" class="nav flex-column nav-pills" role="tablist" aria-orientation="vertical">
+                          
+                          <a id="waiting" class="nav-link d-flex justify-content-between align-items-center"
+                            href="" target="_blank">
+          
+                                <div class="d-flex">
+                                    <div>
+                                        <h2>Please wait...</h2>
+                                    </div>
+                                </div>
                           </a>
-                        {% endfor %}
-                      {% else %}
-                        Nothing...
-                      {% endif %}
+                          <div id="beforeAssets"></div>
                     </div>
               <div class="text-center mt-3">
-                {% if portfolio.has_previous %}
-                    <a href="{% url 'account:wallet' portfolio.previous_page_number %}" class="btn btn-primary">Previous Page</a>
-                {% endif %}
-
-                  <span class="green m-3">
-                      Page {{ portfolio.number }} of {{ portfolio.paginator.num_pages }}
-                  </span>
-
-                {% if portfolio.has_next %}
-                    <a href="{% url 'account:wallet' portfolio.next_page_number %}" class="btn btn-primary">Next Page</a>
-                {% endif %}
               </div>
                   </div>
                   <div class="col-md-12 col-lg-8">
@@ -78,6 +53,7 @@
                                   <h2>Total Margin (USDT)</h2>
                                 </div>
                                 <div>
+                                  <h2 id="waitingTotal">Please wait...</h2>
                                   <h3 id="totalMargin">
                                   </h3>
                                 </div>
@@ -91,6 +67,7 @@
                               <div class="d-flex justify-content-center">
                                 <div class="form-access">
                                     <span class="errors">
+                                      <h2 id="waitingAssetAllocation">Please wait...</h2>
                                       <div id="assetAllocation" style="min-width: 500px; min-height: 500px;"></div>
                                     </span>
                                 </div>
