@@ -10,7 +10,7 @@ socket.onmessage = function(e) {
 };
 
 socket.onclose = function(e) {
-    console.error('Socket closed unexpectedly');
+    console.log('Socket closed unexpectedly');
 };
 
 
@@ -97,60 +97,64 @@ function initial() {
 
 function pagination(page) {
 
-    var prev = document.getElementById('paginationPrev')
-    var now = document.getElementById('paginationText')
-    var next = document.getElementById('paginationNext')
-    now.innerText = page + 1 + '/' + 30
+    var clickTimeout;
+    $('#paginationText').text(page + 1 + '/' + 30)
 
-    prev.onclick = function(event) {
+    $('#paginationPrev').click(function (e) {
         if (page > 0) {
-            socket.close()
+            clearTimeout(clickTimeout);
             page --
 
-            socket = new WebSocket('ws://' + window.location.host + '/ws/');
+            $('#paginationText').text(page + 1 + '/' + 30)
 
-            socket.onopen = function () {
-                socket.send(JSON.stringify({"page":page}));
-            };
+            clickTimeout = setTimeout(function(){
+                socket.close()
+                socket = new WebSocket('ws://' + window.location.host + '/ws/');
 
-            socket.onmessage = function(e) {
-                var message = e.data;
-                data = JSON.parse(message)
-                fillData(data)
-            };
+                socket.onopen = function () {
+                    socket.send(JSON.stringify({"page":page}));
+                };
 
-            socket.onclose = function(e) {
-                console.error('Socket closed unexpectedly');
-            };
+                socket.onmessage = function(e) {
+                    var message = e.data;
+                    data = JSON.parse(message)
+                    fillData(data)
+                };
 
-            now.innerText = page + 1 + '/' + 30
+                socket.onclose = function(e) {
+                    console.log('Socket closed unexpectedly');
+                };
+            }, 500);
         }
-    }
+    });
 
-    next.onclick = function(event) {
+    $('#paginationNext').click(function (e) {
         if (page < 29) {
-            socket.close()
+            clearTimeout(clickTimeout);
             page ++
 
-            socket = new WebSocket('ws://' + window.location.host + '/ws/');
+            $('#paginationText').text(page + 1 + '/' + 30)
 
-            socket.onopen = function () {
-                socket.send(JSON.stringify({"page":page}));
-            };
+            clickTimeout = setTimeout(function(){
+                socket.close()
+                socket = new WebSocket('ws://' + window.location.host + '/ws/');
 
-            socket.onmessage = function(e) {
-                var message = e.data;
-                data = JSON.parse(message)
-                fillData(data)
-            };
+                socket.onopen = function () {
+                    socket.send(JSON.stringify({"page":page}));
+                };
 
-            socket.onclose = function(e) {
-                console.error('Socket closed unexpectedly');
-            };
+                socket.onmessage = function(e) {
+                    var message = e.data;
+                    data = JSON.parse(message)
+                    fillData(data)
+                };
 
-            now.innerText = page + 1 + '/' + 30
+                socket.onclose = function(e) {
+                    console.log('Socket closed unexpectedly');
+                };
+            }, 500);
         }
-    }
+    });
 }
 var page = 0
 initial()
