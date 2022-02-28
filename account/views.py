@@ -58,11 +58,8 @@ def tradeHistory(request, page=1):
 	return render(request, 'registration/tradeHistory.html', context = context)
 
 def trade(request, pair='BINANCE:BTCUSDT'):
-	url = 'https://api.coingecko.com/api/v3/coins/markets?vs_currency=USD&order=market_cap_desc&per_page=250&page=1&sparkline=false'
+	url = 'https://api.coingecko.com/api/v3/coins/markets?vs_currency=USD&order=market_cap_desc&per_page=20&page=1&sparkline=false'
 	data = requests.get(url).json()
-
-	url = 'https://api.coingecko.com/api/v3/coins/markets?vs_currency=USD&order=market_cap_desc&per_page=250&page=2&sparkline=false'
-	cryptoList = data + requests.get(url).json()
 
 	for item in data:
 		item['current_price'] = pretify(item['current_price'])
@@ -71,13 +68,6 @@ def trade(request, pair='BINANCE:BTCUSDT'):
 			item['price_change_percentage_24h'] = float(pretify(item['price_change_percentage_24h']))
 		except:
 			item['price_change_percentage_24h'] = pretify(item['price_change_percentage_24h'])
-
-	if request.user.is_authenticated:
-		portfolio = Portfolio.objects.filter(usr=request.user, amount__gt=0)
-		history = TradeHistory.objects.filter(usr=request.user, amount__gt=0).order_by('-time')
-	else:
-		portfolio = list()
-		history = list()
 	
 	if pair != 'BINANCE:BTCUSDT':
 		name = pair.split('-')[0]
@@ -88,10 +78,7 @@ def trade(request, pair='BINANCE:BTCUSDT'):
 	context = {
 		'pair' : pair,
 		'name' : name.upper(),
-		'history' : history,
-		'Portfolio' : portfolio,
 		'data' : data,
-		'cryptoList' : cryptoList,
 	}
 
 	if not pair:
