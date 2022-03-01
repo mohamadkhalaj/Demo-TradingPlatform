@@ -194,7 +194,6 @@
                     <div class="input-group-append">
                       <span class="input-group-text">ETH</span>
                     </div>
-                  </div>
                   <ul class="market-trade-list">
                     <li><a href="#!">25%</a></li>
                     <li><a href="#!">50%</a></li>
@@ -402,7 +401,7 @@
 <div id="alert" class="alerts">
 
 </div>
-<script>
+<!-- <script>
   var socket = new WebSocket('ws://' + window.location.host + '/ws/orders/');
   var pair = '{{pair}}'.slice(8);
   var parent = document.getElementById("recentTradesHistory");
@@ -445,5 +444,5 @@
     createdRecentTrades.push(newNode)
     parent.appendChild(newNode)
   }
-</script>
+</script> -->
 {% endblock %}
