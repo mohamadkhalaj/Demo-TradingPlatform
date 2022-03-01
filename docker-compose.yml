@@ -1,0 +1,23 @@
+version: "3.8"
+
+services:
+  redis:
+    restart: always
+    container_name: redis
+    image: redis:latest
+  
+  web:
+    restart: always
+    container_name: web
+    build: ./web/
+    volumes:
+      - ./web:/web
+
+  nginx:
+    restart: always
+    build: ./nginx/
+    container_name: nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./web/static:/web/static

@@ -562,10 +562,6 @@ header .nav-link.btn {
     margin: 15px 0 30px;
 }
 
-.landing-info-one-bg {
-    background: url(../img/landing/dash-preview.png) no-repeat right 50%/48%;
-}
-
 .visible-mobile {
     display: none;
 }
@@ -640,7 +636,6 @@ header .nav-link.btn {
 }
 
 .landing-sub {
-    background: url(../img/landing/sub-bg.jpg) no-repeat center center/cover;
     padding: 100px 0;
     text-align: center;
     position: relative;
@@ -2251,10 +2246,6 @@ tbody.ob-heading {
 #dark .landing-feature,
 #dark footer.landing-footer ul li a {
     color: #fff;
-}
-
-#dark .landing-info-one-bg {
-    background: url(../img/landing/dash-preview-dark.png) no-repeat right 50%/48%;
 }
 
 #dark .landing-feature-item img {

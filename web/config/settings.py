@@ -7,8 +7,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = config('SECRET_KEY')
 
-DEBUG = True
-# DEBUG_PROPAGATE_EXCEPTIONS = True
+DEBUG = False
+DEBUG_PROPAGATE_EXCEPTIONS = False
 
 ALLOWED_HOSTS = ['*']
 CORS_ORIGIN_ALLOW_ALL = True
@@ -32,8 +32,8 @@ INSTALLED_APPS = [
     'django_gravatar',
     'social_django',
     'hcaptcha',
-    'corsheaders',
     'channels',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
@@ -81,11 +81,15 @@ AUTHENTICATION_BACKENDS = (
 # WSGI_APPLICATION = 'config.wsgi.application'
 ASGI_APPLICATION = "config.routing.application"
 
+REDIS_HOST = os.environ.get('REDIS_HOST')
+if not REDIS_HOST:
+    REDIS_HOST = 'localhost'
+
 CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            "hosts": [('localhost', 6379)],
+            "hosts": [(REDIS_HOST, 6379)],
         },
     },
 }
@@ -96,6 +100,7 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -127,13 +132,9 @@ USE_L10N = True
 USE_TZ = True
 
 STATIC_URL = '/static/'
-
-STATICFILES_DIRS = (
-    os.path.join(BASE_DIR, 'static'),
-)
-
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+# WHITENOISE_MANIFEST_STRICT = False
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'account.User'

@@ -3,7 +3,6 @@ from exchange.models import Portfolio, TradeHistory
 from datetime import datetime, timedelta
 from .models import User
 import time, requests
-import pandas as pd
 
 class Charts:
     def __init__(self, user, portfo, histories):

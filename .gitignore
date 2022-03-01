@@ -6,6 +6,7 @@ __pycache__/
 venv
 static/exchange/img/charts/*.*
 staticfiles
+static/
 db.sqlite3
 # C extensions
 *.so

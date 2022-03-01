@@ -19,7 +19,6 @@ from django.views.generic import CreateView
 from django.core.mail import EmailMessage
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
-import matplotlib.pyplot as plt
 from typing import ByteString
 import requests, uuid, os
 from .models import User
