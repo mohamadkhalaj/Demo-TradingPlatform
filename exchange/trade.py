@@ -1,3 +1,5 @@
+from tkinter import E
+from unittest import result
 from .models import TradeHistory, Portfolio
 import requests
 from datetime import datetime
@@ -93,7 +95,6 @@ class Trade:
         else:
             self.result = {'state': state}
 
-
     def calc_equivalent(self, base, qoute, amount):
         base = base.upper()
         response = requests.get(
@@ -116,5 +117,6 @@ class Trade:
                 return 0
             else:
                 return 1
-        except:
+        except Exception as e:
+            print(e)
             return 2
