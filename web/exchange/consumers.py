@@ -160,16 +160,16 @@ class TradeConsumer(AsyncJsonWebsocketConsumer):
                 )
         return array
 
-    def sendList(self, subs):
+    # def sendList(self, subs):
 
-        CRYPTO_COMPARE_API = config('CRYPTO_COMPARE_API')
-        cryptocompare.cryptocompare._set_api_key_parameter(CRYPTO_COMPARE_API)  
+    #     CRYPTO_COMPARE_API = config('CRYPTO_COMPARE_API')
+    #     cryptocompare.cryptocompare._set_api_key_parameter(CRYPTO_COMPARE_API)  
 
-        data = cryptocompare.get_price(subs, currency='USD', full=True)
+    #     data = cryptocompare.get_price(subs, currency='USD', full=True)
 
-        print(cryptoJson(data))
-        self.sleep(1)
-        return(cryptoJson(data))
+    #     print(cryptoJson(data))
+    #     self.sleep(1)
+    #     return(cryptoJson(data))
 
 
 

@@ -90,7 +90,6 @@ def trade(request, pair='BINANCE:BTCUSDT'):
 		}
 		return redirect('/account/trade/BTC-USDT')
 	else:
-		print(context)
 		return render(request, 'registration/trade.html', context=context)
 
 class Login(LoginView):
