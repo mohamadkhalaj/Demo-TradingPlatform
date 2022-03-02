@@ -160,7 +160,7 @@ socket.onmessage = function(e) {
               yAxes: [{
                   ticks: {
                     callback: function(value, index, ticks) {
-                        return value + ' %';
+                        return value + ' $';
                     },
                   },
                   scaleLabel: {
@@ -174,7 +174,7 @@ socket.onmessage = function(e) {
                   mode: 'single',
                   callbacks: {
                            label: function (tooltipItems, data) {
-                                return  tooltipItems.yLabel + " %";
+                                return  tooltipItems.yLabel + " $";
                            }
                   }
          }

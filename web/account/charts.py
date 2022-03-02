@@ -1,6 +1,7 @@
 from exchange.common_functions import calc_equivalent
 from exchange.models import Portfolio, TradeHistory
 from datetime import datetime, timedelta
+from django.conf import settings
 from .models import User
 import time, requests
 
@@ -19,7 +20,6 @@ class Charts:
     def func(self):
         try:
             first_date = self.histories[0].time.replace(tzinfo=None)
-            print(first_date)
         except Exception as e:
             print(e)
             self.haveTrade = False
@@ -50,19 +50,20 @@ class Charts:
             total = 0
             price_index += 1
             try:
-                hst_dict = self.histories.filter(time__year=start_date.year, time__month=start_date.month,
-                                                 time__day=start_date.day).last().histAmount
-                hastrade = True
-            except:
-                pass
+                for item in self.histories:
+                    if item.time.year == start_date.year and item.time.month == start_date.month and item.time.day == start_date.day:
+                        hst_dict = item.histAmount
+                        hastrade = True
+            except Exception as e:
+                print(e)
 
             if hastrade:
                 for dc in hst_dict:
                     crp = hst_dict[dc]['cryptoName']
                     amount = float(hst_dict[dc]['amount'])
                     total += self.prices[crp][price_index] * amount
-                self.values.append(total - 1000)
-                self.percents.append(round(((total - 1000) / 10), 2))
+                self.values.append(total - settings.DEFAULT_BALANCE)
+                self.percents.append(round(((total - settings.DEFAULT_BALANCE) / 10), 2))
             else:
                 self.values.append(0)
                 self.percents.append(0)
@@ -85,8 +86,8 @@ class Charts:
             response = requests.get('https://min-api.cryptocompare.com/data/price?fsym='+item.cryptoName+'&tsyms=USDT')
             price = float(response.json()['USDT'])
             total += price * item.amount
-        self.percents.append(round((total - 1000) / 10, 2))
-        self.values.append(total - 1000)
+        self.percents.append(round((total - settings.DEFAULT_BALANCE) / 10, 2))
+        self.values.append(total - settings.DEFAULT_BALANCE)
 
     def bar_chart(self):
         if not self.haveTrade:
