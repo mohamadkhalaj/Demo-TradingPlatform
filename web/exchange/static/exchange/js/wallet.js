@@ -56,10 +56,16 @@ function createAssets(data) {
         image.src = `${obj["img"]}`
         h2.innerText = `${obj["symbol"]}`
 
-        h3.innerText = obj['amount'].toFixed(6)
-        h3.classList.add('float-right')
+        if (obj['amount'] < 1) {
 
-        p.innerText = obj['total'].toFixed(4) + ' $'
+          h3.innerText = obj['amount'].toFixed(6)
+        }
+        else {
+          h3.innerText = obj['amount'].toFixed(1) 
+        }
+        h3.classList.add('float-right', 'smallFont')
+
+        p.innerText = obj['total'].toFixed(1) + ' $'  
         p.classList.add('float-right')
 
         second.appendChild(h2)

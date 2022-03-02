@@ -33,13 +33,30 @@ function getPortfolio(pair) {
             Object.keys(res).forEach(function(item, index) {
 
                 if (res[item]['cryptoName'] == pair && pair != 'USDT') {
-                    pairAmount.innerText = `${res[item]['amount'].toFixed(5)} ${pair} = ${res[item]['equivalentAmount'].toFixed(5)} USDT`
-                    pairUsdtValue = res[item]['equivalentAmount'].toFixed(5);
+                    var amount = res[item]['amount']
+                    var equivalentAmount = res[item]['equivalentAmount']
+
+                    if (amount >= 1) {
+                        amount = amount.toFixed(1)
+                    }
+                    else {
+                        amount = amount.toFixed(6)
+                    }
+
+                    if (equivalentAmount >= 1) {
+                        equivalentAmount = equivalentAmount.toFixed(1)
+                    }
+                    else {
+                        equivalentAmount = equivalentAmount.toFixed(4)
+                    }
+
+                    pairAmount.innerText = `${amount} ${pair} = ${equivalentAmount} USDT`
+                    pairUsdtValue = equivalentAmount;
                     pairValue = res[item]['amount']
                 }
                 if (res[item]['cryptoName'] == 'USDT') {
-                    usdtAmount.innerText = `${res[item]['amount'].toFixed(5)} USDT`
-                    usdtValue = res[item]['amount']
+                    usdtAmount.innerText = `${res[item]['amount'].toFixed(1)} USDT`
+                    usdtValue = res[item]['amount'].toFixed(1)
                 }
             })
         }

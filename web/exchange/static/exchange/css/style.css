@@ -18,6 +18,10 @@ a:hover {
     transition: 0.3s;
 }
 
+.smallFont {
+    font-size: small;
+}
+
 ul,
 ol {
     margin: 0;
@@ -1603,6 +1607,7 @@ tbody.ob-heading {
 .settings .wallet .nav-pills p {
     margin-bottom: 0;
     color: #18214d;
+    font-size:  small;
 }
 
 .settings .wallet .nav-pills a.active {
