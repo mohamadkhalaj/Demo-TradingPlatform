@@ -170,37 +170,83 @@ class TradeConsumer(AsyncJsonWebsocketConsumer):
         print(cryptoJson(data))
         self.sleep(1)
         return(cryptoJson(data))
-# def price(self, pair='BINANCE:BTCUSDT'):
-# 	url = 'https://api.coingecko.com/api/v3/coins/markets?vs_currency=USD&order=market_cap_desc&per_page=20&page=1&sparkline=false'
-# 	data = requests.get(url).json()
 
-# 	for item in data:
-# 		item['current_price'] = pretify(item['current_price'])
 
-# 		try:
-# 			item['price_change_percentage_24h'] = float(pretify(item['price_change_percentage_24h']))
-# 		except:
-# 			item['price_change_percentage_24h'] = pretify(item['price_change_percentage_24h'])
-	
-# 	if pair != 'BINANCE:BTCUSDT':
-# 		name = pair.split('-')[0]
-# 		pair = search(pair)
-# 	else:
-# 		name = 'BTC'
 
-# 	context = {
-# 		'pair' : pair,
-# 		'name' : name.upper(),
-# 		'data' : data,
-# 	}
-# 	if not pair:
-# 		pair = 'BINANCE:BTCUSDT'
-# 		name = 'BTC'
 
-# 		context = {
-# 			'pair' : pair,
-# 			'name' : name.upper(),
-# 		}
-# 		return ('/account/trade/BTC-USDT')
-# 	else:
-# 		return context
+def getCryptoList(page, limit):
+    url = f'https://min-api.cryptocompare.com/data/top/mktcap?limit={limit}&tsym=USD&page={page}'
+    cryptos = requests.get(url).json()['Data']
+    dictionary = {}
+    for index, crypto in enumerate(cryptos):
+        cr = crypto['CoinInfo']
+        dictionary[cr['Name']] = cr['FullName']
+        dictionary[cr['Name'] + '_rank'] = (page * limit) + (index + 1)
+    return dictionary
+
+def cryptoJson(data):
+    global dictionary
+    data = data['DISPLAY']
+
+    domain = 'https://cryptocompare.com'
+    array = []
+    for item in data:
+        tmp = data[item]["USD"]
+        array.append(
+                {
+                    "symbol": item,
+                    "name": dictionary.get(item, ''),
+                    "rank": dictionary.get(item + '_rank', ''),
+                    "price": tmp["PRICE"].strip('$ '),
+                    "24c": tmp["CHANGEPCT24HOUR"],
+                    "mc": tmp["MKTCAP"].strip('$ '),
+                    "24h": tmp["HIGH24HOUR"].strip('$ '),
+                    "24l": tmp["LOW24HOUR"].strip('$ '),
+                    "vol": tmp["VOLUME24HOURTO"].strip('$ '),
+                    "img": domain + tmp["IMAGEURL"],
+                }
+            )
+    return array
+
+class PriceConsumer(AsyncJsonWebsocketConsumer):
+    async def connect(self):
+        self.broadcastName = 'broadcast'
+        await (self.channel_layer.group_add)(
+            self.broadcastName,
+            self.channel_name
+        )
+        await self.accept()
+
+    async def sendList(self, subs):
+
+        CRYPTO_COMPARE_API = config('CRYPTO_COMPARE_API')
+        cryptocompare.cryptocompare._set_api_key_parameter(CRYPTO_COMPARE_API)  
+
+        data = cryptocompare.get_price(subs, currency='USD', full=True)
+
+        await asyncio.sleep(1)
+        return cryptoJson(data)
+
+    async def disconnect(self, close_code):
+        self.close()
+
+    async def receive(self, text_data=None, bytes_data=None):
+        global dictionary
+        if text_data:
+            dictionary = getCryptoList(0, 20)
+            temp = list(dictionary.keys())
+            subs = []
+            for item in temp:
+                if '_rank' not in item:
+                    subs.append(item)
+            while True:
+                price_response = await asyncio.ensure_future(self.sendList(subs))
+                
+                await self.channel_layer.group_send(
+                    self.broadcastName,
+                    {
+                        'type': 'send.data',
+                        'content': price_response
+                    }
+                )
+                
