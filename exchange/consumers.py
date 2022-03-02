@@ -1,6 +1,7 @@
 from turtle import st
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
 from .trade import Trade
+from .models import TradeHistory
 import re
 import json
 from channels.db import database_sync_to_async
@@ -35,18 +36,26 @@ class TradeConsumer(AsyncJsonWebsocketConsumer):
                 self.unicastName,
                 self.channel_name
             )
- 
+
+        await (self.channel_layer.group_add)(
+            self.broadcastName,
+            self.channel_name
+        )
+
         await self.accept()
 
 
     async def receive_json(self, content, **kwargs):
-        print(content)
+        print('content:', content)
         self.header = content['header']
         self.orderType = content['orderType']
-
+        self.pair = content['pair']
         result = await self.trade(content)
-        print(result)
+        print('result: ', result)
+
         trade_response = {'header': 'trade_response', 'state': result['state']}
+        hist_response = {'header': 'hist_response', 'type': result['type'], 'pair': self.pair, 'amount': result['amount'],'price': result['price'], 'time': result['time'], 'orderType': self.orderType}
+        recentTrades_response = {'header': 'recent_response', 'type': result['type'], 'pair': self.pair, 'pairPrice': result['price'], 'amount': result['amount']}
         
         await self.channel_layer.group_send(
 			self.unicastName,
@@ -55,9 +64,25 @@ class TradeConsumer(AsyncJsonWebsocketConsumer):
 				'content': trade_response
 			}
 		)
-        
+
+        await self.channel_layer.group_send(
+			self.unicastName,
+			{
+				'type': 'send.data',
+				'content': hist_response
+			}
+		)
+
+        await self.channel_layer.group_send(
+			self.broadcastName,
+			{
+				'type': 'send.data',
+				'content': recentTrades_response
+			}
+		)
+
     async def disconnect(self, code):
-        pass
+        self.channel_layer.group_discard
 
 
     @database_sync_to_async
@@ -71,5 +96,5 @@ class TradeConsumer(AsyncJsonWebsocketConsumer):
 
     async def send_data(self, event):
         data = event['content']
+        print('data:', data)
         await self.send_json(data)
-            
