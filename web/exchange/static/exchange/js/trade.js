@@ -1,3 +1,5 @@
+var tradeSocket = new WebSocket('ws://' + window.location.host + '/ws/trade/');
+
 var main_url = window.location.origin;
 var usdtValue = 0;
 var pairValue = 0;
@@ -6,10 +8,32 @@ var uValue = document.getElementById('uValue');
 var pValue = document.getElementById('pValue');
 uValue.value = 0;
 pValue.value = 0;
+var getOrderType = document.querySelector('.nav-link');
 var globPair = 'BTC'
 var createdHistory = [];
 var createdRecentTrades = [];
 var activeAlerts = [];
+
+tradeSocket.onopen = function(e){
+    console.log('socket is on !!!');
+}
+tradeSocket.onmessage = function(e){
+    data = JSON.parse(e.data);
+    console.log(data)
+    header = data['header'];
+
+    if(header == 'trade_response'){
+        state = data['state'];
+        if(state == 0){
+            createAlert('success', 'Order filled!')
+        }else{
+            createAlert('danger', 'Insufficient balance!')
+        }
+    }  
+}
+tradeSocket.onclose = function(e){
+    createAlert('danger', 'There is a connection issue, please try again!');
+}
 
 function getPortfolio(pair) {
 
@@ -82,44 +106,22 @@ function trade(type, pair) {
     else {
         amount = `${pValue.value} ${$('#sellPairChanger').text()}`;
     }
+
+    if(getOrderType.classList.contains('active')){
+        orderType = 'limit';
+    }else{
+        orderType = 'market';
+    }
+
     var reqJson = {
+        'header': 'trade_request',
+        'orderType': orderType,
         'pair' : `${pair}-USDT`,
         'type' : type,
         'amount' : amount,
     }
 
-    const url = `${main_url}/trade/${JSON.stringify(reqJson)}`
-    // console.log(url);
-    const xhr = new XMLHttpRequest();
-    xhr.open('GET', url);
-    xhr.timeout = 30000;
-    xhr.ontimeout = function () { createAlert('info', 'Connection failed!'); }
-    xhr.responseType = 'json';
-
-    xhr.onreadystatechange = function(e) {
-        if (this.status === 200 && xhr.readyState == 4) {
-            res = this.response;
-            if (res['state'] == 0) {
-
-                createAlert('success', 'Order filled!')
-            }
-            else {
-                
-                createAlert('danger', 'Insufficient balance!')
-            }
-            getPortfolio(globPair);
-            // recentTrades()
-            getHistory()
-        }
-        else if (this.status != 200){
-            createAlert('danger', this.status)
-        }
-    };
-    try {
-        xhr.send();
-    } catch(err) {
-        createAlert('danger', 'There is a problem, try again!')
-    }
+    tradeSocket.send(JSON.stringify(reqJson));  
 }
 
 function removeHistory() {
