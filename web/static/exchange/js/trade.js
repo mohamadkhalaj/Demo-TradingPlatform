@@ -1,39 +1,15 @@
-var tradeSocket = new WebSocket('ws://' + window.location.host + '/ws/trade/');
-
 var main_url = window.location.origin;
 var usdtValue = 0;
 var pairValue = 0;
 var pairUsdtValue = 0;
 var uValue = document.getElementById('uValue');
 var pValue = document.getElementById('pValue');
-var getOrderType = document.querySelector('.nav-link');
 uValue.value = 0;
 pValue.value = 0;
 var globPair = 'BTC'
 var createdHistory = [];
 var createdRecentTrades = [];
 var activeAlerts = [];
-
-tradeSocket.onopen = function(e){
-    console.log('socket is on !!!');
-}
-tradeSocket.onmessage = function(e){
-    data = JSON.parse(e.data);
-    console.log(data)
-    header = data['header'];
-    
-    if(header == 'trade_response'){
-        state = data['state'];
-        if(state == 0){
-            createAlert('success', 'Order filled!')
-        }else{
-            createAlert('danger', 'Insufficient balance!')
-        }
-    }  
-}
-tradeSocket.onclose = function(e){
-    createAlert('danger', 'There is a connection issue, please try again!');
-}
 
 function getPortfolio(pair) {
 
@@ -79,30 +55,54 @@ function getPortfolio(pair) {
 }
 
 function trade(type, pair) {
-    
+
     clearAllAlerts();
 
     var amount = 0;
-    if(type == 'buy') {
+    if (type == 'buy') {
         amount = `${uValue.value} ${$('#buyPairChanger').text()}`;
-    }else{
+    }
+    else {
         amount = `${pValue.value} ${$('#sellPairChanger').text()}`;
     }
-    
-    if(getOrderType.classList.contains('active')){
-        orderType = 'limit';
-    }else{
-        orderType = 'market';
-    }
     var reqJson = {
-        'header': 'trade_request',
-        'orderType': orderType,
         'pair' : `${pair}-USDT`,
         'type' : type,
         'amount' : amount,
     }
-    
-    tradeSocket.send(JSON.stringify(reqJson));   
+
+    const url = `${main_url}/trade/${JSON.stringify(reqJson)}`
+    // console.log(url);
+    const xhr = new XMLHttpRequest();
+    xhr.open('GET', url);
+    xhr.timeout = 30000;
+    xhr.ontimeout = function () { createAlert('info', 'Connection failed!'); }
+    xhr.responseType = 'json';
+
+    xhr.onreadystatechange = function(e) {
+        if (this.status === 200 && xhr.readyState == 4) {
+            res = this.response;
+            if (res['state'] == 0) {
+
+                createAlert('success', 'Order filled!')
+            }
+            else {
+                
+                createAlert('danger', 'Insufficient balance!')
+            }
+            getPortfolio(globPair);
+            // recentTrades()
+            getHistory()
+        }
+        else if (this.status != 200){
+            createAlert('danger', this.status)
+        }
+    };
+    try {
+        xhr.send();
+    } catch(err) {
+        createAlert('danger', 'There is a problem, try again!')
+    }
 }
 
 function removeHistory() {
