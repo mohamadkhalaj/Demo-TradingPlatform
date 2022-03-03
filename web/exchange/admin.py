@@ -8,15 +8,22 @@ from .models import (
 		visitor,
 	)
 
+admin.site.site_header = 'Demo Exchange Admin'
 
 class TradeHistoryAdmin(admin.ModelAdmin):
 	list_display = (
 		'type', 
 		'pair', 
-		'histAmount', 
 		'amount', 
 		'price', 
 		'humanizeTime', 
+		'usr', 
+		'orderType', 
+		'complete'
+	)
+	list_filter = (
+		'type', 
+		'pair', 
 		'usr', 
 		'orderType', 
 		'complete'
@@ -28,6 +35,11 @@ class PortfolioAdmin(admin.ModelAdmin):
 	list_display = (
 		'cryptoName', 
 		'amount', 
+		'usr', 
+		'marketType'
+	)
+	list_filter = (
+		'cryptoName', 
 		'usr', 
 		'marketType'
 	)
@@ -60,6 +72,13 @@ class SpotOrdersAdmin(admin.ModelAdmin):
 		'triggerConditions', 
 		'humanizeTime', 
 	)
+	list_filter = (
+		'usr', 
+		'type', 
+		'pair', 
+		'orderType', 
+		'triggerConditions', 
+	)
 admin.site.register(SpotOrders, SpotOrdersAdmin)
 
 class FuturesOrdersAdmin(admin.ModelAdmin):
@@ -79,6 +98,20 @@ class FuturesOrdersAdmin(admin.ModelAdmin):
 		'triggerConditions',
 		'humanizeTime',
 	)
+	list_filter = (
+		'usr', 
+		'type', 
+		'pair', 
+		'entryPrice', 
+		'marketPrice', 
+		'liqPrice', 
+		'leverage', 
+		'orderType',
+		'marginType',
+		'complete',
+		'pnl',
+		'triggerConditions',
+	)
 admin.site.register(FuturesOrders, FuturesOrdersAdmin)
 
 class FuturesHistoryAdmin(admin.ModelAdmin):
@@ -86,5 +119,8 @@ class FuturesHistoryAdmin(admin.ModelAdmin):
 		'orderDetails', 
 		'histAmount', 
 		'humanizeTime', 
+	)
+	list_filter = (
+		'orderDetails', 
 	)
 admin.site.register(FuturesHistory, FuturesHistoryAdmin)

@@ -92,7 +92,7 @@ class FuturesHistory(models.Model):
 		return f'{self.orderDetails}'
 
 class visitor(models.Model):
-	ip_address = models.GenericIPAddressFiel()
+	ip_address = models.GenericIPAddressField()
 	time = models.DateTimeField(auto_now=True)
 	userAgent = models.CharField(max_length=256, null=True)
 	path = models.CharField(max_length=256, null=True)
