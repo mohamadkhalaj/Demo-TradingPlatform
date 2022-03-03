@@ -1,3 +1,4 @@
+from django.contrib.humanize.templatetags.humanize import naturaltime
 from email.policy import default
 from django.db import models
 from django.conf import settings
@@ -11,7 +12,7 @@ class Portfolio(models.Model):
 	marketType = models.CharField(max_length=10, default='spot') # spot/futures
 
 	def __str__(self):
-		return self.cryptoName
+		return f'{self.usr} {self.cryptoName}'
 
 # details of terminated spot orders
 class TradeHistory(models.Model):
@@ -24,6 +25,13 @@ class TradeHistory(models.Model):
 	price = models.FloatField()
 	time = models.DateTimeField(auto_now=True)
 	complete = models.BooleanField(default=True)
+
+	def humanizeTime(self):
+		return naturaltime(self.time)
+	humanizeTime.short_description = 'Time'
+
+	def __str__(self):
+		return f'{self.usr} {self.pair}'
 
 	class Meta:
 		verbose_name_plural = 'Trade histories'
@@ -38,6 +46,13 @@ class SpotOrders(models.Model):
 	price = models.FloatField()
 	triggerConditions = models.FloatField(blank=True, null=True) # only used for stop-limit
 	createDate = models.DateTimeField(auto_now_add=True)
+
+	def humanizeTime(self):
+		return naturaltime(self.createDate)
+	humanizeTime.short_description = 'Time'
+
+	def __str__(self):
+		return f'{self.usr} {self.pair}-SPOT'
 
 # details of all futures orders
 class FuturesOrders(models.Model):
@@ -56,8 +71,36 @@ class FuturesOrders(models.Model):
 	triggerConditions = models.FloatField(blank=True, null=True) # only used for stop-limit
 	createDate = models.DateTimeField(auto_now_add=True)
 
+	def humanizeTime(self):
+		return naturaltime(self.createDate)
+	humanizeTime.short_description = 'Time'
+
+	def __str__(self):
+		return f'{self.usr} {self.pair}-FUTURES'
+
 # extra details for terminated futures orders including history amounts for statistical reports
 class FuturesHistory(models.Model):
 	orderDetails = models.OneToOneField(FuturesOrders, on_delete=models.DO_NOTHING)
 	histAmount = models.JSONField(default=None)
 	terminateDate = models.DateTimeField(auto_now_add=True)
+
+	def humanizeTime(self):
+		return naturaltime(self.terminateDate)
+	humanizeTime.short_description = 'Time'
+
+	def __str__(self):
+		return f'{self.orderDetails}'
+
+class visitor(models.Model):
+	ip_address = models.GenericIPAddressFiel()
+	time = models.DateTimeField(auto_now=True)
+	userAgent = models.CharField(max_length=256, null=True)
+	path = models.CharField(max_length=256, null=True)
+	isAdminPanel = models.BooleanField(default=False)
+
+	def humanizeTime(self):
+		return naturaltime(self.time)
+	humanizeTime.short_description = 'Time'
+
+	def __str__(self):
+		return f'{self.ip_address}, {self.userAgent}'
