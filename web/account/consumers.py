@@ -106,11 +106,19 @@ class ChartSocket(AsyncJsonWebsocketConsumer):
 
     @database_sync_to_async
     def getPortfolio(self):
-        return list(Portfolio.objects.all().filter(usr=self.user, marketType='spot'))
+        return list(Portfolio.objects.all().filter(
+                usr=self.user, 
+                marketType='spot', 
+            )
+        )
 
     @database_sync_to_async
     def getTrades(self):
-        return list(TradeHistory.objects.all().filter(usr=self.user, complete=True))
+        return list(TradeHistory.objects.all().filter(
+                usr=self.user, 
+                complete=True,
+            )
+        )
 
 
 class WalletSocket(AsyncJsonWebsocketConsumer):
@@ -142,7 +150,12 @@ class WalletSocket(AsyncJsonWebsocketConsumer):
             assets[item.cryptoName] = float(item.amount)
 
         array = []
-        data = cryptocompare.get_price(list(assets.keys()), currency='USD', full=True)['RAW']
+        data = cryptocompare.get_price(
+                list(assets.keys()), 
+                currency='USD', 
+                full=True
+            )['RAW']
+
         for item in data:
             tmp = data[item]["USD"]
             price = float(tmp["PRICE"])
@@ -172,4 +185,9 @@ class WalletSocket(AsyncJsonWebsocketConsumer):
 
     @database_sync_to_async
     def getPortfolio(self):
-        return list(Portfolio.objects.all().filter(usr=self.user, marketType='spot'))
+        return list(Portfolio.objects.all().filter(
+                usr=self.user, 
+                marketType='spot', 
+                amount__gt=0,
+            )
+        )

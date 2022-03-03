@@ -7,9 +7,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = config('SECRET_KEY')
 
-DEBUG = True
-DEBUG_PROPAGATE_EXCEPTIONS = False
+DEBUG = os.environ.get('DJANGO_DEBUG', True)
 
+DEBUG_PROPAGATE_EXCEPTIONS = False
 ALLOWED_HOSTS = ['*']
 CORS_ORIGIN_ALLOW_ALL = True
 LOGIN_REDIRECT_URL = 'exchange:home'
@@ -78,13 +78,9 @@ AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
 )
 
-# WSGI_APPLICATION = 'config.wsgi.application'
 ASGI_APPLICATION = "config.routing.application"
 
-REDIS_HOST = os.environ.get('REDIS_HOST')
-if not REDIS_HOST:
-    REDIS_HOST = 'localhost'
-
+REDIS_HOST = os.environ.get('REDIS_HOST', 'localhost')
 CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
