@@ -12,6 +12,7 @@ class Trade:
         self.result = None
         self.type = type
         self.pair = pair
+        self.famount = amount
         self.amount = float(amount.split(' ')[0])
         self.crp = amount.split(' ')[1]
         self.base = pair.split('-')[0]
@@ -88,10 +89,9 @@ class Trade:
                
                     
             newHistory.save()
-            time = datetime.now()
-            time = time.strftime("%H:%M:%S")
+            date = datetime.now()
             pair = self.pair.replace('-', '')
-            self.result  ={'state': 0, 'price': self.amount, 'amount': self.equivalent, 'time': time, 'type': self.type, 'pair': pair.upper()} 
+            self.result  ={'state': 0, 'price': self.amount, 'amount': self.equivalent, 'date': date.strftime("%Y:%m:%d:%H:%M"), 'type': self.type, 'pair': pair.upper(), 'pairPrice': self.pairPrice, 'time': date.strftime("%H:%M:%S"), 'famount': self.famount} 
         else:
             self.result = {'state': state}
 
@@ -102,11 +102,11 @@ class Trade:
         response = response.json()
         basePrice = float(response[base]['USDT'])
         qoutePrice = float(response[qoute]['USDT'])
-        pairPrice = basePrice / qoutePrice
+        self.pairPrice = basePrice / qoutePrice
         if self.crp == base:
-            equivalent = pairPrice * amount
+            equivalent = self.pairPrice * amount
         else:
-            equivalent = amount / pairPrice
+            equivalent = amount / self.pairPrice
 
         return equivalent
 

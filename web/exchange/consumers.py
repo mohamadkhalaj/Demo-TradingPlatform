@@ -52,13 +52,14 @@ class TradeConsumer(AsyncJsonWebsocketConsumer):
         self.header = content['header']
         self.orderType = content['orderType']
         self.pair = content['pair']
+
         result = await self.trade(content)
         print('result: ', result)
         # subs = getCryptoList(1,20)
 
         trade_response = {'header': 'trade_response', 'state': result['state']}
-        hist_response = {'header': 'hist_response', 'type': result['type'], 'pair': self.pair, 'amount': result['amount'],'price': result['price'], 'time': result['time'], 'orderType': self.orderType}
-        recentTrades_response = {'header': 'recent_response', 'type': result['type'], 'pair': self.pair, 'pairPrice': result['price'], 'amount': result['amount']}
+        hist_response = {'header': 'hist_response', 'type': result['type'], 'pair': self.pair, 'amount': result['amount'],'price': result['price'], 'orderType': self.orderType, 'date': result['date'], 'famount': result['famount'], 'pairPrice': result['pairPrice']}
+        recentTrades_response = {'header': 'recent_response', 'type': result['type'], 'pair': result['pair'], 'price': result['price'], 'amount': result['amount'], 'time': result['time']}
 
         # await self.channel_layer.group_send(
 		# 	self.broadcastName,

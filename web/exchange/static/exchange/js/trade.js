@@ -16,11 +16,12 @@ var activeAlerts = [];
 
 tradeSocket.onopen = function(e){
     console.log('socket is on !!!');
+    console.log(pair);
 }
 tradeSocket.onmessage = function(e){
     data = JSON.parse(e.data);
-    console.log(data)
     header = data['header'];
+    console.log(header, data);
 
     if(header == 'trade_response'){
         state = data['state'];
@@ -30,6 +31,14 @@ tradeSocket.onmessage = function(e){
             createAlert('danger', 'Insufficient balance!')
         }
     }  
+    else if(header == 'hist_response'){
+        getHistory(data);
+    }
+    else if(header == 'recent_response'){
+        if(pair == data['pair']){
+            recentTrades(data);
+        }
+    }
 }
 tradeSocket.onclose = function(e){
     createAlert('danger', 'There is a connection issue, please try again!');
@@ -145,124 +154,68 @@ function clearAllAlerts() {
     activeAlerts = []
 }
 
-function getHistory() {
+function getHistory(data) {
+    var parent = document.getElementById("open-orders");
+    var before = document.getElementById("before");
+    var newNode = document.createElement("ul");
+    newNode.classList.add("d-flex", "justify-content-between", "market-order-item", "ul");
 
-    removeHistory()
-    const url = `${main_url}/tradinghistory/`
-    // console.log(url);
-    const xhr = new XMLHttpRequest();
-    xhr.open('GET', url);
-    xhr.timeout = 30000;
-    xhr.ontimeout = function () { console.log('time out'); }
-    xhr.responseType = 'json';
+    var time = document.createElement("li");
+    var pair = document.createElement("li");
+    var type = document.createElement("li");
+    var price = document.createElement("li");
+    var amount = document.createElement("li");
+    var total = document.createElement("li");
 
-    xhr.onreadystatechange = function(e) {
-        if (this.status === 200 && xhr.readyState == 4) {
-            res = this.response;
-            var parent = document.getElementById("open-orders")
-            var before = document.getElementById("before")
-            Object.keys(res).forEach(function(item, index) {
-                var newNode = document.createElement("ul")
-                newNode.classList.add("d-flex", "justify-content-between", "market-order-item", "ul")
+    time.innerText = data['date'];
+    type.innerText = data['type'];
+    pair.innerText = data['pair'];
+    amount.innerText = parseFloat(data['famount'].split(' ')[0]).toFixed(5) + ' ' + data['famount'].split(' ')[1];
+    total.innerText = data['price'].toFixed(5);
+    price.innerText = data['pairPrice'];
 
-                var time = document.createElement("li")
-                var pair = document.createElement("li")
-                var type = document.createElement("li")
-                var price = document.createElement("li")
-                var amount = document.createElement("li")
-                var total = document.createElement("li")
-
-                time.innerText = res[index]['time']
-                type.innerText = res[index]['type']
-                pair.innerText = res[index]['pair']
-                // price.innerText = res[index]['pairPrice'].toFixed(5)
-                amount.innerText = parseFloat(res[index]['amount'].split(' ')[0]).toFixed(5) + ' ' + res[index]['amount'].split(' ')[1]
-                total.innerText = res[index]['price'].toFixed(5)
-
-                if (res[index]['type'] == 'buy') {
-                    type.classList.add('green')
-                }
-                else {
-                    type.classList.add('red')
-                }
-
-                newNode.appendChild(time)
-                newNode.appendChild(pair)
-                newNode.appendChild(type)
-                newNode.appendChild(price)
-                newNode.appendChild(amount)
-                newNode.appendChild(total)
-
-                createdHistory.push(newNode)
-
-                parent.insertBefore(newNode, before)
-            })
-        }
-        else {
-            console.log(this.status)
-        }
-    };
-    try {
-        xhr.send();
-    } catch(err) {
-        console.log('error')
+    if (data['type'] == 'buy') {
+        type.classList.add('green')
     }
+    else {
+        type.classList.add('red')
+    }
+
+    newNode.appendChild(time);
+    newNode.appendChild(pair);
+    newNode.appendChild(type);
+    newNode.appendChild(price);
+    newNode.appendChild(amount);
+    newNode.appendChild(total);
+
+    createdHistory.push(newNode);
+
+    parent.insertBefore(newNode, before)
 }
 
-function recentTrades() {
+function recentTrades(data) {
+    var parent = document.getElementById("recentTradesHistory");
+    var newNode = document.createElement("tr");
+    var price = document.createElement("td");
+    var amount = document.createElement("td");
+    var time = document.createElement("td");
 
-    removeRecentTrades()
-    const url = `${main_url}/recentTrades`
-    // console.log(url);
-    const xhr = new XMLHttpRequest();
-    xhr.open('GET', url);
-    xhr.timeout = 30000;
-    xhr.ontimeout = function () { console.log('time out'); }
-    xhr.responseType = 'json';
+    price.innerText = data['price'].toFixed(2);
+    amount.innerText = data['amount'].toFixed(5);
+    time.innerText = data['time'];
 
-    xhr.onreadystatechange = function(e) {
-        if (this.status === 200 && xhr.readyState == 4) {
-            res = this.response;
-            var parent = document.getElementById("recentTradesHistory")
-            var before = document.getElementById("beforeRecent")
-            Object.keys(res).forEach(function(item, index) {
-                // console.log(res[index])
-                var newNode = document.createElement("tr")
-
-                var pair = document.createElement("td")
-                var price = document.createElement("td")
-                var amount = document.createElement("td")
-
-                pair.innerText = res[index]['pair']
-                price.innerText = res[index]['pairPrice'].toFixed(5)
-                amount.innerText = parseFloat(res[index]['amount'].split(' ')[0]).toFixed(5) + ' ' + res[index]['amount'].split(' ')[1]
-
-                if (res[index]['type'] == 'buy') {
-                    price.classList.add('green')
-                }
-                else {
-                    price.classList.add('red')
-                }
-
-                newNode.appendChild(pair)
-                newNode.appendChild(price)
-                newNode.appendChild(amount)
-
-                createdRecentTrades.push(newNode)
-
-                parent.appendChild(newNode)
-                // parent.insertBefore(newNode, before)
-            })
-        }
-        else {
-            console.log(this.status)
-        }
-    };
-    try {
-        xhr.send();
-    } catch(err) {
-        console.log('error')
+    if (data['type'] == 'buy') {
+        price.classList.add('green')
     }
+    else {
+        price.classList.add('red')
+    }
+
+    newNode.appendChild(price);
+    newNode.appendChild(amount);
+    newNode.appendChild(time);
+    createdRecentTrades.push(newNode);
+    parent.appendChild(newNode);
 }
 
 function calcAmount(change, object) {
@@ -406,4 +359,3 @@ function createAlert(type, message) {
 }
 percentage();
 getHistory();
-// recentTrades();
