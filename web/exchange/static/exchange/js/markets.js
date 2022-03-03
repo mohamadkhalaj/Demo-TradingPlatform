@@ -29,11 +29,11 @@ function fillData(data) {
         document.getElementById(index + '_high').innerText = obj['24h']
         document.getElementById(index + '_low').innerText = obj['24l']
 
-        if (parseInt(obj['24c']) > 0) {
+        if (parseFloat(obj['24c']) > 0) {
             change.classList.remove('red')
             change.classList.add('green')
         }
-        else if (parseInt(obj['24c']) < 0){
+        else if (parseFloat(obj['24c']) < 0){
             change.classList.remove('green')
             change.classList.add('red')
         }

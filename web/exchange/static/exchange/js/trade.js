@@ -146,7 +146,7 @@ function clearAllAlerts() {
 function getHistory() {
 
     removeHistory()
-    const url = `${main_url}/tradinghistory`
+    const url = `${main_url}/tradinghistory/`
     // console.log(url);
     const xhr = new XMLHttpRequest();
     xhr.open('GET', url);
