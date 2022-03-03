@@ -26,6 +26,7 @@ def home(request):
 			newObj.save()
 			obj.first_login = False
 			obj.save()	
+
 	return render(request, 'exchange/index.html')
 
 def search(request, value):

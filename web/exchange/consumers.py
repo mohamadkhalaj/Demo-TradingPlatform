@@ -6,6 +6,7 @@ from .models import TradeHistory
 import re
 import json, asyncio, requests, cryptocompare
 from channels.db import database_sync_to_async
+from asgiref.sync import async_to_sync
 from decouple import config
 
 # class OrdersConsumer(AsyncJsonWebsocketConsumer):
@@ -44,23 +45,49 @@ class TradeConsumer(AsyncJsonWebsocketConsumer):
             self.channel_name
         )
 
+        
         await self.accept()
 
 
     async def receive_json(self, content, **kwargs):
-        print('content:', content)
+        # print('content:', content)
         self.header = content['header']
-        self.orderType = content['orderType']
-        self.pair = content['pair']
 
-        result = await self.trade(content)
-        print('result: ', result)
+        if self.header == 'current_pair':
+            self.current_pair = content['current_pair']
+            await self.initialFillings()
+
+        elif self.header == 'trade_request':
+            self.pair = content['pair']
+            self.orderType = content['orderType']
+            result = await self.trade(content)
+            # print('result: ', result)
+            trade_response = {'header': 'trade_response', 'state': result['state']}
+            await self.channel_layer.group_send(
+            self.unicastName,
+                {
+                    'type': 'send.data',
+                    'content': trade_response
+                }
+            )
+            if result['state'] == 0:
+                hist_response = {'header': 'hist_response', 'type': result['type'], 'pair': self.pair, 'amount': result['amount'],'price': result['price'], 'orderType': self.orderType, 'date': result['date'], 'famount': result['famount'], 'pairPrice': result['pairPrice']}
+                await self.channel_layer.group_send(
+                    self.unicastName,
+                    {
+                        'type': 'send.data',
+                        'content': hist_response
+                    }
+                )
+                recentTrades_response = {'header': 'recent_response', 'type': result['type'], 'pair': result['pair'], 'price': result['pairPrice'], 'amount': result['famount'], 'time': result['time']}
+                await self.channel_layer.group_send(
+                    self.broadcastName,
+                    {
+                        'type': 'send.data',
+                        'content': recentTrades_response
+                    }
+                )
         # subs = getCryptoList(1,20)
-
-        trade_response = {'header': 'trade_response', 'state': result['state']}
-        hist_response = {'header': 'hist_response', 'type': result['type'], 'pair': self.pair, 'amount': result['amount'],'price': result['price'], 'orderType': self.orderType, 'date': result['date'], 'famount': result['famount'], 'pairPrice': result['pairPrice']}
-        recentTrades_response = {'header': 'recent_response', 'type': result['type'], 'pair': result['pair'], 'price': result['price'], 'amount': result['amount'], 'time': result['time']}
-
         # await self.channel_layer.group_send(
 		# 	self.broadcastName,
 		# 	{
@@ -68,30 +95,6 @@ class TradeConsumer(AsyncJsonWebsocketConsumer):
 		# 		'content': price_response
 		# 	}
 		# )
-        await self.channel_layer.group_send(
-            self.unicastName,
-            {
-                'type': 'send.data',
-                'content': trade_response
-            }
-        )
-
-        if result['state'] == 0:
-            await self.channel_layer.group_send(
-                self.unicastName,
-                {
-                    'type': 'send.data',
-                    'content': hist_response
-                }
-            )
-
-            await self.channel_layer.group_send(
-                self.broadcastName,
-                {
-                    'type': 'send.data',
-                    'content': recentTrades_response
-                }
-            )
         # while True:
         #     price_response = await asyncio.ensure_future(self.sendList(subs))
             
@@ -108,7 +111,7 @@ class TradeConsumer(AsyncJsonWebsocketConsumer):
     
     async def send_data(self, event):
         data = event['content']
-        print('data:', data)
+        # print('data:', data)
         await self.send_json(data)
 
     @database_sync_to_async
@@ -119,7 +122,32 @@ class TradeConsumer(AsyncJsonWebsocketConsumer):
 
             return result
 
-
+    @database_sync_to_async
+    def initialFillings(self):
+        histObj = TradeHistory.objects.all().order_by('-time')
+        counter = 0
+        for item in histObj.iterator():
+            pair = item.pair.replace('-', '').upper()
+            hist_content = {'header': 'hist_response', 'type': item.type, 'pair': item.pair, 'pairPrice': item.pairPrice, 'famount': item.amount, 'date': item.time.strftime("%Y:%m:%d:%H:%M"), 'price': item.price}          
+            async_to_sync (self.channel_layer.group_send)(
+                self.unicastName,
+                {
+                    'type': 'send.data',
+                    'content': hist_content
+                }
+            )
+            if pair == self.current_pair and counter <= 5:
+                recent_content = {'header': 'recent_response', 'type': item.type, 'pair': pair, 'price': item.pairPrice, 'amount': item.amount, 'time': item.time.strftime("%H:%M:%S")}
+                async_to_sync (self.channel_layer.group_send)(
+                    self.unicastName,
+                    {
+                        'type': 'send.data',
+                        'content': recent_content
+                    }
+                )
+            counter += 1
+        
+# ##########################################################################3
 
     def getCryptoList(page, limit):
         url = f'https://min-api.cryptocompare.com/data/top/mktcap?limit={limit}&tsym=USD&page={page}'
@@ -171,8 +199,6 @@ class TradeConsumer(AsyncJsonWebsocketConsumer):
     #     print(cryptoJson(data))
     #     self.sleep(1)
     #     return(cryptoJson(data))
-
-
 
 
 def getCryptoList(page, limit):

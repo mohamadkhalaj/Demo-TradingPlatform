@@ -1,4 +1,5 @@
 from email.policy import default
+from statistics import mode
 from django.db import models
 from django.conf import settings
 # from django.conf import DEFAULT_CONTENT_TYPE_DEPRECATED_MSG
@@ -18,6 +19,7 @@ class TradeHistory(models.Model):
 	usr = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 	type = models.CharField(max_length=4) # buy/sell
 	pair = models.CharField(max_length=20)
+	pairPrice = models.FloatField()
 	orderType = models.CharField(max_length=15, default=None) # market/limit/stop-limit
 	histAmount = models.JSONField(default=None)
 	amount = models.CharField(max_length=100)

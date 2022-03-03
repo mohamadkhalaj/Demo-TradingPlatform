@@ -16,12 +16,14 @@ var activeAlerts = [];
 
 tradeSocket.onopen = function(e){
     console.log('socket is on !!!');
-    console.log(pair);
+    tradeSocket.send(JSON.stringify({'header': 'current_pair', 'current_pair': pair}));
+    removeRecentTrades();
+    removeHistory();
 }
 tradeSocket.onmessage = function(e){
     data = JSON.parse(e.data);
     header = data['header'];
-    console.log(header, data);
+    // console.log(header, data);
 
     if(header == 'trade_response'){
         state = data['state'];
@@ -201,7 +203,7 @@ function recentTrades(data) {
     var time = document.createElement("td");
 
     price.innerText = data['price'].toFixed(2);
-    amount.innerText = data['amount'].toFixed(5);
+    amount.innerText = data['amount']
     time.innerText = data['time'];
 
     if (data['type'] == 'buy') {

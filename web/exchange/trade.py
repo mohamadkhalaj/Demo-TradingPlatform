@@ -84,7 +84,8 @@ class Trade:
                 amount=str(self.amount)+' '+self.crp,
                 price=price,
                 complete=True,
-                orderType=self.orderType
+                orderType=self.orderType,
+                pairPrice = self.pairPrice
             )
                
                     
