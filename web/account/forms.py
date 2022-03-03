@@ -5,7 +5,7 @@ from django.contrib.auth.forms import AuthenticationForm
 from hcaptcha.fields import hCaptchaField
 
 class LoginForm(AuthenticationForm):
-    hcaptcha = hCaptchaField()
+    # hcaptcha = hCaptchaField()
     class Meta:
         model = User
         fields = '__all__'
@@ -34,7 +34,7 @@ class ProfileForm(forms.ModelForm):
 
 
 class SignupForm(UserCreationForm):
-    hcaptcha = hCaptchaField()
+    # hcaptcha = hCaptchaField()
     email = forms.EmailField(max_length=200)
     class Meta:
         model = User

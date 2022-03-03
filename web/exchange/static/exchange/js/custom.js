@@ -926,6 +926,7 @@
   $('#changeThemeLight').on('click', function (e) {
     ThemeOn = !ThemeOn;
     localStorage.setItem('theme', ThemeOn);
+
     if (ThemeOn) {
       $('#changeThemeLight a i').attr('class', 'icon ion-md-moon');
       $('header').attr('class', 'dark-bb');
@@ -956,7 +957,9 @@
     if (window.location.pathname.includes("/account/trade/")) {
       auto = false;
     }
+
     if (ThemeOn) {
+      
       $('#changeThemeDark a i').attr('class', 'icon ion-md-sunny');
 
       $('#searchParent').attr('style', 'background-Color: aliceblue');

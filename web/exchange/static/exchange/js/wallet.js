@@ -48,7 +48,12 @@ function createAssets(data) {
         var br = document.createElement("br")
         var p = document.createElement("p")
 
-        a.setAttribute('href',`/account/trade/${obj["symbol"]}-USDT`)
+        var symbol = obj["symbol"];
+        if (symbol == 'USDT') {
+            var symbol = 'BTC';
+        }
+        
+        a.setAttribute('href',`/account/trade/${symbol}-USDT`)
         a.classList.add('nav-link', 'd-flex', 'justify-content-between', 'align-items-center')
         a.setAttribute('target','_blank')
 
