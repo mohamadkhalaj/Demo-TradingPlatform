@@ -1,4 +1,5 @@
 var tradeSocket = new WebSocket('ws://' + window.location.host + '/ws/trade/');
+var tradeListSocket = new WebSocket('ws://' + window.location.host + '/ws/');
 
 var main_url = window.location.origin;
 var usdtValue = 0;
@@ -45,6 +46,19 @@ tradeSocket.onmessage = function(e){
 tradeSocket.onclose = function(e){
     createAlert('danger', 'There is a connection issue, please try again!');
 }
+
+tradeListSocket.onopen = function () {
+    tradeListSocket.send(JSON.stringify({"page":0}));
+};
+
+tradeListSocket.onmessage = function(e) {
+    var message = e.data;
+    data = JSON.parse(message)
+};
+
+tradeListSocket.onclose = function(e) {
+    console.log('Socket closed unexpectedly');
+};
 
 function getPortfolio(pair) {
 

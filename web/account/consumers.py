@@ -51,7 +51,7 @@ class MarketConsumer(AsyncJsonWebsocketConsumer):
         cryptocompare.cryptocompare._set_api_key_parameter(CRYPTO_COMPARE_API)  
 
         data = cryptocompare.get_price(subs, currency='USD', full=True)
-
+        print(cryptoJson(data))
         await self.send_json(cryptoJson(data))
         await asyncio.sleep(1)
 
