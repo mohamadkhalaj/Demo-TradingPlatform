@@ -83,7 +83,8 @@ class TradeConsumer(AsyncJsonWebsocketConsumer):
                 )
 
     async def disconnect(self, code):
-        self.channel_layer.group_discard
+        self.channel_layer.group_discard("unicastName", self.channel_name)
+        self.channel_layer.group_discard("broadcastName", self.channel_name)
 
     
     async def send_data(self, event):
