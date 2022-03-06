@@ -23,7 +23,7 @@ class TradeHistory(models.Model):
 	pairPrice = models.FloatField()
 	orderType = models.CharField(max_length=15, default=None) # market/limit/stop-limit
 	histAmount = models.JSONField(default=None)
-	amount = models.CharField(max_length=100)
+	amount = models.FloatField()
 	price = models.FloatField()
 	time = models.DateTimeField(auto_now=True)
 	complete = models.BooleanField(default=True)

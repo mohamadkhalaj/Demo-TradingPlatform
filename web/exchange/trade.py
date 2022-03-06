@@ -12,7 +12,6 @@ class Trade:
         self.result = None
         self.type = type
         self.pair = pair
-        self.famount = amount
         self.amount = float(amount.split(' ')[0])
         self.crp = amount.split(' ')[1]
         self.base = pair.split('-')[0]
@@ -76,12 +75,18 @@ class Trade:
                 histAmount[index] = {'cryptoName':item.cryptoName, 'amount':item.amount}
             baseAmount = self.portfo.get(cryptoName=self.base).amount
             quoteAmount = self.portfo.get(cryptoName=self.qoute).amount
+
+            if self.crp == self.base:
+                amount = self.amount
+            else:
+                amount = self.equivalent
+
             newHistory = TradeHistory(
                 usr=self.user,
                 type=self.type,
                 pair=self.pair,
                 histAmount=histAmount,
-                amount=str(self.amount)+' '+self.crp,
+                amount=amount,
                 price=price,
                 complete=True,
                 orderType=self.orderType,
@@ -92,7 +97,8 @@ class Trade:
             newHistory.save()
             date = datetime.now()
             pair = self.pair.replace('-', '')
-            self.result  ={'state': 0, 'price': self.amount, 'amount': self.equivalent, 'date': date.strftime("%Y:%m:%d:%H:%M"), 'type': self.type, 'pair': pair.upper(), 'pairPrice': self.pairPrice, 'time': date.strftime("%H:%M:%S"), 'famount': self.famount} 
+            
+            self.result  ={'state': 0, 'price': self.amount, 'amount': amount, 'date': date.strftime("%Y:%m:%d:%H:%M"), 'type': self.type, 'pair': pair.upper(), 'pairPrice': self.pairPrice, 'time': date.strftime("%H:%M:%S")} 
         else:
             self.result = {'state': state}
 

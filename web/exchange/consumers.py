@@ -34,8 +34,9 @@ class TradeConsumer(AsyncJsonWebsocketConsumer):
         # print('content:', content)
         self.header = content['header']
 
-        if self.header == 'current_pair':
+        if self.header == 'attribs':
             self.current_pair = content['current_pair']
+            self.page = content['page']
             await self.initialFillings()
 
         elif self.header == 'trade_request':
@@ -52,7 +53,7 @@ class TradeConsumer(AsyncJsonWebsocketConsumer):
                 }
             )
             if result['state'] == 0:
-                hist_response = {'header': 'hist_response', 'type': result['type'], 'pair': self.pair, 'amount': result['amount'],'price': result['price'], 'orderType': self.orderType, 'date': result['date'], 'famount': result['famount'], 'pairPrice': result['pairPrice']}
+                hist_response = {'header': 'hist_response', 'type': result['type'], 'pair': self.pair, 'amount': result['amount'],'price': result['price'], 'orderType': self.orderType, 'date': result['date'], 'pairPrice': result['pairPrice']}
                 await self.channel_layer.group_send(
                     self.unicastName,
                     {
@@ -60,7 +61,7 @@ class TradeConsumer(AsyncJsonWebsocketConsumer):
                         'content': hist_response
                     }
                 )
-                recentTrades_response = {'header': 'recent_response', 'type': result['type'], 'pair': result['pair'], 'price': result['pairPrice'], 'amount': result['famount'], 'time': result['time']}
+                recentTrades_response = {'header': 'recent_response', 'type': result['type'], 'pair': result['pair'], 'price': result['pairPrice'], 'amount': result['amount'], 'time': result['time']}
                 await self.channel_layer.group_send(
                     self.broadcastName,
                     {
@@ -91,14 +92,15 @@ class TradeConsumer(AsyncJsonWebsocketConsumer):
         counter = 0
         for item in histObj.iterator():
             pair = item.pair.replace('-', '').upper()
-            hist_content = {'header': 'hist_response', 'type': item.type, 'pair': item.pair, 'pairPrice': item.pairPrice, 'famount': item.amount, 'date': item.time.strftime("%Y:%m:%d:%H:%M"), 'price': item.price}          
-            async_to_sync (self.channel_layer.group_send)(
-                self.unicastName,
-                {
-                    'type': 'send.data',
-                    'content': hist_content
-                }
-            )
+            if item.usr == self.user:
+                hist_content = {'header': 'hist_response', 'type': item.type, 'pair': item.pair, 'pairPrice': item.pairPrice, 'amount': item.amount, 'date': item.time.strftime("%Y:%m:%d:%H:%M"), 'price': item.price}          
+                async_to_sync (self.channel_layer.group_send)(
+                    self.unicastName,
+                    {
+                        'type': 'send.data',
+                        'content': hist_content
+                    }
+                )
             if pair == self.current_pair and counter <= 5:
                 recent_content = {'header': 'recent_response', 'type': item.type, 'pair': pair, 'price': item.pairPrice, 'amount': item.amount, 'time': item.time.strftime("%H:%M:%S")}
                 async_to_sync (self.channel_layer.group_send)(

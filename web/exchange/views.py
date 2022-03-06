@@ -19,6 +19,7 @@ from .trade import Trade
 import urllib.parse
 
 def home(request):
+	# request.user.delete()
 	if request.user.is_authenticated:
 		obj = User.objects.get(username=request.user)
 		if obj.first_login:
