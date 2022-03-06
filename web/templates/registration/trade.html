@@ -10,7 +10,7 @@
       <div class="col-md-3">
         <div class="market-pairs">
 
-          <!-- <div class="input-group">
+          <div class="input-group">
             <input type="text" class="live-search-box" placeholder="search here" />
 
               <ul class="live-search-list" style="display: none; width:92%">
@@ -30,7 +30,7 @@
                   </a>
               {% endfor %}
               </ul>
-          </div> -->
+          </div>
           <ul class="nav nav-pills" role="tablist">
             </li>
             <li class="nav-item">
@@ -47,8 +47,8 @@
                     <th>Change</th>
                   </tr>
                 </thead>
-                <tbody class="markets-list-trade">
-                  {% for item in data %}
+                <tbody id="markets-list-trade">
+                  <!-- {% for item in data %}
                   <tr data-href="{% url 'account:trade' item.symbol.upper %}-USDT">
                     <td><i class="icon"></i>{{item.name}}-USDT</td>
                     <td>{{item.current_price}}</td>
@@ -60,7 +60,7 @@
                       <td>{{item.price_change_percentage_24h}}%</td>
                     {% endif %}
                   </tr>
-                  {% endfor %}
+                  {% endfor %} -->
                 </tbody>
               </table>
             </div>

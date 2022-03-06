@@ -48,12 +48,17 @@ tradeSocket.onclose = function(e){
 }
 
 tradeListSocket.onopen = function () {
+    console.log('prices socket is on!!');
     tradeListSocket.send(JSON.stringify({"page":0}));
+    createPricePanel();
 };
 
 tradeListSocket.onmessage = function(e) {
     var message = e.data;
     data = JSON.parse(message)
+    // console.log('_________________________________________________');
+    // console.log(data);
+    priceList(data);
 };
 
 tradeListSocket.onclose = function(e) {
@@ -372,6 +377,56 @@ function createAlert(type, message) {
     setTimeout(function(param){
         mainDiv.remove()
     }.bind(null), 5000);
+}
+function priceList(data){
+    
+    data.forEach(function(obj, index){
+
+        tr_elem = document.getElementById(index + '_tr');
+        tr_elem.setAttribute('data-href',`/account/trade/${obj["symbol"]}-USDT`);
+
+        tr_elem.onclick = function(){
+            window.location = `/account/trade/${obj["symbol"]}-USDT`;
+        }
+        
+        document.getElementById(index + '_pair').innerText = `${obj["symbol"]}-USDT`;
+        document.getElementById(index + '_price').innerText = `${obj["price"]}`;
+
+        ch_elem = document.getElementById(index + '_change');
+        ch_elem.innerText = `${obj["24c"]}`;
+
+        if(obj['24c'] < 0){
+            ch_elem.style.color = '#ff231f';
+        }else{
+            ch_elem.style.color = '#26de81';
+        }
+             
+    })
+
+}
+function createPricePanel(){
+
+    var parrent = document.getElementById("markets-list-trade");
+
+    for(let i=0; i<20; i++){
+        var tr = document.createElement("tr");
+        var pair = document.createElement("td");
+        var price = document.createElement("td");
+        var change = document.createElement("td");
+        
+        tr.id = i+"_tr";
+        pair.id = i+"_pair";
+        price.id = i+"_price";
+        change.id = i+"_change";
+        
+        tr.appendChild(pair);
+        tr.appendChild(price);
+        tr.appendChild(change);
+
+        parrent.appendChild(tr);
+  
+    }
+    
 }
 percentage();
 getHistory();

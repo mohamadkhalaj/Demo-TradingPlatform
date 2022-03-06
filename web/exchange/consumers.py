@@ -74,7 +74,7 @@ class TradeConsumer(AsyncJsonWebsocketConsumer):
     
     async def send_data(self, event):
         data = event['content']
-        print('data:', data)
+        # print('data:', data)
         await self.send_json(data)
 
     @database_sync_to_async

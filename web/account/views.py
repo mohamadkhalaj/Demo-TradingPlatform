@@ -57,16 +57,16 @@ def tradeHistory(request, page=1):
 	return render(request, 'registration/tradeHistory.html', context = context)
 
 def trade(request, pair='BINANCE:BTCUSDT'):
-	url = 'https://api.coingecko.com/api/v3/coins/markets?vs_currency=USD&order=market_cap_desc&per_page=20&page=1&sparkline=false'
-	data = requests.get(url).json()
+	# url = 'https://api.coingecko.com/api/v3/coins/markets?vs_currency=USD&order=market_cap_desc&per_page=20&page=1&sparkline=false'
+	# data = requests.get(url).json()
 
-	for item in data:
-		item['current_price'] = pretify(item['current_price'])
+	# for item in data:
+	# 	item['current_price'] = pretify(item['current_price'])
 
-		try:
-			item['price_change_percentage_24h'] = float(pretify(item['price_change_percentage_24h']))
-		except:
-			item['price_change_percentage_24h'] = pretify(item['price_change_percentage_24h'])
+	# 	try:
+	# 		item['price_change_percentage_24h'] = float(pretify(item['price_change_percentage_24h']))
+	# 	except:
+	# 		item['price_change_percentage_24h'] = pretify(item['price_change_percentage_24h'])
 	
 	if pair != 'BINANCE:BTCUSDT':
 		name = pair.split('-')[0]
@@ -76,8 +76,7 @@ def trade(request, pair='BINANCE:BTCUSDT'):
 
 	context = {
 		'pair' : pair,
-		'name' : name.upper(),
-		'data' : data,
+		'name' : name.upper()
 	}
 
 	if not pair:
