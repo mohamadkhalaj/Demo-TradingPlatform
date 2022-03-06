@@ -1,5 +1,3 @@
-from tkinter import E
-from unittest import result
 from .models import TradeHistory, Portfolio
 import requests
 from datetime import datetime
@@ -73,14 +71,11 @@ class Trade:
             histAmount =dict()
             for index, item in enumerate(self.portfo.iterator()):
                 histAmount[index] = {'cryptoName':item.cryptoName, 'amount':item.amount}
-            baseAmount = self.portfo.get(cryptoName=self.base).amount
-            quoteAmount = self.portfo.get(cryptoName=self.qoute).amount
-
+            
             if self.crp == self.base:
                 amount = self.amount
             else:
                 amount = self.equivalent
-
             newHistory = TradeHistory(
                 usr=self.user,
                 type=self.type,
@@ -91,14 +86,20 @@ class Trade:
                 complete=True,
                 orderType=self.orderType,
                 pairPrice = self.pairPrice
-            )
-               
-                    
+            )               
             newHistory.save()
             date = datetime.now()
             pair = self.pair.replace('-', '')
             
-            self.result  ={'state': 0, 'price': self.amount, 'amount': amount, 'date': date.strftime("%Y:%m:%d:%H:%M"), 'type': self.type, 'pair': pair.upper(), 'pairPrice': self.pairPrice, 'time': date.strftime("%H:%M:%S")} 
+            self.result = {
+                'state': 0, 
+                'price': self.amount, 
+                'amount': amount, 
+                'date': date.strftime("%Y:%m:%d:%H:%M"), 
+                'type': self.type, 'pair': pair.upper(), 
+                'pairPrice': self.pairPrice, 
+                'time': date.strftime("%H:%M:%S")
+                } 
         else:
             self.result = {'state': state}
 

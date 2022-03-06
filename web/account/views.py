@@ -1,11 +1,10 @@
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from exchange.common_functions import search, pretify, calc_equivalent
+from exchange.common_functions import search, pretify
 from django.contrib.sites.shortcuts import get_current_site
 from django.utils.encoding import force_bytes, force_text
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth import login, authenticate
-from exchange.models import Portfolio, TradeHistory
+from exchange.models import TradeHistory
 from django.template.loader import render_to_string
 from .forms import LoginForm, forms, ProfileForm
 from django.contrib.auth.views import LoginView
@@ -19,10 +18,8 @@ from django.views.generic import CreateView
 from django.core.mail import EmailMessage
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
-from typing import ByteString
-import requests, uuid, os
 from .models import User
-import shutil
+
 
 class Profile(LoginRequiredMixin, UpdateView):
 	model = User
@@ -57,17 +54,7 @@ def tradeHistory(request, page=1):
 	return render(request, 'registration/tradeHistory.html', context = context)
 
 def trade(request, pair='BINANCE:BTCUSDT'):
-	# url = 'https://api.coingecko.com/api/v3/coins/markets?vs_currency=USD&order=market_cap_desc&per_page=20&page=1&sparkline=false'
-	# data = requests.get(url).json()
 
-	# for item in data:
-	# 	item['current_price'] = pretify(item['current_price'])
-
-	# 	try:
-	# 		item['price_change_percentage_24h'] = float(pretify(item['price_change_percentage_24h']))
-	# 	except:
-	# 		item['price_change_percentage_24h'] = pretify(item['price_change_percentage_24h'])
-	
 	if pair != 'BINANCE:BTCUSDT':
 		name = pair.split('-')[0]
 		pair = search(pair)
@@ -135,6 +122,7 @@ def activate(request, uidb64, token):
 		user = User.objects.get(pk=uid)
 	except(TypeError, ValueError, OverflowError, User.DoesNotExist):
 		user = None
+
 	if user is not None and account_activation_token.check_token(user, token):
 		user.is_active = True
 		user.save()

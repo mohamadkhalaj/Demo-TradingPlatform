@@ -1,14 +1,10 @@
-from turtle import st
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
-from exchange.common_functions import calc_equivalent, pretify, search
 from .trade import Trade
 from .models import TradeHistory
-import re
-import json, asyncio, requests, cryptocompare
 from channels.db import database_sync_to_async
 from asgiref.sync import async_to_sync
-from decouple import config
 
+# api, recent-trades and histories all in one
 class TradeConsumer(AsyncJsonWebsocketConsumer):
     async def connect(self):
         self.user = self.scope['user']
@@ -25,8 +21,7 @@ class TradeConsumer(AsyncJsonWebsocketConsumer):
             self.broadcastName,
             self.channel_name
         )
-
-        
+      
         await self.accept()
 
 
@@ -52,8 +47,18 @@ class TradeConsumer(AsyncJsonWebsocketConsumer):
                     'content': trade_response
                 }
             )
+            # successful trade
             if result['state'] == 0:
-                hist_response = {'header': 'hist_response', 'type': result['type'], 'pair': self.pair, 'amount': result['amount'],'price': result['price'], 'orderType': self.orderType, 'date': result['date'], 'pairPrice': result['pairPrice']}
+                hist_response = {
+                    'header': 'hist_response',
+                    'type': result['type'],
+                    'pair': self.pair,
+                    'amount': result['amount'],
+                    'price': result['price'],
+                    'orderType': self.orderType,
+                    'date': result['date'],
+                    'pairPrice': result['pairPrice']
+                    }
                 await self.channel_layer.group_send(
                     self.unicastName,
                     {
@@ -61,7 +66,14 @@ class TradeConsumer(AsyncJsonWebsocketConsumer):
                         'content': hist_response
                     }
                 )
-                recentTrades_response = {'header': 'recent_response', 'type': result['type'], 'pair': result['pair'], 'price': result['pairPrice'], 'amount': result['amount'], 'time': result['time']}
+                recentTrades_response = {
+                    'header': 'recent_response',
+                    'type': result['type'],
+                    'pair': result['pair'],
+                    'price': result['pairPrice'],
+                    'amount': result['amount'],
+                    'time': result['time']
+                    }
                 await self.channel_layer.group_send(
                     self.broadcastName,
                     {
@@ -69,6 +81,7 @@ class TradeConsumer(AsyncJsonWebsocketConsumer):
                         'content': recentTrades_response
                     }
                 )
+
     async def disconnect(self, code):
         self.channel_layer.group_discard
 
@@ -78,6 +91,7 @@ class TradeConsumer(AsyncJsonWebsocketConsumer):
         # print('data:', data)
         await self.send_json(data)
 
+    # api call
     @database_sync_to_async
     def trade(self, content):
         if self.header == 'trade_request' and self.orderType == 'market':
@@ -86,14 +100,22 @@ class TradeConsumer(AsyncJsonWebsocketConsumer):
 
             return result
 
+    # fill recents and histories after page loaded
     @database_sync_to_async
     def initialFillings(self):
         histObj = TradeHistory.objects.all().order_by('-time')
         counter = 0
+
         for item in histObj.iterator():
             pair = item.pair.replace('-', '').upper()
             if item.usr == self.user:
-                hist_content = {'header': 'hist_response', 'type': item.type, 'pair': item.pair, 'pairPrice': item.pairPrice, 'amount': item.amount, 'date': item.time.strftime("%Y:%m:%d:%H:%M"), 'price': item.price}          
+                hist_content = {
+                    'header': 'hist_response',
+                    'type': item.type, 'pair': item.pair, 
+                    'pairPrice': item.pairPrice, 'amount': item.amount, 
+                    'date': item.time.strftime("%Y:%m:%d:%H:%M"), 
+                    'price': item.price
+                    }          
                 async_to_sync (self.channel_layer.group_send)(
                     self.unicastName,
                     {
@@ -102,7 +124,13 @@ class TradeConsumer(AsyncJsonWebsocketConsumer):
                     }
                 )
             if pair == self.current_pair and counter <= 5:
-                recent_content = {'header': 'recent_response', 'type': item.type, 'pair': pair, 'price': item.pairPrice, 'amount': item.amount, 'time': item.time.strftime("%H:%M:%S")}
+                recent_content = {
+                    'header': 'recent_response', 
+                    'type': item.type, 'pair': pair, 
+                    'price': item.pairPrice, 
+                    'amount': item.amount, 
+                    'time': item.time.strftime("%H:%M:%S")
+                    }
                 async_to_sync (self.channel_layer.group_send)(
                     self.unicastName,
                     {

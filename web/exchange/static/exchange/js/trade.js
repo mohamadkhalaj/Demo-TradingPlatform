@@ -56,8 +56,6 @@ tradeListSocket.onopen = function () {
 tradeListSocket.onmessage = function(e) {
     var message = e.data;
     data = JSON.parse(message)
-    // console.log('_________________________________________________');
-    // console.log(data);
     priceList(data);
 };
 

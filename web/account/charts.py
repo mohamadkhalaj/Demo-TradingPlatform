@@ -1,8 +1,6 @@
 from exchange.common_functions import calc_equivalent
-from exchange.models import Portfolio, TradeHistory
 from datetime import datetime, timedelta
 from django.conf import settings
-from .models import User
 import time, requests
 
 class Charts:
@@ -18,12 +16,14 @@ class Charts:
         self.func()
 
     def func(self):
+
         try:
             first_date = self.histories[0].time.replace(tzinfo=None)
         except Exception as e:
             print(e)
             self.haveTrade = False
             return
+
         now_timestamp = time.time()
         first_date = first_date + (datetime.fromtimestamp(now_timestamp) - datetime.utcfromtimestamp(now_timestamp))
         end_date = datetime.now()
@@ -48,6 +48,7 @@ class Charts:
         hastrade = False
         ispast = False
         pastBalance = None
+
         while start_date <= end_date:
             total = 0
             price_index += 1
@@ -71,6 +72,7 @@ class Charts:
 
                 self.values.append(total - pastBalance)
                 self.percents.append(round(((total - pastBalance) * 100 / pastBalance), 2))
+
             else:
                 self.values.append(0)
                 self.percents.append(0)
@@ -84,6 +86,7 @@ class Charts:
             response = requests.get(
                 'https://min-api.cryptocompare.com/data/v2/histoday?fsym='+item.cryptoName+'&tsym=USDT&limit='+str(limit))
             response = response.json()['Data']['Data']
+            
             for i in response:
                 self.prices[item.cryptoName].append(float(i['close']))
 
