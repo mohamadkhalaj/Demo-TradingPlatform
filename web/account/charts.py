@@ -46,6 +46,8 @@ class Charts:
         delta = timedelta(days=1)
         price_index = -1
         hastrade = False
+        ispast = False
+        pastBalance = None
         while start_date <= end_date:
             total = 0
             price_index += 1
@@ -62,8 +64,13 @@ class Charts:
                     crp = hst_dict[dc]['cryptoName']
                     amount = float(hst_dict[dc]['amount'])
                     total += self.prices[crp][price_index] * amount
-                self.values.append(total - settings.DEFAULT_BALANCE)
-                self.percents.append(round(((total - settings.DEFAULT_BALANCE) / 10), 2))
+
+                if not ispast:
+                    pastBalance = total
+                    ispast = True
+
+                self.values.append(total - pastBalance)
+                self.percents.append(round(((total - pastBalance) * 100 / pastBalance), 2))
             else:
                 self.values.append(0)
                 self.percents.append(0)
