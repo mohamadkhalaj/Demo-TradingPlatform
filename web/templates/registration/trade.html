@@ -343,7 +343,7 @@
           <ul class="nav nav-pills" role="tablist">
             <li class="nav-item">
               <a class="nav-link active" data-toggle="pill" href="#recent-trades" role="tab" aria-selected="true">Recent
-                Trades for {{ pair|slice:"8:" }}</a>
+                Trades for {{ name }}-USDT</a>
             </li>
           </ul>
           <div class="tab-content">
@@ -351,8 +351,8 @@
               <table class="table">
                 <thead>
                   <tr>
-                    <th>Price</th>
-                    <th>Amount</th>
+                    <th>Price(USD)</th>
+                    <th>Amount({{ name }})</th>
                     <th>Time</th>
                   </tr>
                 </thead>
@@ -378,9 +378,9 @@
                 <li>Time</li>
                 <li>All pairs</li>
                 <li>Buy/Sell</li>
-                <li>Price</li>
-                <li>Amount</li>
-                <li>Total</li>
+                <li>Price(USD)</li>
+                <li>Amount({{ name }})</li>
+                <li>Total(USD)</li>
               </ul>
               <p style="display:none" id="before"></p>
               {% if user.is_authenticated %}
@@ -403,6 +403,6 @@
 
 </div>
 <script>
-  var pair = '{{pair}}'.slice(8);
+  var pair = '{{name}}'+'-USDT';
 </script>
 {% endblock %}

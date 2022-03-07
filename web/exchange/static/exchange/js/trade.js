@@ -1,5 +1,5 @@
 var tradeSocket = new WebSocket('ws://' + window.location.host + '/ws/trade/');
-var tradeListSocket = new WebSocket('ws://' + window.location.host + '/ws/');
+var tradeListSocket = new WebSocket('ws://' + window.location.host + '/ws/trade/prices/');
 
 var main_url = window.location.origin;
 var usdtValue = 0;
@@ -21,27 +21,36 @@ tradeSocket.onopen = function(e){
     removeRecentTrades();
     removeHistory();
 }
-tradeSocket.onmessage = function(e){
-    data = JSON.parse(e.data);
-    header = data['header'];
-    // console.log(header, data);
 
-    if(header == 'trade_response'){
-        state = data['state'];
-        if(state == 0){
-            createAlert('success', 'Order filled!')
-        }else{
-            createAlert('danger', 'Insufficient balance!')
+tradeSocket.onmessage = function(e){
+
+    data = JSON.parse(e.data);
+    // console.log(data)
+    Object.keys(data).forEach(function(index){
+        obj = data[index]
+        // console.log(obj)
+        header = obj['header']
+
+        if(header == 'trade_response'){
+            state = obj['state'];
+            if(state == 0){
+                createAlert('success', 'Order filled!')
+                document.getElementById('uValue').value = `0`;
+                document.getElementById('pValue').value = `0`;
+                
+            }else{
+                createAlert('danger', 'Insufficient balance!')
+            }
+        }  
+        else if(header == 'hist_response'){
+            getHistory(obj);
         }
-    }  
-    else if(header == 'hist_response'){
-        getHistory(data);
-    }
-    else if(header == 'recent_response'){
-        if(pair == data['pair']){
-            recentTrades(data);
+        else if(header == 'recent_response'){
+            recentTrades(obj);
         }
-    }
+
+    })
+   
 }
 tradeSocket.onclose = function(e){
     createAlert('danger', 'There is a connection issue, please try again!');
@@ -427,4 +436,4 @@ function createPricePanel(){
     
 }
 percentage();
-getHistory();
+// getHistory();
