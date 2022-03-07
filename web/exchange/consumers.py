@@ -1,7 +1,9 @@
 import json
+from operator import imod
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
 from .trade import Trade
-from .models import TradeHistory
+from .models import TradeHistory, Portfolio
+from .common_functions import Give_equivalent
 from channels.db import database_sync_to_async
 from asgiref.sync import async_to_sync
 
@@ -33,9 +35,13 @@ class TradeConsumer(AsyncJsonWebsocketConsumer):
         if self.header == 'attribs':
             self.current_pair = content['current_pair']
             self.page = content['page']
+
             content1, content2 = await self.initialFillings()
-            await(self.send_json(content1))
-            await(self.send_json(content2))
+            await (self.send_json(content1))
+            await (self.send_json(content2))
+
+            portfo = await self.getPortfolio()
+            await (self.send_json(portfo))
 
         elif self.header == 'trade_request':
             self.pair = content['pair']
@@ -84,6 +90,15 @@ class TradeConsumer(AsyncJsonWebsocketConsumer):
                         'content': recentTrades_response
                     }
                 )
+                portfo = await self.getPortfolio()
+                # await self.channel_layer.group_send(
+                #     self.unicastName,
+                #     {
+                #         'type': 'send.data',
+                #         'content': portfo
+                #     }
+                # )
+                await (self.send_json(portfo))
 
     async def disconnect(self, code):
         self.channel_layer.group_discard("unicastName", self.channel_name)
@@ -107,7 +122,6 @@ class TradeConsumer(AsyncJsonWebsocketConsumer):
     # fill recents and histories after page loaded
     @database_sync_to_async
     def initialFillings(self):
-
         histObj = TradeHistory.objects.all().order_by('-time')
         hist_content = dict()
         recent_content = dict()
@@ -134,3 +148,25 @@ class TradeConsumer(AsyncJsonWebsocketConsumer):
             
         
         return hist_content, recent_content
+
+    @database_sync_to_async 
+    def getPortfolio(self):
+
+        eq = Give_equivalent()
+        resJson = dict()
+        
+        for index, item in enumerate(Portfolio.objects.filter(usr=self.user).iterator()):
+            if item.cryptoName == self.current_pair.split('-')[0] or item.cryptoName == 'USDT':
+                if item.cryptoName == 'USDT':
+                    equivalentAmount = None
+                else:           
+                    equivalentAmount = eq.calc_equivalent(item.cryptoName, 'USDT', item.amount)[1]
+                resJson[index] = {
+                    'header': 'portfo_response', 
+                    'cryptoName': item.cryptoName, 
+                    'amount': item.amount, 
+                    'equivalentAmount': equivalentAmount, 
+                    'marketType': item.marketType
+                    }
+        # print(resJson)
+        return resJson

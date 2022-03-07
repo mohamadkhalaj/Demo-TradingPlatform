@@ -13,7 +13,9 @@ class Give_equivalent:
         equivalent = pairPrice * amount
 
         return pairPrice, equivalent
+        
 
+        
     def check_available(self, amount, name):
         try:
             obj = Portfolio.objects.get(cryptoName=name)

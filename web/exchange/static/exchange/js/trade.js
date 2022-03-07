@@ -48,6 +48,9 @@ tradeSocket.onmessage = function(e){
         else if(header == 'recent_response'){
             recentTrades(obj);
         }
+        else if(header == 'portfo_response'){
+            getPortfolio(obj);
+        }
 
     })
    
@@ -72,64 +75,40 @@ tradeListSocket.onclose = function(e) {
     console.log('Socket closed unexpectedly');
 };
 
-function getPortfolio(pair) {
-
-    globPair = pair
+function getPortfolio(res) {
+    pair = res['cryptoName']
     var usdtAmount = document.getElementById('usdtAmount');
     var pairAmount = document.getElementById('pairAmount');
+    // usdtAmount.innerText = '0 USDT'
+    // pairAmount.innerText = `0 ${pair}`
+    
 
-    usdtAmount.innerText = '0 USDT'
-    pairAmount.innerText = `0 ${pair}`
+    if (res['cryptoName'] == 'USDT') {
+        usdtAmount.innerText = `${res['amount'].toFixed(1)} USDT`
+        usdtValue = res['amount'].toFixed(1)
+    }
+    else{
+        var amount = res['amount']
+        var equivalentAmount = res['equivalentAmount']
 
-    const url = `${main_url}/portfolio/`
-    const xhr = new XMLHttpRequest();
-    xhr.open('GET', url);
-    xhr.timeout = 30000;
-    xhr.ontimeout = function () { console.log('time out'); }
-    xhr.responseType = 'json';
-
-    xhr.onreadystatechange = function(e) {
-        if (this.status === 200 && xhr.readyState == 4) {
-            res = this.response;
-            Object.keys(res).forEach(function(item, index) {
-
-                if (res[item]['cryptoName'] == pair && pair != 'USDT') {
-                    var amount = res[item]['amount']
-                    var equivalentAmount = res[item]['equivalentAmount']
-
-                    if (amount >= 1) {
-                        amount = amount.toFixed(1)
-                    }
-                    else {
-                        amount = amount.toFixed(6)
-                    }
-
-                    if (equivalentAmount >= 1) {
-                        equivalentAmount = equivalentAmount.toFixed(1)
-                    }
-                    else {
-                        equivalentAmount = equivalentAmount.toFixed(4)
-                    }
-
-                    pairAmount.innerText = `${amount} ${pair} = ${equivalentAmount} USDT`
-                    pairUsdtValue = equivalentAmount;
-                    pairValue = res[item]['amount']
-                }
-                if (res[item]['cryptoName'] == 'USDT') {
-                    usdtAmount.innerText = `${res[item]['amount'].toFixed(1)} USDT`
-                    usdtValue = res[item]['amount'].toFixed(1)
-                }
-            })
+        if (amount >= 1) {
+            amount = amount.toFixed(1)
         }
         else {
-            console.log(this.status)
+            amount = amount.toFixed(6)
         }
-    };
-    try {
-        xhr.send();
-    } catch(err) {
-        console.log('error')
+
+        if (equivalentAmount >= 1) {
+            equivalentAmount = equivalentAmount.toFixed(1)
+        }
+        else {
+            equivalentAmount = equivalentAmount.toFixed(4)
+        }
+        pairAmount.innerText = `${amount} ${pair} = ${equivalentAmount} USDT`
+        pairUsdtValue = equivalentAmount;
+        pairValue = res['amount']
     }
+    
 }
 
 function trade(type, pair) {
