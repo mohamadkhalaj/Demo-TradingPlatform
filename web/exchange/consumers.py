@@ -122,7 +122,7 @@ class TradeConsumer(AsyncJsonWebsocketConsumer):
     # fill recents and histories after page loaded
     @database_sync_to_async
     def initialFillings(self):
-        histObj = TradeHistory.objects.all().order_by('-time')
+        histObj = TradeHistory.objects.all().order_by('time')
         hist_content = dict()
         recent_content = dict()
 
@@ -134,7 +134,7 @@ class TradeConsumer(AsyncJsonWebsocketConsumer):
                     'header': 'hist_response',
                     'type': item.type, 'pair': item.pair, 
                     'pairPrice': item.pairPrice, 'amount': item.amount, 
-                    'date': item.time.strftime("%Y:%m:%d:%H:%M"), 
+                    'date': item.time.strftime("%Y-%m-%d:%H:%M"), 
                     'price': item.price
                     }
             if pair == self.current_pair:

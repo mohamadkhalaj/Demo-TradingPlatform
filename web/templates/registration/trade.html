@@ -379,7 +379,8 @@
                 <li>Amount({{ name }})</li>
                 <li>Total(USD)</li>
               </ul>
-              <p style="display:none" id="before"></p>
+              <div id="orders">
+                <p style="display:none" id="before"></p>
               {% if user.is_authenticated %}
 
               {% else %}
@@ -388,6 +389,7 @@
                   No data
                 </span>
               {% endif %}
+              </div>
             </div>
           </div>
         </div>

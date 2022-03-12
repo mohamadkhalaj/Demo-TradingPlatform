@@ -162,8 +162,7 @@ function clearAllAlerts() {
 }
 
 function getHistory(data) {
-    var parent = document.getElementById("open-orders");
-    var before = document.getElementById("before");
+    var parent = document.getElementById("orders");
     var newNode = document.createElement("ul");
     newNode.classList.add("d-flex", "justify-content-between", "market-order-item", "ul");
 
@@ -196,8 +195,7 @@ function getHistory(data) {
     newNode.appendChild(total);
 
     createdHistory.push(newNode);
-
-    parent.insertBefore(newNode, before)
+    parent.prepend(newNode);
 }
 
 function recentTrades(data) {
@@ -222,7 +220,7 @@ function recentTrades(data) {
     newNode.appendChild(amount);
     newNode.appendChild(time);
     createdRecentTrades.push(newNode);
-    parent.appendChild(newNode);
+    parent.prepend(newNode);
 }
 
 function calcAmount(change, object) {
