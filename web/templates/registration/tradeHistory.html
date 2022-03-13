@@ -34,45 +34,27 @@
                       <th>Total</th>
                     </tr>
                   </thead>
-                  <tbody>
-                    {% for item in history %}
-                      <tr>
-                        <td>{{forloop.counter}}</td>
-                        <td>{{item.pair}}</td>
-                        {% if item.type == 'buy' %}
-                          <td class="green">{{item.type}}</td>
-                        {% else %}
-                          <td class="red">{{item.type}}</td>
-                        {% endif %}
-                        <td>{{item.time}}</td>
-                        <td>{{item.pairPrice}}</td>
-                        <td>{{item.amount}}</td>
-                        <td>{{item.price}}</td>
-                      </tr>
-                    {% endfor %}
+                  <tbody id="histories">
                   </tbody>
                 </table>
+                <script src="{% static 'exchange/js/histories.js' %}"></script> 
               </div>
-              <div class="text-center mt-3">
-                {% if history.has_previous %}
-                    <a href="{% url 'account:tradeHistory' history.previous_page_number %}" class="btn btn-primary">Previous Page</a>
-                {% endif %}
-
-                  <span class="green m-3">
-                      Page {{ history.number }} of {{ history.paginator.num_pages }}
-                  </span>
-
-                {% if history.has_next %}
-                    <a href="{% url 'account:tradeHistory' history.next_page_number %}" class="btn btn-primary">Next Page</a>
-                {% endif %}
-              </div>
+              <div class="text-center demo">
+              
+                <button id="paginationPrev" href="#" style="margin-top:50px; margin-right: 10px; color:white" class="load-more btn">Previous Page</button>
+          
+                <span id="paginationText" class="green" style=" position: absolute; bottom: 25px;margin-left: 21px;">1</span>
+          
+                <button id="paginationNext" href="#" style="margin-top:50px; margin-left: 90px; color:white" class="load-more btn">Next Page</button>
+          
+            </div>
             </div>
           </div>
+          
         </div>
       </div>
     </div>
   </div>
 </div>
 </div>
-
 {% endblock %}

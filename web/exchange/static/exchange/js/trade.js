@@ -79,8 +79,8 @@ function getPortfolio(res) {
     pair = res['cryptoName']
     var usdtAmount = document.getElementById('usdtAmount');
     var pairAmount = document.getElementById('pairAmount');
-    // usdtAmount.innerText = '0 USDT'
-    // pairAmount.innerText = `0 ${pair}`
+    
+    pairAmount.innerText = `0 ${pair}`
     
 
     if (res['cryptoName'] == 'USDT') {

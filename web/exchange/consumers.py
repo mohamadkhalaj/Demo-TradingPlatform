@@ -1,11 +1,13 @@
 import json
 from operator import imod
+from re import T
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
 from .trade import Trade
 from .models import TradeHistory, Portfolio
 from .common_functions import Give_equivalent
 from channels.db import database_sync_to_async
 from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
 
 # api, recent-trades and histories all in one
 class TradeConsumer(AsyncJsonWebsocketConsumer):
@@ -68,8 +70,18 @@ class TradeConsumer(AsyncJsonWebsocketConsumer):
                     'date': result['date'],
                     'pairPrice': result['pairPrice']
                     }}
+                # trade page group send
                 await self.channel_layer.group_send(
                     self.unicastName,
+                    {
+                        'type': 'send.data',
+                        'content': hist_response
+                    }
+                )
+                # recent page group send
+                channel = get_channel_layer()
+                await channel.group_send(
+                    f'{self.user}_HSTunicast',
                     {
                         'type': 'send.data',
                         'content': hist_response
@@ -99,6 +111,8 @@ class TradeConsumer(AsyncJsonWebsocketConsumer):
                 #     }
                 # )
                 await (self.send_json(portfo))
+               
+                
 
     async def disconnect(self, code):
         self.channel_layer.group_discard("unicastName", self.channel_name)
@@ -170,3 +184,58 @@ class TradeConsumer(AsyncJsonWebsocketConsumer):
                     }
         # print(resJson)
         return resJson
+
+
+class historiesConsumer(AsyncJsonWebsocketConsumer):
+    async def connect(self):
+        self.user = self.scope['user']
+        self.unicastName = f'{self.user}_HSTunicast'
+        
+        if self.user.is_authenticated:
+            await (self.channel_layer.group_add)(
+                self.unicastName,
+                self.channel_name
+            )
+            await self.accept()         
+        else:
+            await self.close()
+
+
+    async def receive_json(self, content, **kwargs):
+        page = content['page']
+        result = await self.initialFilling(page)
+        await self.send_json(result)
+
+
+    async def disconnect(self, code):
+        pass
+    
+
+    async def send_data(self, event):
+        data = event['content']
+        await self.send_json(data)
+
+        
+    @database_sync_to_async
+    def initialFilling(self, page):
+
+        before = (page-1) * 10
+        after = page * 10
+        histObj = TradeHistory.objects.filter(usr=self.user).order_by('-id')[before:after]
+        # print(histObj)
+   
+        hist_content = dict()
+        
+        for index, item in enumerate(histObj):
+            # print(item.id)
+            hist_content[str(index)] = {
+                    'header': 'hist_responses',
+                    'type': item.type, 
+                    'pair': item.pair, 
+                    'pairPrice': item.pairPrice, 
+                    'amount': item.amount, 
+                    'date': item.time.strftime("%Y-%m-%d:%H:%M"), 
+                    'price': item.price
+                    }
+
+        return hist_content
