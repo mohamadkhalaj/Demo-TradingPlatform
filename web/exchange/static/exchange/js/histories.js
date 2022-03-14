@@ -15,9 +15,13 @@ histSocket.onopen = function(e){
 histSocket.onmessage = function(e){
     
     data = JSON.parse(e.data);
-    console.log(data);
     length = Object.keys(data).length;
 
+    var title = document.getElementById("hisrtoryTitle");
+    var tableHeader = document.getElementById("tableHeader");
+    tableHeader.classList.remove('d-none');
+    // tableHeader.classList.add('d-block');
+    title.innerText = 'Latest Transactions';
     
     if(length > 0){
 

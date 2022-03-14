@@ -12,6 +12,10 @@ body {
     overflow-x: hidden;
 }
 
+.repairTradeSearch {
+    width: 92% !important;
+}
+
 a,
 a:hover {
     text-decoration: none;

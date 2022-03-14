@@ -20,11 +20,11 @@
         <div class="tab-pane fade show active" id="settings" role="tabpanel" aria-labelledby="settings-tab">
           <div class="card">
             <div class="card-body">
-              <h5 class="card-title">Latest Transactions</h5>
+              <h5 id="hisrtoryTitle" class="card-title">Please wait...</h5>
               <div class="wallet-history">
                 <table class="table">
                   <thead>
-                    <tr>
+                    <tr id="tableHeader" class="d-none">
                       <th>No.</th>
                       <th>Pair</th>
                       <th>Type</th>
@@ -37,24 +37,23 @@
                   <tbody id="histories">
                   </tbody>
                 </table>
-                <script src="{% static 'exchange/js/histories.js' %}"></script> 
               </div>
-              <div class="text-center demo">
-              
-                <button id="paginationPrev" href="#" style="margin-top:50px; margin-right: 10px; color:white" class="load-more btn">Previous Page</button>
-          
-                <span id="paginationText" class="green" style=" position: absolute; bottom: 25px;margin-left: 21px;">1</span>
-          
-                <button id="paginationNext" href="#" style="margin-top:50px; margin-left: 90px; color:white" class="load-more btn">Next Page</button>
-          
-            </div>
+              <div class="text-center demo markets-pair-list">
+                
+                  <button id="paginationPrev" href="#" style="margin-top:50px; margin-right: 10px;" class="load-more btn">Previous Page</button>
+            
+                  <span id="paginationText" class="green" style=" position: absolute; bottom: 25px;margin-left: 34px;">1</span>
+            
+                  <button id="paginationNext" href="#" style="margin-top:50px; margin-left: 90px;" class="load-more btn">Next Page</button>
+            
+              </div>
             </div>
           </div>
-          
         </div>
       </div>
     </div>
   </div>
 </div>
 </div>
+<script src="{% static 'exchange/js/histories.js' %}"></script> 
 {% endblock %}

@@ -49,6 +49,9 @@ class SpotOrders(models.Model):
 	triggerConditions = models.FloatField(blank=True, null=True) # only used for stop-limit
 	createDate = models.DateTimeField(auto_now_add=True)
 
+	class Meta:
+		verbose_name_plural = 'Spot Orders'
+
 	def humanizeTime(self):
 		return naturaltime(self.createDate)
 	humanizeTime.short_description = 'Time'
@@ -73,6 +76,9 @@ class FuturesOrders(models.Model):
 	triggerConditions = models.FloatField(blank=True, null=True) # only used for stop-limit
 	createDate = models.DateTimeField(auto_now_add=True)
 
+	class Meta:
+		verbose_name_plural = 'Futures Orders'
+
 	def humanizeTime(self):
 		return naturaltime(self.createDate)
 	humanizeTime.short_description = 'Time'
@@ -85,6 +91,9 @@ class FuturesHistory(models.Model):
 	orderDetails = models.OneToOneField(FuturesOrders, on_delete=models.DO_NOTHING)
 	histAmount = models.JSONField(default=None)
 	terminateDate = models.DateTimeField(auto_now_add=True)
+
+	class Meta:
+		verbose_name_plural = 'Future histories'
 
 	def humanizeTime(self):
 		return naturaltime(self.terminateDate)

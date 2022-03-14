@@ -160,6 +160,7 @@ class WalletSocket(AsyncJsonWebsocketConsumer):
             tmp = data[item]["USD"]
             price = float(tmp["PRICE"])
             total = price * assets[item]
+            sym = await self.getSymbolFromDb(item, total)
             array.append(
                     {
                         "symbol": item,
@@ -189,5 +190,15 @@ class WalletSocket(AsyncJsonWebsocketConsumer):
                 usr=self.user, 
                 marketType='spot', 
                 amount__gt=0,
-            )
+            ).order_by('-equivalentAmount')
         )
+
+    @database_sync_to_async
+    def getSymbolFromDb(self, symbol, total):
+        sym = Portfolio.objects.get(
+            usr=self.user, 
+            marketType='spot', 
+            cryptoName=symbol,
+        )   
+        sym.equivalentAmount = total
+        sym.save()

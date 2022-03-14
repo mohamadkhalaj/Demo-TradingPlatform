@@ -36,7 +36,8 @@ class PortfolioAdmin(admin.ModelAdmin):
 		'cryptoName', 
 		'amount', 
 		'usr', 
-		'marketType'
+		'marketType',
+		'equivalentAmount'
 	)
 	list_filter = (
 		'cryptoName', 
