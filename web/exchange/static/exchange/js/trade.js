@@ -1,5 +1,5 @@
 var tradeSocket = new WebSocket('ws://' + window.location.host + '/ws/trade/');
-var tradeListSocket = new WebSocket('ws://' + window.location.host + '/ws/');
+var tradeListSocket = new WebSocket('ws://' + window.location.host + '/ws/trade/prices/');
 
 var main_url = window.location.origin;
 var usdtValue = 0;
@@ -21,27 +21,39 @@ tradeSocket.onopen = function(e){
     removeRecentTrades();
     removeHistory();
 }
-tradeSocket.onmessage = function(e){
-    data = JSON.parse(e.data);
-    header = data['header'];
-    // console.log(header, data);
 
-    if(header == 'trade_response'){
-        state = data['state'];
-        if(state == 0){
-            createAlert('success', 'Order filled!')
-        }else{
-            createAlert('danger', 'Insufficient balance!')
+tradeSocket.onmessage = function(e){
+
+    data = JSON.parse(e.data);
+    // console.log(data)
+    Object.keys(data).forEach(function(index){
+        obj = data[index]
+        // console.log(obj)
+        header = obj['header']
+
+        if(header == 'trade_response'){
+            state = obj['state'];
+            if(state == 0){
+                createAlert('success', 'Order filled!')
+                document.getElementById('uValue').value = `0`;
+                document.getElementById('pValue').value = `0`;
+                
+            }else{
+                createAlert('danger', 'Insufficient balance!')
+            }
+        }  
+        else if(header == 'hist_response'){
+            getHistory(obj);
         }
-    }  
-    else if(header == 'hist_response'){
-        getHistory(data);
-    }
-    else if(header == 'recent_response'){
-        if(pair == data['pair']){
-            recentTrades(data);
+        else if(header == 'recent_response'){
+            recentTrades(obj);
         }
-    }
+        else if(header == 'portfo_response'){
+            getPortfolio(obj);
+        }
+
+    })
+   
 }
 tradeSocket.onclose = function(e){
     createAlert('danger', 'There is a connection issue, please try again!');
@@ -63,64 +75,40 @@ tradeListSocket.onclose = function(e) {
     console.log('Socket closed unexpectedly');
 };
 
-function getPortfolio(pair) {
-
-    globPair = pair
+function getPortfolio(res) {
+    pair = res['cryptoName']
     var usdtAmount = document.getElementById('usdtAmount');
     var pairAmount = document.getElementById('pairAmount');
-
-    usdtAmount.innerText = '0 USDT'
+    
     pairAmount.innerText = `0 ${pair}`
+    
 
-    const url = `${main_url}/portfolio/`
-    const xhr = new XMLHttpRequest();
-    xhr.open('GET', url);
-    xhr.timeout = 30000;
-    xhr.ontimeout = function () { console.log('time out'); }
-    xhr.responseType = 'json';
+    if (res['cryptoName'] == 'USDT') {
+        usdtAmount.innerText = `${res['amount'].toFixed(1)} USDT`
+        usdtValue = res['amount'].toFixed(1)
+    }
+    else{
+        var amount = res['amount']
+        var equivalentAmount = res['equivalentAmount']
 
-    xhr.onreadystatechange = function(e) {
-        if (this.status === 200 && xhr.readyState == 4) {
-            res = this.response;
-            Object.keys(res).forEach(function(item, index) {
-
-                if (res[item]['cryptoName'] == pair && pair != 'USDT') {
-                    var amount = res[item]['amount']
-                    var equivalentAmount = res[item]['equivalentAmount']
-
-                    if (amount >= 1) {
-                        amount = amount.toFixed(1)
-                    }
-                    else {
-                        amount = amount.toFixed(6)
-                    }
-
-                    if (equivalentAmount >= 1) {
-                        equivalentAmount = equivalentAmount.toFixed(1)
-                    }
-                    else {
-                        equivalentAmount = equivalentAmount.toFixed(4)
-                    }
-
-                    pairAmount.innerText = `${amount} ${pair} = ${equivalentAmount} USDT`
-                    pairUsdtValue = equivalentAmount;
-                    pairValue = res[item]['amount']
-                }
-                if (res[item]['cryptoName'] == 'USDT') {
-                    usdtAmount.innerText = `${res[item]['amount'].toFixed(1)} USDT`
-                    usdtValue = res[item]['amount'].toFixed(1)
-                }
-            })
+        if (amount >= 1) {
+            amount = amount.toFixed(1)
         }
         else {
-            console.log(this.status)
+            amount = amount.toFixed(6)
         }
-    };
-    try {
-        xhr.send();
-    } catch(err) {
-        console.log('error')
+
+        if (equivalentAmount >= 1) {
+            equivalentAmount = equivalentAmount.toFixed(1)
+        }
+        else {
+            equivalentAmount = equivalentAmount.toFixed(4)
+        }
+        pairAmount.innerText = `${amount} ${pair} = ${equivalentAmount} USDT`
+        pairUsdtValue = equivalentAmount;
+        pairValue = res['amount']
     }
+    
 }
 
 function trade(type, pair) {
@@ -174,8 +162,7 @@ function clearAllAlerts() {
 }
 
 function getHistory(data) {
-    var parent = document.getElementById("open-orders");
-    var before = document.getElementById("before");
+    var parent = document.getElementById("orders");
     var newNode = document.createElement("ul");
     newNode.classList.add("d-flex", "justify-content-between", "market-order-item", "ul");
 
@@ -208,8 +195,7 @@ function getHistory(data) {
     newNode.appendChild(total);
 
     createdHistory.push(newNode);
-
-    parent.insertBefore(newNode, before)
+    parent.prepend(newNode);
 }
 
 function recentTrades(data) {
@@ -234,7 +220,7 @@ function recentTrades(data) {
     newNode.appendChild(amount);
     newNode.appendChild(time);
     createdRecentTrades.push(newNode);
-    parent.appendChild(newNode);
+    parent.prepend(newNode);
 }
 
 function calcAmount(change, object) {

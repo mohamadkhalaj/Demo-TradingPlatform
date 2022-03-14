@@ -36,22 +36,9 @@ def wallet(request):
 	return render(request, 'registration/wallet.html')
 
 @login_required
-def tradeHistory(request, page=1):
-	history = TradeHistory.objects.filter(usr=request.user, amount__gt=0).order_by('-time')
+def tradeHistory(request):
+	return render(request, 'registration/tradeHistory.html')
 
-	for index, item in enumerate(history):
-		history[index].price = pretify(item.price)
-		history[index].pairPrice = pretify(item.price)
-		history[index].amount = pretify(item.amount.split(' ')[0])
-
-	paginator = Paginator(history, 10)
-	data = paginator.get_page(page)
-
-	context = {
-		'history' : data,
-	}
-
-	return render(request, 'registration/tradeHistory.html', context = context)
 
 def trade(request, pair='BINANCE:BTCUSDT'):
 
