@@ -427,4 +427,4 @@ function createPricePanel(){
     
 }
 percentage();
-getHistory();
+// getHistory();
