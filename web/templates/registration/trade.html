@@ -90,7 +90,7 @@
             <div class="d-flex justify-content-between">
               <div class="market-trade-buy">
                 <div class="input-group">
-                  <input type="number" class="form-control" placeholder="Amount" id="uValue" onkeypress='validate(event)'>
+                  {% if user.is_authenticated %}<input type="number" class="form-control" placeholder="Amount" id="uValue" onkeypress='validate(event)'>{% endif %}
                   <div class="input-group-append">
                     <span id="buyPairChanger" class="input-group-text btn">USDT</span>
                   </div>
@@ -206,7 +206,8 @@
           </div>
         </div>
       </div>
-      <script src="{% static 'exchange/js/trade.js' %}"></script>  {% else %}
+      <!-- <script src="{% static 'exchange/js/trade.js' %}"></script> -->
+          {% else %}
       <div class="mt-5 d-flex justify-content-center mb-5">
         <div class="d-flex justify-content-center">
           <div class="form-access">
@@ -215,6 +216,11 @@
         </div>
       </div>{% endif %}
     </div>
+    <script>
+      var user = '{{user}}';
+      var pair = '{{name}}'+'-USDT';
+    </script>
+    <script src="{% static 'exchange/js/trade.js' %}"></script>
     <div class="col-md-3">
       <div class="order-book mb15 d-none d-lg-block">
         <h2 class="heading">Order book</h2>
@@ -366,7 +372,7 @@
               <li>All pairs</li>
               <li>Buy/Sell</li>
               <li>Price(USD)</li>
-              <li>Amount({{ name }})</li>
+              <li>Amount</li>
               <li>Total(USD)</li>
             </ul>
             <div id="orders">
@@ -411,7 +417,4 @@
   </div>
 </div>
 <div id="alert" class="alerts"></div>
-<script>
-  var pair = '{{name}}'+'-USDT';
-</script> 
 <script src="{% static 'exchange/js/search.js' %}"></script> {% endblock %}

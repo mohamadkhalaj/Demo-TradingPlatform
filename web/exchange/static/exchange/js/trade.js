@@ -1,15 +1,18 @@
 var tradeSocket = new WebSocket('ws://' + window.location.host + '/ws/trade/');
 var tradeListSocket = new WebSocket('ws://' + window.location.host + '/ws/trade/prices/');
-
 var main_url = window.location.origin;
 var usdtValue = 0;
 var pairValue = 0;
 var pairUsdtValue = 0;
-var uValue = document.getElementById('uValue');
-var pValue = document.getElementById('pValue');
-uValue.value = 0;
-pValue.value = 0;
-var getOrderType = document.querySelector('.nav-link');
+var sellEquivalent = null;
+
+if(user != 'AnonymousUser'){
+    var uValue = document.getElementById('uValue');
+    var pValue = document.getElementById('pValue');
+    uValue.value = 0;
+    pValue.value = 0;
+}
+
 var globPair = 'BTC'
 var createdHistory = [];
 var createdRecentTrades = [];
@@ -31,7 +34,7 @@ tradeSocket.onmessage = function(e){
         // console.log(obj)
         header = obj['header']
 
-        if(header == 'trade_response'){
+        if(header == 'trade_response' && user != 'AnonymousUser'){
             state = obj['state'];
             if(state == 0){
                 createAlert('success', 'Order filled!')
@@ -42,13 +45,13 @@ tradeSocket.onmessage = function(e){
                 createAlert('danger', 'Insufficient balance!')
             }
         }  
-        else if(header == 'hist_response'){
+        else if(header == 'hist_response'&& user != 'AnonymousUser'){
             getHistory(obj);
         }
         else if(header == 'recent_response'){
             recentTrades(obj);
         }
-        else if(header == 'portfo_response'){
+        else if(header == 'portfo_response'&& user != 'AnonymousUser'){
             getPortfolio(obj);
         }
 
@@ -116,28 +119,56 @@ function trade(type, pair) {
     clearAllAlerts();
 
     var amount = 0;
+
     if (type == 'buy') {
         amount = `${uValue.value} ${$('#buyPairChanger').text()}`;
+        var tradeSize = parseFloat(amount.split(' ')[0]);
+
+        if(tradeSize < 10){
+            createAlert('danger', 'minimum trading size is 10$!');
+        }else{
+            var reqJson = {
+                'header': 'trade_request',
+                'orderType': 'market',
+                'pair' : `${pair}-USDT`,
+                'type' : type,
+                'amount' : amount,
+                }
+                
+            tradeSocket.send(JSON.stringify(reqJson));
+        }
     }
     else {
         amount = `${pValue.value} ${$('#sellPairChanger').text()}`;
-    }
+        var tradeSize = parseFloat(amount.split(' ')[0]);
 
-    if(getOrderType.classList.contains('active')){
-        orderType = 'limit';
-    }else{
-        orderType = 'market';
-    }
+        var url = 'https://min-api.cryptocompare.com/data/pricemulti?fsyms=' + pair + '&tsyms=USDT';       
+        fetch(url)
+            .then(data => data.json())
+            .then(response => myFunc(response));
 
-    var reqJson = {
-        'header': 'trade_request',
-        'orderType': orderType,
-        'pair' : `${pair}-USDT`,
-        'type' : type,
-        'amount' : amount,
-    }
+        function myFunc(response) {
+            var price = response[pair]['USDT'];
+            var equivalent = price * tradeSize;
+            
+            if(equivalent < 10){
+                createAlert('danger', 'minimum trading size is 10$!');
+            }else{
+                var reqJson = {
+                    'header': 'trade_request',
+                    'orderType': 'market',
+                    'pair' : `${pair}-USDT`,
+                    'type' : type,
+                    'amount' : amount,
+                    }
+            
+                tradeSocket.send(JSON.stringify(reqJson));
+            }
+        }               
+        
 
-    tradeSocket.send(JSON.stringify(reqJson));  
+    }
+    
 }
 
 function removeHistory() {
@@ -377,11 +408,12 @@ function priceList(data){
         document.getElementById(index + '_price').innerText = `${obj["price"]}`;
 
         ch_elem = document.getElementById(index + '_change');
-        ch_elem.innerText = `${obj["24c"]}`;
-
+        
         if(obj['24c'] < 0){
+            ch_elem.innerText = `${obj["24c"]}`;
             ch_elem.style.color = '#ff231f';
         }else{
+            ch_elem.innerText = `+${obj["24c"]}`;
             ch_elem.style.color = '#26de81';
         }
              
@@ -412,5 +444,17 @@ function createPricePanel(){
     }
     
 }
-percentage();
-// getHistory();
+async function getEquivalent(name, amount) {
+
+    var resp =  await fetch('https://min-api.cryptocompare.com/data/pricemulti?fsyms=' + name + '&tsyms=USDT'); 
+    var price = await resp.json();
+
+    // sellEquivalent = price[name]['USDT'] * amount;
+    // console.log(sellEquivalent)
+
+    return price;
+
+}
+if(user != 'AnonymousUser'){
+    percentage();
+}

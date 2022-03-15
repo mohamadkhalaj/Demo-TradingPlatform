@@ -1,6 +1,3 @@
-import json
-from operator import imod
-from re import T
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
 from .trade import Trade
 from .models import TradeHistory, Portfolio
@@ -42,8 +39,9 @@ class TradeConsumer(AsyncJsonWebsocketConsumer):
             await (self.send_json(content1))
             await (self.send_json(content2))
 
-            portfo = await self.getPortfolio()
-            await (self.send_json(portfo))
+            if self.user.is_authenticated:
+                portfo = await self.getPortfolio()
+                await (self.send_json(portfo))
 
         elif self.header == 'trade_request':
             self.pair = content['pair']
