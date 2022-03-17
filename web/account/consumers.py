@@ -19,26 +19,40 @@ def getCryptoList(page, limit):
 
 def cryptoJson(data):
     global dictionary
+    global RequestType
+
     data = data['DISPLAY']
 
     domain = 'https://cryptocompare.com'
     array = []
-    for item in data:
-        tmp = data[item]["USD"]
-        array.append(
-                {
-                    "symbol": item,
-                    "name": dictionary.get(item, ''),
-                    "rank": dictionary.get(item + '_rank', ''),
-                    "price": tmp["PRICE"].strip('$ '),
-                    "24c": tmp["CHANGEPCT24HOUR"],
-                    "mc": tmp["MKTCAP"].strip('$ '),
-                    "24h": tmp["HIGH24HOUR"].strip('$ '),
-                    "24l": tmp["LOW24HOUR"].strip('$ '),
-                    "vol": tmp["VOLUME24HOURTO"].strip('$ '),
-                    "img": domain + tmp["IMAGEURL"],
-                }
-            )
+    if RequestType == 'market':
+        for item in data:
+            tmp = data[item]["USD"]
+            array.append(
+                    {
+                        "symbol": item,
+                        "name": dictionary.get(item, ''),
+                        "rank": dictionary.get(item + '_rank', ''),
+                        "price": tmp["PRICE"].strip('$ '),
+                        "24c": tmp["CHANGEPCT24HOUR"],
+                        "mc": tmp["MKTCAP"].strip('$ '),
+                        "24h": tmp["HIGH24HOUR"].strip('$ '),
+                        "24l": tmp["LOW24HOUR"].strip('$ '),
+                        "vol": tmp["VOLUME24HOURTO"].strip('$ '),
+                        "img": domain + tmp["IMAGEURL"],
+                    }
+                )
+    elif RequestType == 'trade':
+        for item in data:
+            tmp = data[item]["USD"]
+            array.append(
+                    {
+                        "symbol": item,
+                        "pair": item + '-USDT',
+                        "price": tmp["PRICE"].strip('$ '),
+                        "24c": tmp["CHANGEPCT24HOUR"],
+                    }
+                )
     return array
 
 class MarketConsumer(AsyncJsonWebsocketConsumer):
@@ -60,6 +74,8 @@ class MarketConsumer(AsyncJsonWebsocketConsumer):
 
     async def receive(self, text_data=None, bytes_data=None):
         global dictionary
+        global RequestType
+        RequestType = json.loads(text_data)['RequestType']
         if text_data:
             page = json.loads(text_data)['page']
             dictionary = getCryptoList(page, 20)

@@ -1,6 +1,6 @@
 var socket = new WebSocket('ws://' + window.location.host + '/ws/');
 socket.onopen = function () {
-    socket.send(JSON.stringify({"page":0}));
+    socket.send(JSON.stringify({"page":0, RequestType : 'market'}));
 };
 
 socket.onmessage = function(e) {

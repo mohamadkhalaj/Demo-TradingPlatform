@@ -78,7 +78,7 @@ tradeSocket.onclose = function(e){
 
 tradeListSocket.onopen = function () {
     console.log('prices socket is on!!');
-    tradeListSocket.send(JSON.stringify({"page": 0}));
+    tradeListSocket.send(JSON.stringify({"page": 0, RequestType : 'trade'}));
     createPricePanel();
 };
 
@@ -424,13 +424,13 @@ function priceList(data){
 
         if(index != 2){
             tr_elem = document.getElementById(index + '_tr');
-            tr_elem.setAttribute('data-href',`/account/trade/${obj["symbol"]}-USDT`);
+            tr_elem.setAttribute('data-href',`/account/trade/${obj["pair"]}`);
 
             tr_elem.onclick = function(){
-                window.location = `/account/trade/${obj["symbol"]}-USDT`;
+                window.location = `/account/trade/${obj["pair"]}`;
             }
             
-            document.getElementById(index + '_pair').innerText = `${obj["symbol"]}-USDT`;
+            document.getElementById(index + '_pair').innerText = `${obj["pair"]}`;
             document.getElementById(index + '_price').innerText = `${obj["price"]}`;
 
             ch_elem = document.getElementById(index + '_change');
