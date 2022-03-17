@@ -9,17 +9,25 @@ var sellEquivalent = null;
 if(user != 'AnonymousUser'){
     var uValue = document.getElementById('uValue');
     var pValue = document.getElementById('pValue');
+    var limit_buy_price = document.getElementById('limit-buy-price');
+    var limit_buy_amount = document.getElementById('limit-buy-amount');
+    var limit_sell_price = document.getElementById('limit-sell-price');
+    var limit_sell_amount = document.getElementById('limit-sell-amount');
+    
     uValue.value = 0;
     pValue.value = 0;
+    limit_buy_price.value = 0;
+    limit_buy_amount.value = 0;
+    limit_sell_price.value = 0;
+    limit_sell_amount.value = 0;
 }
 
-var globPair = 'BTC'
+var globPair = pair.split('-')[0];
 var createdHistory = [];
 var createdRecentTrades = [];
 var activeAlerts = [];
 
 tradeSocket.onopen = function(e){
-    console.log('socket is on !!!');
     tradeSocket.send(JSON.stringify({'header': 'attribs', 'current_pair': pair, 'page': 'trade'}));
     removeRecentTrades();
     removeHistory();
@@ -36,22 +44,28 @@ tradeSocket.onmessage = function(e){
 
         if(header == 'trade_response' && user != 'AnonymousUser'){
             state = obj['state'];
-            if(state == 0){
+            
+            if(state == -1){
+                createAlert('danger', obj['message'])
+            }
+            else if(state == 0){
                 createAlert('success', 'Order filled!')
-                document.getElementById('uValue').value = `0`;
-                document.getElementById('pValue').value = `0`;
+                uValue.value = 0;
+                pValue.value = 0;
                 
             }else{
                 createAlert('danger', 'Insufficient balance!')
             }
         }  
-        else if(header == 'hist_response'&& user != 'AnonymousUser'){
+        else if(header == 'hist_response' && user != 'AnonymousUser'){
             getHistory(obj);
         }
         else if(header == 'recent_response'){
-            recentTrades(obj);
+            if(obj['pair'] == pair){
+                recentTrades(obj);
+            }           
         }
-        else if(header == 'portfo_response'&& user != 'AnonymousUser'){
+        else if(header == 'portfo_response' && user != 'AnonymousUser'){
             getPortfolio(obj);
         }
 
@@ -64,7 +78,7 @@ tradeSocket.onclose = function(e){
 
 tradeListSocket.onopen = function () {
     console.log('prices socket is on!!');
-    tradeListSocket.send(JSON.stringify({"page":0}));
+    tradeListSocket.send(JSON.stringify({"page": 0}));
     createPricePanel();
 };
 
@@ -79,7 +93,7 @@ tradeListSocket.onclose = function(e) {
 };
 
 function getPortfolio(res) {
-    pair = res['cryptoName']
+    var pair = res['cryptoName']
     var usdtAmount = document.getElementById('usdtAmount');
     var pairAmount = document.getElementById('pairAmount');
     
@@ -122,55 +136,66 @@ function trade(type, pair) {
 
     if (type == 'buy') {
         amount = `${uValue.value} ${$('#buyPairChanger').text()}`;
-        var tradeSize = parseFloat(amount.split(' ')[0]);
-
-        if(tradeSize < 10){
-            createAlert('danger', 'minimum trading size is 10$!');
-        }else{
-            var reqJson = {
-                'header': 'trade_request',
-                'orderType': 'market',
-                'pair' : `${pair}-USDT`,
-                'type' : type,
-                'amount' : amount,
-                }
-                
-            tradeSocket.send(JSON.stringify(reqJson));
-        }
     }
     else {
         amount = `${pValue.value} ${$('#sellPairChanger').text()}`;
-        var tradeSize = parseFloat(amount.split(' ')[0]);
-
-        var url = 'https://min-api.cryptocompare.com/data/pricemulti?fsyms=' + pair + '&tsyms=USDT';       
-        fetch(url)
-            .then(data => data.json())
-            .then(response => myFunc(response));
-
-        function myFunc(response) {
-            var price = response[pair]['USDT'];
-            var equivalent = price * tradeSize;
-            
-            if(equivalent < 10){
-                createAlert('danger', 'minimum trading size is 10$!');
-            }else{
-                var reqJson = {
-                    'header': 'trade_request',
-                    'orderType': 'market',
-                    'pair' : `${pair}-USDT`,
-                    'type' : type,
-                    'amount' : amount,
-                    }
-            
-                tradeSocket.send(JSON.stringify(reqJson));
-            }
-        }               
         
-
+    }               
+    if(amount.split(' ')[0] == 0){
+        createAlert('danger', type + ' amount can not be 0!')
+    }    
+    else{
+        var reqJson = {
+            'header': 'trade_request',
+            'orderType': 'market',
+            'pair' : `${pair}-USDT`,
+            'type' : type,
+            'amount' : amount,
+            }  
+        tradeSocket.send(JSON.stringify(reqJson));
     }
     
 }
+function limit(type, pair){
+    clearAllAlerts();
 
+    var hasError = false;
+
+    if(type == 'buy'){
+        var price = parseFloat(limit_buy_price.value);
+        var amount = `${limit_buy_amount.value} ${$('#buy-pair').text()}`;
+    }
+    else{
+        var price = parseFloat(limit_sell_price.value);
+        var amount = `${limit_sell_amount.value} ${$('#sell-pair').text()}`;
+    }
+
+    var amountVal = parseFloat(amount.split(' ')[0]);
+    var amountCrp = amount.split(' ')[1];
+
+    if(amountVal == 0 || price == 0){
+        hasError = true;
+        createAlert('danger', 'field/fields amounts can not be 0!');
+    }
+    else if(amountCrp == pair){
+        var tradeSize = price * amountVal
+        if(tradeSize < 10){
+            hasError = true;
+            createAlert('danger', 'minimum trade size is 10 $, but your is ' + tradeSize + '$!');
+        }
+    }
+    else if(amountCrp != pair){
+        if(amountVal < 10){
+            hasError = true;
+            createAlert('danger', 'minimum trade size is 10 $, but your is ' + amountVal + '$!');
+        }
+    }
+    console.log('amountVal: ', amountVal, 'amountCrp: ', amountCrp, 'price: ', price)
+    if(!hasError){
+        // send request
+    }
+
+}
 function removeHistory() {
     createdHistory.forEach(function(item, index) {
         item.remove();
@@ -397,25 +422,28 @@ function priceList(data){
     
     data.forEach(function(obj, index){
 
-        tr_elem = document.getElementById(index + '_tr');
-        tr_elem.setAttribute('data-href',`/account/trade/${obj["symbol"]}-USDT`);
+        if(index != 2){
+            tr_elem = document.getElementById(index + '_tr');
+            tr_elem.setAttribute('data-href',`/account/trade/${obj["symbol"]}-USDT`);
 
-        tr_elem.onclick = function(){
-            window.location = `/account/trade/${obj["symbol"]}-USDT`;
+            tr_elem.onclick = function(){
+                window.location = `/account/trade/${obj["symbol"]}-USDT`;
+            }
+            
+            document.getElementById(index + '_pair').innerText = `${obj["symbol"]}-USDT`;
+            document.getElementById(index + '_price').innerText = `${obj["price"]}`;
+
+            ch_elem = document.getElementById(index + '_change');
+            
+            if(obj['24c'] < 0){
+                ch_elem.innerText = `${obj["24c"]}`;
+                ch_elem.style.color = '#ff231f';
+            }else{
+                ch_elem.innerText = `+${obj["24c"]}`;
+                ch_elem.style.color = '#26de81';
+            }
         }
         
-        document.getElementById(index + '_pair').innerText = `${obj["symbol"]}-USDT`;
-        document.getElementById(index + '_price').innerText = `${obj["price"]}`;
-
-        ch_elem = document.getElementById(index + '_change');
-        
-        if(obj['24c'] < 0){
-            ch_elem.innerText = `${obj["24c"]}`;
-            ch_elem.style.color = '#ff231f';
-        }else{
-            ch_elem.innerText = `+${obj["24c"]}`;
-            ch_elem.style.color = '#26de81';
-        }
              
     })
 
@@ -425,35 +453,26 @@ function createPricePanel(){
     var parrent = document.getElementById("markets-list-trade");
 
     for(let i=0; i<20; i++){
-        var tr = document.createElement("tr");
-        var pair = document.createElement("td");
-        var price = document.createElement("td");
-        var change = document.createElement("td");
-        
-        tr.id = i+"_tr";
-        pair.id = i+"_pair";
-        price.id = i+"_price";
-        change.id = i+"_change";
-        
-        tr.appendChild(pair);
-        tr.appendChild(price);
-        tr.appendChild(change);
+        if(i != 2){
+            var tr = document.createElement("tr");
+            var pair = document.createElement("td");
+            var price = document.createElement("td");
+            var change = document.createElement("td");
+            
+            tr.id = i+"_tr";
+            pair.id = i+"_pair";
+            price.id = i+"_price";
+            change.id = i+"_change";
+            
+            tr.appendChild(pair);
+            tr.appendChild(price);
+            tr.appendChild(change);
 
-        parrent.appendChild(tr);
+            parrent.appendChild(tr);
+        }
   
     }
     
-}
-async function getEquivalent(name, amount) {
-
-    var resp =  await fetch('https://min-api.cryptocompare.com/data/pricemulti?fsyms=' + name + '&tsyms=USDT'); 
-    var price = await resp.json();
-
-    // sellEquivalent = price[name]['USDT'] * amount;
-    // console.log(sellEquivalent)
-
-    return price;
-
 }
 if(user != 'AnonymousUser'){
     percentage();

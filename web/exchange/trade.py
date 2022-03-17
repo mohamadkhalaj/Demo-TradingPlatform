@@ -1,6 +1,8 @@
+from email import message
 from .models import TradeHistory, Portfolio
 import requests
 from datetime import datetime
+from django.conf import settings
 
 class Trade:
     def __init__(self, user, orderType, type, pair, amount):
@@ -20,7 +22,11 @@ class Trade:
         # dict = {'pair':'MANA-USDT', 'type':'buy', 'amount':'20 MANA'}
 
     def callf(self):
-        self.equivalent = self.calc_equivalent(self.base, self.qoute, self.amount)
+        self.equivalent, message = self.calc_equivalent(self.base, self.qoute, self.amount)
+        if message:
+            self.result = {'header': 'trade_response', 'state': -1, 'message': message}
+            return
+
         if self.type == 'buy':
             if self.crp == self.base:
                 state = self.check_available(self.equivalent, self.qoute)
@@ -76,6 +82,7 @@ class Trade:
                 amount = self.amount
             else:
                 amount = self.equivalent
+
             newHistory = TradeHistory(
                 usr=self.user,
                 type=self.type,
@@ -89,14 +96,13 @@ class Trade:
             )               
             newHistory.save()
             date = datetime.now()
-            pair = self.pair.replace('-', '')
             
             self.result = {
                 'state': 0, 
-                'price': self.amount, 
+                'price': price, 
                 'amount': amount, 
                 'date': date.strftime("%Y:%m:%d:%H:%M"), 
-                'type': self.type, 'pair': pair.upper(), 
+                'type': self.type,
                 'pairPrice': self.pairPrice, 
                 'time': date.strftime("%H:%M:%S")
                 } 
@@ -111,12 +117,19 @@ class Trade:
         basePrice = float(response[base]['USDT'])
         qoutePrice = float(response[qoute]['USDT'])
         self.pairPrice = basePrice / qoutePrice
+
+        message = None
         if self.crp == base:
             equivalent = self.pairPrice * amount
+            if self.orderType == 'market' and equivalent < settings.MINIMUM_TRADE_SIZE:
+                message = f'minimum trade size is {settings.MINIMUM_TRADE_SIZE} $, but you entered: {self.amount} {self.crp}={round(equivalent, 2)}$ !'
         else:
             equivalent = amount / self.pairPrice
+            if self.orderType == 'market' and self.amount < settings.MINIMUM_TRADE_SIZE:
+                message = f'minimum trade size is {settings.MINIMUM_TRADE_SIZE} $, but you entered: {self.amount} {self.crp}={self.amount}$ !'
+        
 
-        return equivalent
+        return equivalent, message
 
     def check_available(self, amount, name):
         try:

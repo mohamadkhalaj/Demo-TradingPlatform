@@ -90,7 +90,7 @@
             <div class="d-flex justify-content-between">
               <div class="market-trade-buy">
                 <div class="input-group">
-                  {% if user.is_authenticated %}<input type="number" class="form-control" placeholder="Amount" id="uValue" onkeypress='validate(event)'>{% endif %}
+                  <input type="number" class="form-control" placeholder="Amount" id="uValue" onkeypress='validate(event)'>
                   <div class="input-group-append">
                     <span id="buyPairChanger" class="input-group-text btn">USDT</span>
                   </div>
@@ -140,15 +140,15 @@
             <div class="d-flex justify-content-between">
               <div class="market-trade-buy">
                 <div class="input-group">
-                  <input type="number" class="form-control" placeholder="Price">
+                  <input id="limit-buy-price" type="number" class="form-control" placeholder="Price" onkeypress='validate(event)'>
                   <div class="input-group-append">
-                    <span class="input-group-text">BTC</span>
+                    <span class="input-group-text">USDT</span>
                   </div>
                 </div>
                 <div class="input-group">
-                  <input type="number" class="form-control" placeholder="Amount">
+                  <input id="limit-buy-amount" type="number" class="form-control" placeholder="Amount" onkeypress='validate(event)'>
                   <div class="input-group-append">
-                    <span class="input-group-text">ETH</span>
+                    <span id="buy-pair" class="input-group-text btn">USDT</span>
                   </div>
                 </div>
                 <ul class="market-trade-list">
@@ -168,19 +168,19 @@
                 <p><span>0 BTC = 0 USD</span></p>
                 <p>Volume: <span>0 BTC = 0 USD</span></p>
                 <p>Margin: <span>0 BTC = 0 USD</span></p>
-                <p>Fee: <span>0 BTC = 0 USD</span></p><button class="btn buy">Buy</button>
+                <p>Fee: <span>0 BTC = 0 USD</span></p><button class="btn buy" onclick="limit('buy', '{{name}}')">Buy</button>
               </div>
               <div class="market-trade-sell">
                 <div class="input-group">
-                  <input type="number" class="form-control" placeholder="Price">
+                  <input id="limit-sell-price" type="number" class="form-control" placeholder="Price" onkeypress='validate(event)'>
                   <div class="input-group-append">
-                    <span class="input-group-text">BTC</span>
+                    <span class="input-group-text">USDT</span>
                   </div>
                 </div>
                 <div class="input-group">
-                  <input type="number" class="form-control" placeholder="Amount">
+                  <input id="limit-sell-amount" type="number" class="form-control" placeholder="Amount" onkeypress='validate(event)'>
                   <div class="input-group-append">
-                    <span class="input-group-text">ETH</span>
+                    <span id="sell-pair" class="input-group-text btn">{{name}}</span>
                   </div>
                 </div>
                 <ul class="market-trade-list">
@@ -200,7 +200,7 @@
                 <p><span>0 BTC = 0 USD</span></p>
                 <p>Volume: <span>0 BTC = 0 USD</span></p>
                 <p>Margin: <span>0 BTC = 0 USD</span></p>
-                <p>Fee: <span>0 BTC = 0 USD</span></p><button class="btn sell">Sell</button>
+                <p>Fee: <span>0 BTC = 0 USD</span></p><button class="btn sell" onclick="limit('sell', '{{name}}')">Sell</button>
               </div>
             </div>
           </div>

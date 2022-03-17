@@ -151,3 +151,4 @@ HCAPTCHA_TIMEOUT = 5
 
 # social auth configuration
 DEFAULT_BALANCE = 1000.0
+MINIMUM_TRADE_SIZE = 10

@@ -1,3 +1,4 @@
+from pickletools import read_uint1
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
 from .trade import Trade
 from .models import TradeHistory, Portfolio
@@ -42,13 +43,17 @@ class TradeConsumer(AsyncJsonWebsocketConsumer):
             if self.user.is_authenticated:
                 portfo = await self.getPortfolio()
                 await (self.send_json(portfo))
-
+        
         elif self.header == 'trade_request':
             self.pair = content['pair']
             self.orderType = content['orderType']
             result = await self.trade(content)
             # print('result: ', result)
-            trade_response = {'0':{'header': 'trade_response', 'state': result['state']}}
+            if result['state'] == -1:
+                trade_response = {'0': result}
+            else:
+                trade_response = {'0':{'header': 'trade_response', 'state': result['state']}}
+
             await self.channel_layer.group_send(
             self.unicastName,
                 {
@@ -61,7 +66,7 @@ class TradeConsumer(AsyncJsonWebsocketConsumer):
                 hist_response = {'0':{
                     'header': 'hist_response',
                     'type': result['type'],
-                    'pair': self.pair,
+                    'pair': content['pair'],
                     'amount': result['amount'],
                     'price': result['price'],
                     'orderType': self.orderType,
@@ -88,11 +93,12 @@ class TradeConsumer(AsyncJsonWebsocketConsumer):
                 recentTrades_response = {'0':{
                     'header': 'recent_response',
                     'type': result['type'],
-                    'pair': result['pair'],
+                    'pair': content['pair'],
                     'price': result['pairPrice'],
                     'amount': result['amount'],
                     'time': result['time']
                     }}
+                
                 await self.channel_layer.group_send(
                     self.broadcastName,
                     {
@@ -101,14 +107,13 @@ class TradeConsumer(AsyncJsonWebsocketConsumer):
                     }
                 )
                 portfo = await self.getPortfolio()
-                # await self.channel_layer.group_send(
-                #     self.unicastName,
-                #     {
-                #         'type': 'send.data',
-                #         'content': portfo
-                #     }
-                # )
-                await (self.send_json(portfo))
+                await self.channel_layer.group_send(
+                    self.unicastName,
+                    {
+                        'type': 'send.data',
+                        'content': portfo
+                    }
+                )
                
                 
 
@@ -139,7 +144,6 @@ class TradeConsumer(AsyncJsonWebsocketConsumer):
         recent_content = dict()
 
         for index, item in enumerate(histObj.iterator()):
-            # pair = item.pair.replace('-', '').upper()
             pair = item.pair
             if item.usr == self.user:
                 hist_content[str(index)] = {
@@ -173,7 +177,7 @@ class TradeConsumer(AsyncJsonWebsocketConsumer):
                     equivalentAmount = None
                 else:           
                     equivalentAmount = eq.calc_equivalent(item.cryptoName, 'USDT', item.amount)[1]
-                resJson[index] = {
+                resJson[str(index)] = {
                     'header': 'portfo_response', 
                     'cryptoName': item.cryptoName, 
                     'amount': item.amount, 
