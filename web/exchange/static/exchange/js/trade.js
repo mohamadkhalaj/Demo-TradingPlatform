@@ -24,6 +24,8 @@ if(user != 'AnonymousUser'){
 
 var globPair = pair.split('-')[0];
 var createdHistory = [];
+var createdOpenOrders = [];
+var createdClosedOrders = [];
 var createdRecentTrades = [];
 var activeAlerts = [];
 
@@ -31,6 +33,8 @@ tradeSocket.onopen = function(e){
     tradeSocket.send(JSON.stringify({'header': 'attribs', 'current_pair': pair, 'page': 'trade'}));
     removeRecentTrades();
     removeHistory();
+    removeOpenOrders();
+    removeClosedOrders();
 }
 
 tradeSocket.onmessage = function(e){
@@ -42,23 +46,31 @@ tradeSocket.onmessage = function(e){
         // console.log(obj)
         header = obj['header']
 
-        if(header == 'trade_response' && user != 'AnonymousUser'){
+        if((header == 'trade_response' || header == 'limit_response') && user != 'AnonymousUser'){
             state = obj['state'];
             
             if(state == -1){
                 createAlert('danger', obj['message'])
             }
             else if(state == 0){
-                createAlert('success', 'Order filled!')
-                uValue.value = 0;
-                pValue.value = 0;
+                if(header == 'trade_response'){
+                    createAlert('success', 'Order filled!')
+                    uValue.value = 0;
+                    pValue.value = 0;
+                }else{
+                    createAlert('success', 'Order added!');
+                    limit_buy_price.value = 0;
+                    limit_buy_amount.value = 0;
+                    limit_sell_price.value = 0;
+                    limit_sell_amount.value = 0;
+                }
                 
             }else{
                 createAlert('danger', 'Insufficient balance!')
             }
         }  
-        else if(header == 'hist_response' && user != 'AnonymousUser'){
-            getHistory(obj);
+        else if((header=='hist_response' || header=='orders_response') && user!='AnonymousUser'){
+            getHistory(obj, header);
         }
         else if(header == 'recent_response'){
             if(obj['pair'] == pair){
@@ -70,6 +82,12 @@ tradeSocket.onmessage = function(e){
         }
 
     })
+    try {
+        if(document.getElementById('open-limit-orders').childElementCount > 0){
+            document.querySelector('.no-data').style.display = 'none';
+        }
+    }
+    catch (e) {}  
    
 }
 tradeSocket.onclose = function(e){
@@ -175,24 +193,31 @@ function limit(type, pair){
 
     if(amountVal == 0 || price == 0){
         hasError = true;
-        createAlert('danger', 'field/fields amounts can not be 0!');
+        createAlert('danger', 'amount/price can not be 0!');
     }
     else if(amountCrp == pair){
-        var tradeSize = price * amountVal
-        if(tradeSize < 10){
-            hasError = true;
-            createAlert('danger', 'minimum trade size is 10 $, but your is ' + tradeSize + '$!');
-        }
+        var tradeSize = price * amountVal  
     }
     else if(amountCrp != pair){
-        if(amountVal < 10){
-            hasError = true;
-            createAlert('danger', 'minimum trade size is 10 $, but your is ' + amountVal + '$!');
-        }
+        var tradeSize = amountVal;
     }
-    console.log('amountVal: ', amountVal, 'amountCrp: ', amountCrp, 'price: ', price)
+    if(tradeSize < 10){
+        hasError = true;
+        createAlert('danger', 'minimum trade size is 10 $, but your is ' + tradeSize + '$!');
+    }
+    
     if(!hasError){
-        // send request
+        var reqJson = {
+            'header': 'limit_request',
+            'orderType': 'limit',
+            'pair' : `${pair}-USDT`,
+            'type' : type,
+            'tradeSize': tradeSize,
+            'amount' : amount,
+            'price': price
+            }  
+        tradeSocket.send(JSON.stringify(reqJson));
+    
     }
 
 }
@@ -201,6 +226,18 @@ function removeHistory() {
         item.remove();
     })
     createdHistory = []
+}
+function removeOpenOrders(){
+    createdOpenOrders.forEach(function(item, index) {
+        item.remove();
+    })
+    createdOpenOrders = []
+}
+function removeClosedOrders(){
+    createdClosedOrders.forEach(function(item, index) {
+        item.remove();
+    })
+    createdClosedOrders = []
 }
 
 function removeRecentTrades() {
@@ -217,9 +254,10 @@ function clearAllAlerts() {
     activeAlerts = []
 }
 
-function getHistory(data) {
-    var parent = document.getElementById("orders");
+function getHistory(data, header) {
+    
     var newNode = document.createElement("ul");
+    var removed = false;
     newNode.classList.add("d-flex", "justify-content-between", "market-order-item", "ul");
 
     var time = document.createElement("li");
@@ -228,6 +266,8 @@ function getHistory(data) {
     var price = document.createElement("li");
     var amount = document.createElement("li");
     var total = document.createElement("li");
+    var iconSpace = document.createElement("li");
+    var icon = document.createElement("i");
 
     time.innerText = data['date'];
     type.innerText = data['type'];
@@ -235,6 +275,7 @@ function getHistory(data) {
     amount.innerText = parseFloat(data['amount']).toFixed(5);
     total.innerText = data['price'].toFixed(5);
     price.innerText = data['pairPrice'];
+    
 
     if (data['type'] == 'buy') {
         type.classList.add('green')
@@ -249,9 +290,36 @@ function getHistory(data) {
     newNode.appendChild(price);
     newNode.appendChild(amount);
     newNode.appendChild(total);
+    
 
-    createdHistory.push(newNode);
-    parent.prepend(newNode);
+    if(header == 'hist_response'){
+        if(data['orderType'] == 'market'){
+            var parent = document.getElementById("market-orders");
+        }else{
+            var parent = document.getElementById("closed-limit-orders");
+        }
+    }
+    else if(header == 'orders_response'){
+        var parent = document.getElementById("open-limit-orders");
+         
+        icon.className = "fa fa-trash-o";
+        icon.setAttribute('data-id', data['id']);
+
+        iconSpace.appendChild(icon);
+        newNode.appendChild(iconSpace);
+
+        icon.onclick = function(e){
+            e.preventDefault();
+            tradeSocket.send(JSON.stringify({'header': 'delOrder_request', 'id': e.target.dataset.id}))
+            newNode.remove();
+            removed = true;
+        }
+    }
+    if(!removed){
+        createdHistory.push(newNode);
+        parent.prepend(newNode);
+    }
+       
 }
 
 function recentTrades(data) {

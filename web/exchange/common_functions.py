@@ -16,14 +16,15 @@ class Give_equivalent:
         
 
         
-    def check_available(self, amount, name):
+    def check_available(self, amount, name, user):
         try:
-            obj = Portfolio.objects.get(cryptoName=name)
+            obj = Portfolio.objects.filter(usr=user).get(cryptoName=name)
             if amount <= obj.amount:
                 return 0
             else:
                 return 1
-        except:
+        except Exception as e:
+            print(e)
             return 2
 
 def calc_equivalent(base, qoute, amount):

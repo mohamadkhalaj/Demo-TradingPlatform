@@ -1,11 +1,12 @@
-from pickletools import read_uint1
+from urllib import response
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
 from .trade import Trade
-from .models import TradeHistory, Portfolio
+from .models import TradeHistory, Portfolio, SpotOrders
 from .common_functions import Give_equivalent
 from channels.db import database_sync_to_async
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
+from datetime import datetime
 
 # api, recent-trades and histories all in one
 class TradeConsumer(AsyncJsonWebsocketConsumer):
@@ -24,7 +25,7 @@ class TradeConsumer(AsyncJsonWebsocketConsumer):
             self.broadcastName,
             self.channel_name
         )
-      
+        
         await self.accept()
 
 
@@ -37,8 +38,11 @@ class TradeConsumer(AsyncJsonWebsocketConsumer):
             self.page = content['page']
 
             content1, content2 = await self.initialFillings()
-            await (self.send_json(content1))
             await (self.send_json(content2))
+            if self.user.is_authenticated:
+                await (self.send_json(content1))
+                content3 = await self.getOrders()
+                await (self.send_json(content3))
 
             if self.user.is_authenticated:
                 portfo = await self.getPortfolio()
@@ -69,7 +73,7 @@ class TradeConsumer(AsyncJsonWebsocketConsumer):
                     'pair': content['pair'],
                     'amount': result['amount'],
                     'price': result['price'],
-                    'orderType': self.orderType,
+                    'orderType': content['orderType'],
                     'date': result['date'],
                     'pairPrice': result['pairPrice']
                     }}
@@ -114,6 +118,36 @@ class TradeConsumer(AsyncJsonWebsocketConsumer):
                         'content': portfo
                     }
                 )
+        elif self.header == 'limit_request':
+            result, order_response = await self.addOrder(content)
+            await self.send_json(result)
+            if result['0']['state'] == 0:
+                await self.channel_layer.group_send(
+                    self.unicastName,
+                    {
+                        'type': 'send.data',
+                        'content': order_response
+                    }
+                )
+                portfo = await self.getPortfolio()
+                await self.channel_layer.group_send(
+                    self.unicastName,
+                    {
+                        'type': 'send.data',
+                        'content': portfo
+                    }
+                )
+        elif self.header == 'delOrder_request':
+            await self.deleteOrder(content['id'])
+            portfo = await self.getPortfolio()
+            await self.channel_layer.group_send(
+                self.unicastName,
+                {
+                    'type': 'send.data',
+                    'content': portfo
+                }
+            )
+                
                
                 
 
@@ -130,11 +164,11 @@ class TradeConsumer(AsyncJsonWebsocketConsumer):
     # api call
     @database_sync_to_async
     def trade(self, content):
-        if self.header == 'trade_request' and self.orderType == 'market':
-            tradeObject = Trade(self.user, self.orderType, content['type'], content['pair'], content['amount'])
-            result = tradeObject.result
 
-            return result
+        tradeObject = Trade(self.user, self.orderType, content['type'], content['pair'], content['amount'])
+        result = tradeObject.result
+
+        return result
 
     # fill recents and histories after page loaded
     @database_sync_to_async
@@ -151,7 +185,8 @@ class TradeConsumer(AsyncJsonWebsocketConsumer):
                     'type': item.type, 'pair': item.pair, 
                     'pairPrice': item.pairPrice, 'amount': item.amount, 
                     'date': item.time.strftime("%Y-%m-%d:%H:%M"), 
-                    'price': item.price
+                    'price': item.price,
+                    'orderType': item.orderType
                     }
             if pair == self.current_pair:
                 recent_content[str(index)] = {
@@ -186,6 +221,105 @@ class TradeConsumer(AsyncJsonWebsocketConsumer):
                     }
         # print(resJson)
         return resJson
+
+    @database_sync_to_async
+    def addOrder(self, content):
+        # print(content)
+        portfo = Portfolio.objects.filter(usr=self.user, marketType='spot')
+        eq = Give_equivalent()
+        base = content['pair'].split('-')[0]
+        amount = float(content['amount'].split(' ')[0])
+        crp = content['amount'].split(' ')[1]
+        response = None
+
+        if content['type'] == 'buy':
+            mortgage = content['tradeSize']
+            state = eq.check_available(mortgage, 'USDT', self.user)  
+            if crp == base:
+                dbAmount = amount 
+            else:    
+                dbAmount = amount / content['price']  
+
+            if state == 0:
+                obj = portfo.get(cryptoName='USDT')
+                obj.amount = obj.amount - mortgage
+                obj.save()  
+        else:   
+            if crp == base:
+                mortgage = dbAmount = amount 
+            else:    
+                mortgage = dbAmount = amount / content['price']
+
+            state = eq.check_available(mortgage, base, self.user)
+        
+            if state == 0:
+                obj = portfo.get(cryptoName=base)
+                obj.amount = obj.amount - mortgage
+                obj.save()
+
+        if state == 0:
+            newOrder = SpotOrders(
+                usr = self.user,
+                type = content['type'],
+                pair = content['pair'],
+                amount = dbAmount,
+                price = content['tradeSize'],
+                pairPrice = content['price'],
+                mortgage = mortgage
+            ) 
+            newOrder.save()
+
+            id = SpotOrders.objects.filter(usr=self.user).last().id              
+            date = datetime.now()
+            response = {'0':{
+                'header': 'orders_response',
+                'type': content['type'],
+                'pair': content['pair'],
+                'amount': dbAmount,
+                'price': content['tradeSize'],
+                'orderType': 'limit',
+                'date': date.strftime("%Y:%m:%d:%H:%M"),
+                'pairPrice': content['price'],
+                'id': id
+                }}
+        
+        return {'0': {'header': 'limit_response', 'state': state}}, response
+
+
+    @database_sync_to_async
+    def deleteOrder(self, id):
+        ordersObj = SpotOrders.objects.filter(usr=self.user)
+        ordersObj = ordersObj.get(id=id)
+        portfo = Portfolio.objects.filter(usr=self.user, marketType='spot')
+        base = ordersObj.pair.split('-')[0]
+        
+        if ordersObj.type == 'buy':
+            obj = portfo.get(cryptoName='USDT')
+        else:
+            obj = portfo.get(cryptoName=base)
+
+        obj.amount = obj.amount + ordersObj.mortgage
+        obj.save()
+
+        ordersObj.delete()
+
+
+    @database_sync_to_async
+    def getOrders(self):
+        ordersObj = SpotOrders.objects.filter(usr=self.user)
+        orders = dict()
+        for index, item in enumerate(ordersObj.iterator()):
+            orders[str(index)] = {
+                    'header': 'orders_response',
+                    'type': item.type, 'pair': item.pair, 
+                    'amount': item.amount, 
+                    'date': item.time.strftime("%Y-%m-%d:%H:%M"), 
+                    'pairPrice': item.pairPrice,
+                    'price': item.price,
+                    'orderType': 'limit',
+                    'id': item.id
+                    }
+        return orders
 
 
 class historiesConsumer(AsyncJsonWebsocketConsumer):

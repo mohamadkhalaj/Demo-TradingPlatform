@@ -375,41 +375,44 @@
               <li>Amount</li>
               <li>Total(USD)</li>
             </ul>
-            <div id="orders">
+            <div id="market-orders">
               <p style="display:none" id="before"></p>{% if user.is_authenticated %} {% else %} <span class="no-data">No data</span> {% endif %}
             </div>
           </div>
           <div class="tab-pane fade" id="open-orders" role="tabpanel">
-            <ul class="d-flex justify-content-between market-order-item">
+            <ul class="d-flex justify-content-between market-order-item ul">
               <li>Time</li>
               <li>All pairs</li>
-              <li>All Types</li>
               <li>Buy/Sell</li>
-              <li>Price</li>
+              <li>Price(USD)</li>
               <li>Amount</li>
-              <li>Executed</li>
-              <li>Unexecuted</li>
+              <li>Total(USD)</li>
+              <li></li>
             </ul>
             <span class="no-data">
               <i class="icon ion-md-document"></i>
               No data
             </span>
+            <div id="open-limit-orders">
+              <!-- open orders here -->
+            </div>
           </div>
           <div class="tab-pane fade" id="stop-orders" role="tabpanel">
             <ul class="d-flex justify-content-between market-order-item">
               <li>Time</li>
               <li>All pairs</li>
-              <li>All Types</li>
               <li>Buy/Sell</li>
-              <li>Price</li>
+              <li>Price(USD)</li>
               <li>Amount</li>
-              <li>Executed</li>
-              <li>Unexecuted</li>
+              <li>Total(USD)</li>
             </ul>
             <span class="no-data">
               <i class="icon ion-md-document"></i>
               No data
             </span>
+            <div id="closed-limit-orders">
+              <!-- closed orders here -->
+            </div>
           </div>
         </div>
       </div>

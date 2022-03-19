@@ -14,6 +14,7 @@ class Portfolio(models.Model):
 
 	def __str__(self):
 		return f'{self.usr} {self.cryptoName}'
+	
 
 # details of terminated spot orders
 class TradeHistory(models.Model):
@@ -21,7 +22,7 @@ class TradeHistory(models.Model):
 	type = models.CharField(max_length=4) # buy/sell
 	pair = models.CharField(max_length=20)
 	pairPrice = models.FloatField()
-	orderType = models.CharField(max_length=15, default=None) # market/limit/stop-limit
+	orderType = models.CharField(max_length=15, default=None) # market/limit
 	histAmount = models.JSONField(default=None)
 	amount = models.FloatField()
 	price = models.FloatField()
@@ -43,17 +44,17 @@ class SpotOrders(models.Model):
 	usr = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 	type = models.CharField(max_length=4) # buy/sell
 	pair = models.CharField(max_length=20)
-	orderType = models.CharField(max_length=15) # market/limit/stop-limit
-	amount = models.CharField(max_length=100) # e.g., 0.02 BTC 
+	amount = models.FloatField() 
 	price = models.FloatField()
-	triggerConditions = models.FloatField(blank=True, null=True) # only used for stop-limit
-	createDate = models.DateTimeField(auto_now_add=True)
+	pairPrice = models.FloatField(null=True)
+	mortgage = models.FloatField(blank=True, null=True)
+	time = models.DateTimeField(auto_now_add=True)
 
 	class Meta:
 		verbose_name_plural = 'Spot Orders'
 
 	def humanizeTime(self):
-		return naturaltime(self.createDate)
+		return naturaltime(self.time)
 	humanizeTime.short_description = 'Time'
 
 	def __str__(self):

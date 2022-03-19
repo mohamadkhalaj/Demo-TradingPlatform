@@ -66,19 +66,17 @@ class SpotOrdersAdmin(admin.ModelAdmin):
 	list_display = (
 		'usr', 
 		'type', 
-		'pair', 
-		'orderType', 
+		'pair',  
 		'amount', 
 		'price', 
-		'triggerConditions', 
+		'mortgage', 
 		'humanizeTime', 
 	)
 	list_filter = (
 		'usr', 
 		'type', 
-		'pair', 
-		'orderType', 
-		'triggerConditions', 
+		'pair',  
+		'mortgage', 
 	)
 admin.site.register(SpotOrders, SpotOrdersAdmin)
 
