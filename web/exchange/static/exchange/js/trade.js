@@ -29,7 +29,7 @@ var createdClosedOrders = [];
 var createdRecentTrades = [];
 var activeAlerts = [];
 
-tradeSocket.onopen = function(e){
+function tradeSocketOpen() {
     tradeSocket.send(JSON.stringify({'header': 'attribs', 'current_pair': pair, 'page': 'trade'}));
     removeRecentTrades();
     removeHistory();
@@ -37,8 +37,11 @@ tradeSocket.onopen = function(e){
     removeClosedOrders();
 }
 
-tradeSocket.onmessage = function(e){
+tradeSocket.onopen = () => {
+    tradeSocketOpen()
+}
 
+function tradeSocketMessage(e) {
     data = JSON.parse(e.data);
     // console.log(data)
     Object.keys(data).forEach(function(index){
@@ -88,26 +91,51 @@ tradeSocket.onmessage = function(e){
         }
     }
     catch (e) {}  
-   
 }
-tradeSocket.onclose = function(e){
+
+tradeSocket.onmessage = e => {
+    tradeSocketMessage(e)
+}
+
+function tradeSocketClose() {
     createAlert('danger', 'There is a connection issue, please try again!');
 }
 
-tradeListSocket.onopen = function () {
+tradeSocket.onclose = function(e){
+    tradeSocketClose(e)
+}
+
+function tradeListSocketOpen(e, status) {
     console.log('prices socket is on!!');
     tradeListSocket.send(JSON.stringify({"page": 0, RequestType : 'trade'}));
-    createPricePanel();
+    
+    if (!status) {
+        createPricePanel();
+    }
+}
+
+tradeListSocket.onopen = function (e) {
+    tradeListSocketOpen(e, false)
 };
 
-tradeListSocket.onmessage = function(e) {
+function tradeListSocketMessage(e) {
+
     var message = e.data;
     data = JSON.parse(message)
     priceList(data);
+}
+
+tradeListSocket.onmessage = function(e) {
+    tradeListSocketMessage(e)
 };
 
-tradeListSocket.onclose = function(e) {
+function tradeListSocketClose() {
+
     console.log('Socket closed unexpectedly');
+}
+
+tradeListSocket.onclose = function(e) {
+    tradeListSocketClose()
 };
 
 function getPortfolio(res) {
@@ -545,3 +573,34 @@ function createPricePanel(){
 if(user != 'AnonymousUser'){
     percentage();
 }
+
+window.onoffline = (event) => {
+  createAlert('info', "The network connection has been lost.")
+};
+
+window.ononline = (event) => {
+    createAlert('info', "You are now connected to the network.")
+    tradeSocket.close()
+    tradeSocket = new WebSocket('ws://' + window.location.host + '/ws/trade/');
+    tradeSocket.onopen = e => {
+        tradeSocketOpen(e)
+    }
+    tradeSocket.onmessage = e => {
+        tradeSocketMessage(e)
+    }
+    tradeSocket.onclose = function(e){
+        tradeSocketClose(e)
+    }
+
+    tradeListSocket.close()
+    tradeListSocket = new WebSocket('ws://' + window.location.host + '/ws/trade/prices/');
+    tradeListSocket.onopen = function (e) {
+        tradeListSocketOpen(e, true)
+    };
+    tradeListSocket.onmessage = function(e) {
+        tradeListSocketMessage(e)
+    };
+    tradeListSocket.onclose = function(e) {
+        tradeListSocketClose(e)
+    };
+};
