@@ -94,13 +94,8 @@ function createAssets(data) {
 
 
 // charts socket data
-socket = new WebSocket('ws://' + window.location.host + '/ws/wallet/chart/');
 
-socket.onopen = function () {
-    socket.send(JSON.stringify({"start":1}));
-};
-
-socket.onmessage = function(e) {
+function socketMessage(e) {
     var message = e.data;
     chartData = JSON.parse(message)
 
@@ -197,7 +192,62 @@ socket.onmessage = function(e) {
     }
 };
 
+socket = new WebSocket('ws://' + window.location.host + '/ws/wallet/chart/');
+
+socket.onopen = function () {
+    socket.send(JSON.stringify({"start":1}));
+};
+
+socket.onmessage = function(e) {
+  socketMessage(e)
+}
+
 socket.onclose = function(e) {
     console.log('Socket closed unexpectedly');
 };
 // end char socket data
+
+window.onoffline = (event) => {
+  console.log("The network connection has been lost.")
+};
+
+window.ononline = (event) => {
+    console.log("You are now connected to the network.")
+
+    assetSocket.close()
+    assetSocket = new WebSocket('ws://' + window.location.host + '/ws/wallet/');
+
+    assetSocket.onopen = function () {
+        assetSocket.send(JSON.stringify({"start":1}));
+    };
+
+    assetSocket.onmessage = function(e) {
+        var message = e.data;
+        assetData = JSON.parse(message);
+        $('#totalMargin').text(assetData['total'] + ' $');
+        $('#waiting').remove();
+        $('#waitingTotal').remove();
+
+        removeAssets();
+        createAssets(assetData['assets']);
+    };
+
+    assetSocket.onclose = function(e) {
+        console.log('Socket closed unexpectedly');
+    };
+
+    socket.close()
+    socket = new WebSocket('ws://' + window.location.host + '/ws/wallet/chart/');
+
+    socket.onopen = function () {
+        socket.send(JSON.stringify({"start":1}));
+    };
+
+    socket.onmessage = function(e) {
+      socketMessage(e)
+    }
+
+    socket.onclose = function(e) {
+        console.log('Socket closed unexpectedly');
+    };
+};

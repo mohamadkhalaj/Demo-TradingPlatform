@@ -1,3 +1,5 @@
+var page = 0
+
 var socket = new WebSocket('ws://' + window.location.host + '/ws/');
 socket.onopen = function () {
     socket.send(JSON.stringify({"page":0, RequestType : 'market'}));
@@ -95,7 +97,7 @@ function initial() {
     }
 }
 
-function pagination(page) {
+function pagination() {
 
     var clickTimeout;
     $('#paginationText').text(page + 1 + '/' + 30)
@@ -140,7 +142,7 @@ function pagination(page) {
                 socket = new WebSocket('ws://' + window.location.host + '/ws/');
 
                 socket.onopen = function () {
-                    socket.send(JSON.stringify({"page":page}));
+                    socket.send(JSON.stringify({"page":page, RequestType : 'market'}));
                 };
 
                 socket.onmessage = function(e) {
@@ -156,6 +158,30 @@ function pagination(page) {
         }
     });
 }
-var page = 0
+
+window.onoffline = (event) => {
+  console.log("The network connection has been lost.")
+};
+
+window.ononline = (event) => {
+    console.log("You are now connected to the network.")
+
+    socket.close()
+    socket = new WebSocket('ws://' + window.location.host + '/ws/');
+    socket.onopen = function () {
+        socket.send(JSON.stringify({"page":page, RequestType : 'market'}));
+    };
+
+    socket.onmessage = function(e) {
+        var message = e.data;
+        data = JSON.parse(message)
+        fillData(data)
+    };
+
+    socket.onclose = function(e) {
+        console.log('Socket closed unexpectedly');
+    };
+};
+
 initial()
-pagination(page)
+pagination()
