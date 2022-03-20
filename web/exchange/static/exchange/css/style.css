@@ -2574,3 +2574,8 @@ tbody.ob-heading {
 .live-search-list div .col-1{
     max-width: 3.333%;
 }
+
+.closeOrderBtn {
+    color:  red;
+    cursor:  pointer;
+}

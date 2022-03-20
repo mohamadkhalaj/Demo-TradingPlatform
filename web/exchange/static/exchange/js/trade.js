@@ -143,11 +143,16 @@ function getPortfolio(res) {
     var usdtAmount = document.getElementById('usdtAmount');
     var pairAmount = document.getElementById('pairAmount');
     
+    var usdtAmountLimit = document.getElementById('usdtAmountLimit');
+    var pairAmountLimit = document.getElementById('pairAmountLimit');
+    
     pairAmount.innerText = `0 ${pair}`
+    pairAmountLimit.innerText = `0 ${pair}`
     
 
     if (res['cryptoName'] == 'USDT') {
         usdtAmount.innerText = `${res['amount'].toFixed(1)} USDT`
+        usdtAmountLimit.innerText = `${res['amount'].toFixed(1)} USDT`
         usdtValue = res['amount'].toFixed(1)
     }
     else{
@@ -168,6 +173,7 @@ function getPortfolio(res) {
             equivalentAmount = equivalentAmount.toFixed(4)
         }
         pairAmount.innerText = `${amount} ${pair} = ${equivalentAmount} USDT`
+        pairAmountLimit.innerText = `${amount} ${pair} = ${equivalentAmount} USDT`
         pairUsdtValue = equivalentAmount;
         pairValue = res['amount']
     }
@@ -295,7 +301,7 @@ function getHistory(data, header) {
     var amount = document.createElement("li");
     var total = document.createElement("li");
     var iconSpace = document.createElement("li");
-    var icon = document.createElement("i");
+    var icon = document.createElement("div");
 
     time.innerText = data['date'];
     type.innerText = data['type'];
@@ -330,8 +336,8 @@ function getHistory(data, header) {
     else if(header == 'orders_response'){
         var parent = document.getElementById("open-limit-orders");
          
-        icon.className = "fa fa-trash-o";
-        icon.setAttribute('data-id', data['id']);
+        icon.innerText = 'Close'
+        icon.classList.add('closeOrderBtn')
 
         iconSpace.appendChild(icon);
         newNode.appendChild(iconSpace);
@@ -388,7 +394,7 @@ function calcAmount(change, object) {
         }
         uValue.value = baseValue * parseFloat(object.innerText.replace('%', '')) / 100
     }
-    else {
+    else if (change == 'pair') {
         if ($('#sellPairChanger').text() == 'USDT')
         {
             baseValue = pairUsdtValue;
@@ -398,15 +404,53 @@ function calcAmount(change, object) {
         }
         pValue.value = baseValue * parseFloat(object.innerText.replace('%', '')) / 100
     }
+    else if (change == 'limitSell') {
+        var limitSell = document.getElementById('limit-sell-amount')
+        limitSell.value = pairValue * parseFloat(object.innerText.replace('%', '')) / 100
+        calculateTotalLimit('sell')
+    }
+    else {
+        var limitBuy = document.getElementById('limit-buy-amount')
+        limitBuy.value = pairValue * parseFloat(object.innerText.replace('%', '')) / 100
+        calculateTotalLimit('buy')
+    }
+}
+
+function calculateTotalLimit(type) {
+    if (type == 'buy') {
+        var limitBuy = document.getElementById('limit-buy-amount')
+        var price = parseFloat(document.getElementById('limit-buy-price').value)
+        document.getElementById('totalBuyLimit').innerText = `${price * limitBuy.value} USDT`
+    }
+    else {
+        var limitSell = document.getElementById('limit-sell-amount')
+        var price = parseFloat(document.getElementById('limit-sell-price').value)
+        document.getElementById('totalSellLimit').innerText = `${price * limitSell.value} USDT`
+    }
 }
 
 function percentage() {
     var pair = document.getElementById('pairPercentage');
     var usdt = document.getElementById('usdtPercentage');
 
+    var sellPercentageLimit = document.getElementById('usdtPercentageLimit');
+    var buyPercentageLimit = document.getElementById('pairPercentageLimit');
+
     pair.childNodes.forEach(function(item, index) {
         if (item.tagName == 'LI'){
             pair.childNodes[index].addEventListener("click", function() {calcAmount('pair', pair.childNodes[index]);});
+        }
+    })
+
+    sellPercentageLimit.childNodes.forEach(function(item, index) {
+        if (item.tagName == 'LI'){
+            sellPercentageLimit.childNodes[index].addEventListener("click", function() {calcAmount('limitBuy', sellPercentageLimit.childNodes[index]);});
+        }
+    })
+
+    buyPercentageLimit.childNodes.forEach(function(item, index) {
+        if (item.tagName == 'LI'){
+            buyPercentageLimit.childNodes[index].addEventListener("click", function() {calcAmount('limitSell', buyPercentageLimit.childNodes[index]);});
         }
     })
 
@@ -604,3 +648,10 @@ window.ononline = (event) => {
         tradeListSocketClose(e)
     };
 };
+
+document.querySelectorAll('input').forEach( (item, index) => {
+    if (index > 0) {
+
+        item.value = ''
+    }
+})
