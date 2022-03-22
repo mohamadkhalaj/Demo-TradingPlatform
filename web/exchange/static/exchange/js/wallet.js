@@ -9,8 +9,10 @@ assetSocket.onopen = function () {
 assetSocket.onmessage = function(e) {
     var message = e.data;
     assetData = JSON.parse(message);
-    $('#totalMargin').text(assetData['total'] + ' $');
+    $('#totalMargin').text(assetData['available'] + ' $');
+    $('#availableMargin').text(assetData['total'] + ' $');
     $('#waiting').remove();
+    $('#waitingAvailable').remove();
     $('#waitingTotal').remove();
 
     removeAssets();

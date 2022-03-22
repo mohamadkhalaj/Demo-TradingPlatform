@@ -4,7 +4,7 @@ from django.conf import settings
 import time, requests
 
 class Charts:
-    def __init__(self, user, portfo, histories):
+    def __init__(self, user, portfo, histories, orderMargin):
         self.user = user
         self.portfo = portfo
         self.histories = histories
@@ -12,6 +12,7 @@ class Charts:
         self.values = []
         self.percents = []
         self.prices = dict()
+        self.orderMargin = orderMargin
         self.haveTrade = True
         self.func()
 

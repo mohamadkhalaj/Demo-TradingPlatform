@@ -8,6 +8,7 @@ static/exchange/img/charts/*.*
 staticfiles
 web/static/
 db.sqlite3
+.idea
 # C extensions
 *.so
 

@@ -98,7 +98,7 @@ tradeSocket.onmessage = e => {
 }
 
 function tradeSocketClose() {
-    createAlert('danger', 'There is a connection issue, please try again!');
+    // createAlert('danger', 'There is a connection issue, please try again!');
 }
 
 tradeSocket.onclose = function(e){

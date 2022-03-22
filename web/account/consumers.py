@@ -1,8 +1,9 @@
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
+from exchange.models import Portfolio, TradeHistory, SpotOrders
 from exchange.common_functions import calc_equivalent, pretify
-from exchange.models import Portfolio, TradeHistory
 from channels.db import database_sync_to_async
 import asyncio, cryptocompare, requests, json
+from django.db.models import Sum
 from decouple import config
 from .charts import Charts
 
@@ -102,7 +103,8 @@ class ChartSocket(AsyncJsonWebsocketConsumer):
 
         dictionary = {}
 
-        chart = Charts(self.user, portfolio, trades)
+        orderMargin = await self.getOrders()
+        chart = Charts(self.user, portfolio, trades, orderMargin)
         assetAllocation = chart.assetAllocation()
         pnl = chart.bar_chart()
 
@@ -136,6 +138,13 @@ class ChartSocket(AsyncJsonWebsocketConsumer):
             )
         )
 
+    @database_sync_to_async
+    def getOrders(self):
+        return SpotOrders.objects.all().filter(
+                usr=self.user, 
+                amount__gt=0,
+            ).aggregate(Sum('price'))['price__sum']
+
 
 class WalletSocket(AsyncJsonWebsocketConsumer):
     async def connect(self):
@@ -152,14 +161,12 @@ class WalletSocket(AsyncJsonWebsocketConsumer):
         cryptocompare.cryptocompare._set_api_key_parameter(CRYPTO_COMPARE_API)  
         portfolio = await self.getPortfolio()
         dictionary = {}
-        totalMargin = pretify(
-            sum(
+        totalMargin = sum(
                     [calc_equivalent(
                         item.cryptoName, 
                         'USDT', 
                         item.amount)[1] for item in portfolio]
                 )
-            )
         
         assets = {}
         for item in portfolio:
@@ -186,8 +193,10 @@ class WalletSocket(AsyncJsonWebsocketConsumer):
                     }
                 )
 
-        dictionary['total'] = totalMargin
+        availableMargin = await self.getOrders()
+        dictionary['total'] = pretify(totalMargin + availableMargin)
         dictionary['assets'] = array
+        dictionary['available'] = pretify(totalMargin)
 
         await self.send_json(dictionary)
         await asyncio.sleep(1)
@@ -208,6 +217,13 @@ class WalletSocket(AsyncJsonWebsocketConsumer):
                 amount__gt=0,
             ).order_by('-equivalentAmount')
         )
+
+    @database_sync_to_async
+    def getOrders(self):
+        return SpotOrders.objects.all().filter(
+                usr=self.user, 
+                amount__gt=0,
+            ).aggregate(Sum('price'))['price__sum']
 
     @database_sync_to_async
     def getSymbolFromDb(self, symbol, total):
