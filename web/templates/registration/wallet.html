@@ -6,105 +6,105 @@
 
 <div class="settings mtb15">
   <div class="container-fluid">
-    <div class="row">
-      <div class="col-md-12 col-lg-3">
-        <div class="nav flex-column nav-pills settings-nav" id="v-pills-tab" role="tablist"
-          aria-orientation="vertical">
-          <a class="nav-link" id="settings-profile-tab" href="{% url 'account:profile' %}">Profile</a>
-          
-          <a class="nav-link active" id="settings-wallet-tab" href="{% url 'account:wallet' %}"> Wallet</a>
-          
-          <a class="nav-link" id="settings-tab" href="{% url 'account:tradeHistory' %}">Trade history</a>
-        </div>
-      </div>
-        <div class="col-md-12 col-lg-9">
-          <div class="tab-content" id="v-pills-tabContent">
-            <div class="tab-pane fade show active" id="settings-wallet" role="tabpanel"
-              aria-labelledby="settings-wallet-tab">
-              <div class="wallet">
-                <div class="row">
-                  <div class="col-md-12 col-lg-4">
-                    <div id="assetsDiv" class="nav flex-column nav-pills" role="tablist" aria-orientation="vertical">
-                          
-                          <a id="waiting" class="nav-link d-flex justify-content-between align-items-center"
-                            href="" target="_blank">
-          
-                                <div class="d-flex">
-                                    <div>
-                                        <h2 class="errors">Please wait...</h2>
-                                    </div>
-                                </div>
-                          </a>
-                          <div id="beforeAssets"></div>
-                    </div>
-              <div class="text-center mt-3">
-              </div>
-                  </div>
-                  <div class="col-md-12 col-lg-8">
-                    <div class="tab-content">
-                      <div class="tab-pane fade show active" id="coinBTC" role="tabpanel">
-                        <div class="card">
-                          <div class="card-body">
-                            <h5 class="card-title">Balance</h5>
-                            <ul>
-                              <li class="d-flex justify-content-between align-items-center">
-                                <div class="d-flex align-items-center">
-                                  <i class="icon ion-md-cash"></i>
-                                  <h2>Total Margin</h2>
-                                </div>
-                                <div>
-                                  <h2 class="errors" id="waitingAvailable">Please wait...</h2>
-                                  <h3 id="availableMargin"></h3>
-                                </div>
-                              </li>
-                              <li class="d-flex justify-content-between align-items-center">
-                                <div class="d-flex align-items-center">
-                                  <i class="icon ion-md-checkmark"></i>
-                                  <h2>Available Margin</h2>
-                                </div>
-                                <div>
-                                  <h2 class="errors" id="waitingTotal">Please wait...</h2>
-                                  <h3 id="totalMargin">
-                                  </h3>
-                                </div>
-                              </li>
-                            </ul>
-                          </div>
-                        </div>
-                        <div class="card">
-                          <div class="card-body">
-                            <h5 class="card-title">Assets allocation</h5>
-                              <div class="d-flex justify-content-center">
-                                <div class="form-access">
-                                    <span class="errors">
-                                      <h2 id="waitingAssetAllocation">Please wait...</h2>
-                                      <div id="assetAllocation" style="min-width: 500px; min-height: 500px;"></div>
-                                    </span>
-                                </div>
-                              </div>
-                          </div>
-                        </div>
-                          <div class="card d-none" id="pnlDiv">
-                            <div class="card-body" style="overflow: auto;">
-                              <h5 class="card-title">PNL</h5>
-                                <div class="d-flex justify-content-center">
-                                  <div class="form-access">
-                                      <span class="errors">
-                                        <canvas id="pnl" style="min-width: 500px; min-height: 300px;"></canvas>
-                                      </span>
-                                  </div>
-                                </div>
-                            </div>
-                          </div>
-                      </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+	<div class="row">
+	  <div class="col-md-12 col-lg-3">
+		<div class="nav flex-column nav-pills settings-nav" id="v-pills-tab" role="tablist"
+		  aria-orientation="vertical">
+		  <a class="nav-link" id="settings-profile-tab" href="{% url 'account:profile' %}">Profile</a>
+		  
+		  <a class="nav-link active" id="settings-wallet-tab" href="{% url 'account:wallet' %}"> Wallet</a>
+		  
+		  <a class="nav-link" id="settings-tab" href="{% url 'account:tradeHistory' %}">Trade history</a>
+		</div>
+	  </div>
+		<div class="col-md-12 col-lg-9">
+		  <div class="tab-content" id="v-pills-tabContent">
+			<div class="tab-pane fade show active" id="settings-wallet" role="tabpanel"
+			  aria-labelledby="settings-wallet-tab">
+			  <div class="wallet">
+				<div class="row">
+				  <div class="col-md-12 col-lg-4">
+					<div id="assetsDiv" class="nav flex-column nav-pills" role="tablist" aria-orientation="vertical">
+						  
+						  <a id="waiting" class="nav-link d-flex justify-content-between align-items-center"
+							href="" target="_blank">
+		  
+								<div class="d-flex">
+									<div>
+										<h2 class="errors">Please wait...</h2>
+									</div>
+								</div>
+						  </a>
+						  <div id="beforeAssets"></div>
+					</div>
+			  <div class="text-center mt-3">
+			  </div>
+				  </div>
+				  <div class="col-md-12 col-lg-8">
+					<div class="tab-content">
+					  <div class="tab-pane fade show active" id="coinBTC" role="tabpanel">
+						<div class="card">
+						  <div class="card-body">
+							<h5 class="card-title">Balance</h5>
+							<ul>
+							  <li class="d-flex justify-content-between align-items-center">
+								<div class="d-flex align-items-center">
+								  <i class="icon ion-md-cash"></i>
+								  <h2>Total Margin</h2>
+								</div>
+								<div>
+								  <h2 class="errors" id="waitingAvailable">Please wait...</h2>
+								  <h3 id="availableMargin"></h3>
+								</div>
+							  </li>
+							  <li class="d-flex justify-content-between align-items-center">
+								<div class="d-flex align-items-center">
+								  <i class="icon ion-md-checkmark"></i>
+								  <h2>Available Margin</h2>
+								</div>
+								<div>
+								  <h2 class="errors" id="waitingTotal">Please wait...</h2>
+								  <h3 id="totalMargin">
+								  </h3>
+								</div>
+							  </li>
+							</ul>
+						  </div>
+						</div>
+						<div class="card">
+						  <div class="card-body">
+							<h5 class="card-title">Assets allocation</h5>
+							  <div class="d-flex justify-content-center">
+								<div class="form-access">
+									<span class="errors">
+									  <h2 id="waitingAssetAllocation">Please wait...</h2>
+									  <div id="assetAllocation" style="min-width: 500px; min-height: 500px;"></div>
+									</span>
+								</div>
+							  </div>
+						  </div>
+						</div>
+						  <div class="card d-none" id="pnlDiv">
+							<div class="card-body" style="overflow: auto;">
+							  <h5 class="card-title">PNL</h5>
+								<div class="d-flex justify-content-center">
+								  <div class="form-access">
+									  <span class="errors">
+										<canvas id="pnl" style="min-width: 500px; min-height: 300px;"></canvas>
+									  </span>
+								  </div>
+								</div>
+							</div>
+						  </div>
+					  </div>
+				  </div>
+				</div>
+			  </div>
+			</div>
+		  </div>
+		</div>
+	  </div>
+	</div>
   </div>
 
 <script src="https://www.gstatic.com/charts/loader.js"></script>

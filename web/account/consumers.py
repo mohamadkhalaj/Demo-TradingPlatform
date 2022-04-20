@@ -1,60 +1,68 @@
-from channels.generic.websocket import AsyncJsonWebsocketConsumer
-from exchange.models import Portfolio, TradeHistory, SpotOrders
-from exchange.common_functions import calc_equivalent, pretify
+import asyncio
+import json
+
+import cryptocompare
+import requests
 from channels.db import database_sync_to_async
-import asyncio, cryptocompare, requests, json
-from django.db.models import Sum
+from channels.generic.websocket import AsyncJsonWebsocketConsumer
 from decouple import config
+from django.db.models import Sum
+from exchange.common_functions import calc_equivalent, pretify
+from exchange.models import Portfolio, SpotOrders, TradeHistory
+
 from .charts import Charts
 
-def getCryptoList(page, limit):
-    url = f'https://min-api.cryptocompare.com/data/top/mktcap?limit={limit}&tsym=USD&page={page}'
 
-    cryptos = requests.get(url).json()['Data']
+def getCryptoList(page, limit):
+    url = f"https://min-api.cryptocompare.com/data/top/mktcap?limit={limit}&tsym=USD&page={page}"
+
+    cryptos = requests.get(url).json()["Data"]
     dictionary = {}
     for index, crypto in enumerate(cryptos):
-        cr = crypto['CoinInfo']
-        dictionary[cr['Name']] = cr['FullName']
-        dictionary[cr['Name'] + '_rank'] = (page * limit) + (index + 1)
+        cr = crypto["CoinInfo"]
+        dictionary[cr["Name"]] = cr["FullName"]
+        dictionary[cr["Name"] + "_rank"] = (page * limit) + (index + 1)
     return dictionary
+
 
 def cryptoJson(data):
     global dictionary
     global RequestType
 
-    data = data['DISPLAY']
+    data = data["DISPLAY"]
 
-    domain = 'https://cryptocompare.com'
+    domain = "https://cryptocompare.com"
     array = []
-    if RequestType == 'market':
+    if RequestType == "market":
         for item in data:
             tmp = data[item]["USD"]
             array.append(
-                    {
-                        "symbol": item,
-                        "name": dictionary.get(item, ''),
-                        "rank": dictionary.get(item + '_rank', ''),
-                        "price": tmp["PRICE"].strip('$ '),
-                        "24c": tmp["CHANGEPCT24HOUR"],
-                        "mc": tmp["MKTCAP"].strip('$ '),
-                        "24h": tmp["HIGH24HOUR"].strip('$ '),
-                        "24l": tmp["LOW24HOUR"].strip('$ '),
-                        "vol": tmp["VOLUME24HOURTO"].strip('$ '),
-                        "img": domain + tmp["IMAGEURL"],
-                    }
-                )
-    elif RequestType == 'trade':
+                {
+                    "symbol": item,
+                    "name": dictionary.get(item, ""),
+                    "rank": dictionary.get(item + "_rank", ""),
+                    "price": tmp["PRICE"].strip("$ "),
+                    "24c": tmp["CHANGEPCT24HOUR"],
+                    "mc": tmp["MKTCAP"].strip("$ "),
+                    "24h": tmp["HIGH24HOUR"].strip("$ "),
+                    "24l": tmp["LOW24HOUR"].strip("$ "),
+                    "vol": tmp["VOLUME24HOURTO"].strip("$ "),
+                    "img": domain + tmp["IMAGEURL"],
+                }
+            )
+    elif RequestType == "trade":
         for item in data:
             tmp = data[item]["USD"]
             array.append(
-                    {
-                        "symbol": item,
-                        "pair": item + '-USDT',
-                        "price": tmp["PRICE"].strip('$ '),
-                        "24c": tmp["CHANGEPCT24HOUR"],
-                    }
-                )
+                {
+                    "symbol": item,
+                    "pair": item + "-USDT",
+                    "price": tmp["PRICE"].strip("$ "),
+                    "24c": tmp["CHANGEPCT24HOUR"],
+                }
+            )
     return array
+
 
 class MarketConsumer(AsyncJsonWebsocketConsumer):
     async def connect(self):
@@ -62,10 +70,10 @@ class MarketConsumer(AsyncJsonWebsocketConsumer):
 
     async def sendList(self, subs):
 
-        CRYPTO_COMPARE_API = config('CRYPTO_COMPARE_API')
-        cryptocompare.cryptocompare._set_api_key_parameter(CRYPTO_COMPARE_API)  
+        CRYPTO_COMPARE_API = config("CRYPTO_COMPARE_API")
+        cryptocompare.cryptocompare._set_api_key_parameter(CRYPTO_COMPARE_API)
 
-        data = cryptocompare.get_price(subs, currency='USD', full=True)
+        data = cryptocompare.get_price(subs, currency="USD", full=True)
         # print(cryptoJson(data))
         await self.send_json(cryptoJson(data))
         await asyncio.sleep(1)
@@ -76,14 +84,14 @@ class MarketConsumer(AsyncJsonWebsocketConsumer):
     async def receive(self, text_data=None, bytes_data=None):
         global dictionary
         global RequestType
-        RequestType = json.loads(text_data)['RequestType']
+        RequestType = json.loads(text_data)["RequestType"]
         if text_data:
-            page = json.loads(text_data)['page']
+            page = json.loads(text_data)["page"]
             dictionary = getCryptoList(page, 20)
             temp = list(dictionary.keys())
             subs = []
             for item in temp:
-                if '_rank' not in item:
+                if "_rank" not in item:
                     subs.append(item)
             while True:
                 await asyncio.ensure_future(self.sendList(subs))
@@ -108,8 +116,8 @@ class ChartSocket(AsyncJsonWebsocketConsumer):
         assetAllocation = chart.assetAllocation()
         pnl = chart.bar_chart()
 
-        dictionary['assetAllocation'] = assetAllocation
-        dictionary['pnl'] = pnl
+        dictionary["assetAllocation"] = assetAllocation
+        dictionary["pnl"] = pnl
 
         await self.send_json(dictionary)
         await asyncio.sleep(60)
@@ -124,26 +132,32 @@ class ChartSocket(AsyncJsonWebsocketConsumer):
 
     @database_sync_to_async
     def getPortfolio(self):
-        return list(Portfolio.objects.all().filter(
-                usr=self.user, 
-                marketType='spot', 
+        return list(
+            Portfolio.objects.all().filter(
+                usr=self.user,
+                marketType="spot",
             )
         )
 
     @database_sync_to_async
     def getTrades(self):
-        return list(TradeHistory.objects.all().filter(
-                usr=self.user, 
+        return list(
+            TradeHistory.objects.all().filter(
+                usr=self.user,
                 complete=True,
             )
         )
 
     @database_sync_to_async
     def getOrders(self):
-        return SpotOrders.objects.all().filter(
-                usr=self.user, 
+        return (
+            SpotOrders.objects.all()
+            .filter(
+                usr=self.user,
                 amount__gt=0,
-            ).aggregate(Sum('price'))['price__sum']
+            )
+            .aggregate(Sum("price"))["price__sum"]
+        )
 
 
 class WalletSocket(AsyncJsonWebsocketConsumer):
@@ -155,29 +169,22 @@ class WalletSocket(AsyncJsonWebsocketConsumer):
             self.close()
 
     async def sendData(self):
-        domain = 'https://cryptocompare.com'
+        domain = "https://cryptocompare.com"
 
-        CRYPTO_COMPARE_API = config('CRYPTO_COMPARE_API')
-        cryptocompare.cryptocompare._set_api_key_parameter(CRYPTO_COMPARE_API)  
+        CRYPTO_COMPARE_API = config("CRYPTO_COMPARE_API")
+        cryptocompare.cryptocompare._set_api_key_parameter(CRYPTO_COMPARE_API)
         portfolio = await self.getPortfolio()
         dictionary = {}
         totalMargin = sum(
-                    [calc_equivalent(
-                        item.cryptoName, 
-                        'USDT', 
-                        item.amount)[1] for item in portfolio]
-                )
-        
+            [calc_equivalent(item.cryptoName, "USDT", item.amount)[1] for item in portfolio]
+        )
+
         assets = {}
         for item in portfolio:
             assets[item.cryptoName] = float(item.amount)
 
         array = []
-        data = cryptocompare.get_price(
-                list(assets.keys()), 
-                currency='USD', 
-                full=True
-            )['RAW']
+        data = cryptocompare.get_price(list(assets.keys()), currency="USD", full=True)["RAW"]
 
         for item in data:
             tmp = data[item]["USD"]
@@ -185,18 +192,18 @@ class WalletSocket(AsyncJsonWebsocketConsumer):
             total = price * assets[item]
             sym = await self.getSymbolFromDb(item, total)
             array.append(
-                    {
-                        "symbol": item,
-                        "amount": assets[item],
-                        "total" : total,
-                        "img": domain + tmp["IMAGEURL"],
-                    }
-                )
+                {
+                    "symbol": item,
+                    "amount": assets[item],
+                    "total": total,
+                    "img": domain + tmp["IMAGEURL"],
+                }
+            )
 
         availableMargin = await self.getOrders()
-        dictionary['total'] = pretify(totalMargin + availableMargin)
-        dictionary['assets'] = array
-        dictionary['available'] = pretify(totalMargin)
+        dictionary["total"] = pretify(totalMargin + availableMargin)
+        dictionary["assets"] = array
+        dictionary["available"] = pretify(totalMargin)
 
         await self.send_json(dictionary)
         await asyncio.sleep(1)
@@ -211,26 +218,33 @@ class WalletSocket(AsyncJsonWebsocketConsumer):
 
     @database_sync_to_async
     def getPortfolio(self):
-        return list(Portfolio.objects.all().filter(
-                usr=self.user, 
-                marketType='spot', 
+        return list(
+            Portfolio.objects.all()
+            .filter(
+                usr=self.user,
+                marketType="spot",
                 amount__gt=0,
-            ).order_by('-equivalentAmount')
+            )
+            .order_by("-equivalentAmount")
         )
 
     @database_sync_to_async
     def getOrders(self):
-        return SpotOrders.objects.all().filter(
-                usr=self.user, 
+        return (
+            SpotOrders.objects.all()
+            .filter(
+                usr=self.user,
                 amount__gt=0,
-            ).aggregate(Sum('price'))['price__sum']
+            )
+            .aggregate(Sum("price"))["price__sum"]
+        )
 
     @database_sync_to_async
     def getSymbolFromDb(self, symbol, total):
         sym = Portfolio.objects.get(
-            usr=self.user, 
-            marketType='spot', 
+            usr=self.user,
+            marketType="spot",
             cryptoName=symbol,
-        )   
+        )
         sym.equivalentAmount = total
         sym.save()

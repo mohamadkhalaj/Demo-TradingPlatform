@@ -1,21 +1,23 @@
-from email import message
-from .models import TradeHistory, Portfolio
-import requests
 from datetime import datetime
+
+import requests
 from django.conf import settings
+
+from .models import Portfolio, TradeHistory
+
 
 class Trade:
     def __init__(self, user, orderType, type, pair, amount):
         self.user = user
         self.orderType = orderType
-        self.portfo = Portfolio.objects.filter(usr=self.user, marketType='spot')
+        self.portfo = Portfolio.objects.filter(usr=self.user, marketType="spot")
         self.result = None
         self.type = type
         self.pair = pair
-        self.amount = float(amount.split(' ')[0])
-        self.crp = amount.split(' ')[1]
-        self.base = pair.split('-')[0]
-        self.qoute = pair.split('-')[1]
+        self.amount = float(amount.split(" ")[0])
+        self.crp = amount.split(" ")[1]
+        self.base = pair.split("-")[0]
+        self.qoute = pair.split("-")[1]
         self.pairPrice = 0
         self.equivalent = 0
         self.callf()
@@ -24,10 +26,10 @@ class Trade:
     def callf(self):
         self.equivalent, message = self.calc_equivalent(self.base, self.qoute, self.amount)
         if message:
-            self.result = {'header': 'trade_response', 'state': -1, 'message': message}
+            self.result = {"header": "trade_response", "state": -1, "message": message}
             return
 
-        if self.type == 'buy':
+        if self.type == "buy":
             if self.crp == self.base:
                 state = self.check_available(self.equivalent, self.qoute)
                 toSub = price = self.equivalent
@@ -47,9 +49,11 @@ class Trade:
                     obj.amount = obj.amount + toAdd
                     obj.save()
                 except:
-                    newCrypto = Portfolio(usr=self.user, cryptoName=self.base, amount=toAdd, equivalentAmount=None)
+                    newCrypto = Portfolio(
+                        usr=self.user, cryptoName=self.base, amount=toAdd, equivalentAmount=None
+                    )
                     newCrypto.save()
-    #     type = sell
+        #     type = sell
         else:
             if self.crp == self.base:
                 state = self.check_available(self.amount, self.base)
@@ -70,14 +74,16 @@ class Trade:
                     obj.amount = obj.amount + toAdd
                     obj.save()
                 except:
-                    newCrypto = Portfolio(usr=self.user, cryptoName=self.qoute, amount=toAdd, equivalentAmount=None)
+                    newCrypto = Portfolio(
+                        usr=self.user, cryptoName=self.qoute, amount=toAdd, equivalentAmount=None
+                    )
                     newCrypto.save()
         # create history and give results
         if state == 0:
-            histAmount =dict()
+            histAmount = dict()
             for index, item in enumerate(self.portfo.iterator()):
-                histAmount[index] = {'cryptoName':item.cryptoName, 'amount':item.amount}
-            
+                histAmount[index] = {"cryptoName": item.cryptoName, "amount": item.amount}
+
             if self.crp == self.base:
                 amount = self.amount
             else:
@@ -92,42 +98,46 @@ class Trade:
                 price=price,
                 complete=True,
                 orderType=self.orderType,
-                pairPrice = self.pairPrice
-            )               
+                pairPrice=self.pairPrice,
+            )
             newHistory.save()
             date = datetime.now()
-            
+
             self.result = {
-                'state': 0, 
-                'price': price, 
-                'amount': amount, 
-                'date': date.strftime("%Y:%m:%d:%H:%M"), 
-                'type': self.type,
-                'pairPrice': self.pairPrice, 
-                'time': date.strftime("%H:%M:%S")
-                } 
+                "state": 0,
+                "price": price,
+                "amount": amount,
+                "date": date.strftime("%Y:%m:%d:%H:%M"),
+                "type": self.type,
+                "pairPrice": self.pairPrice,
+                "time": date.strftime("%H:%M:%S"),
+            }
         else:
-            self.result = {'state': state}
+            self.result = {"state": state}
 
     def calc_equivalent(self, base, qoute, amount):
         base = base.upper()
         response = requests.get(
-            "https://min-api.cryptocompare.com/data/pricemulti?fsyms=" + base + "," + qoute + "&tsyms=USDT,USDT")
+            "https://min-api.cryptocompare.com/data/pricemulti?fsyms="
+            + base
+            + ","
+            + qoute
+            + "&tsyms=USDT,USDT"
+        )
         response = response.json()
-        basePrice = float(response[base]['USDT'])
-        qoutePrice = float(response[qoute]['USDT'])
+        basePrice = float(response[base]["USDT"])
+        qoutePrice = float(response[qoute]["USDT"])
         self.pairPrice = basePrice / qoutePrice
 
         message = None
         if self.crp == base:
             equivalent = self.pairPrice * amount
-            if self.orderType == 'market' and equivalent < settings.MINIMUM_TRADE_SIZE:
-                message = f'minimum trade size is {settings.MINIMUM_TRADE_SIZE} $, but you entered: {self.amount} {self.crp}={round(equivalent, 2)}$ !'
+            if self.orderType == "market" and equivalent < settings.MINIMUM_TRADE_SIZE:
+                message = f"minimum trade size is {settings.MINIMUM_TRADE_SIZE} $, but you entered: {self.amount} {self.crp}={round(equivalent, 2)}$ !"
         else:
             equivalent = amount / self.pairPrice
-            if self.orderType == 'market' and self.amount < settings.MINIMUM_TRADE_SIZE:
-                message = f'minimum trade size is {settings.MINIMUM_TRADE_SIZE} $, but you entered: {self.amount} {self.crp}={self.amount}$ !'
-        
+            if self.orderType == "market" and self.amount < settings.MINIMUM_TRADE_SIZE:
+                message = f"minimum trade size is {settings.MINIMUM_TRADE_SIZE} $, but you entered: {self.amount} {self.crp}={self.amount}$ !"
 
         return equivalent, message
 

@@ -1,420 +1,420 @@
 {% extends 'registration/base.html' %} {% block title %}Trade {{name}}{% endblock %} {% block main %} {% load static %} <span style="display: none" id='priceLoaded'>{{price}}</span>
 <div class="container-fluid mtb15 no-fluid">
   <div class="row sm-gutters">
-    <div class="col-md-3">
-      <div class="market-pairs">
-        <div class="input-group">
-          <input id="inputBox" type="text" class="live-search-box" placeholder="search here">
-          <ul class="live-search-list repairTradeSearch" style="display: none !important;" id='searchParent'>
-            <li id='res' class="d-none">
-              <p style="color: black;">Nothing found!</p>
-            </li>
-            <li id='loading' class="d-none">
-              <p style="color: black;">Loading...</p>
-            </li>
-            <div id="searchBefore"></div>
-          </ul>
-        </div>
-        <ul class="nav nav-pills" role="tablist">
-          <li class="nav-item">
-            <a class="nav-link active">{{pair}}</a>
-          </li>
-        </ul>
-        <div class="tab-content d-none d-lg-block">
-          <div class="tab-pane fade show d-block">
-            <table class="table">
-              <thead>
-                <tr>
-                  <th>Pairs</th>
-                  <th>Last Price</th>
-                  <th>Change</th>
-                </tr>
-              </thead>
-              <tbody id="markets-list-trade"></tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-6">
-      <div class="main-chart mb15">
-        <!-- TradingView Widget BEGIN -->
-        <div class="tradingview-widget-container">
-          <div id="tradingview_e8053"></div>
-          <script src="https://s3.tradingview.com/tv.js"></script> 
-          <script>
+	<div class="col-md-3">
+	  <div class="market-pairs">
+		<div class="input-group">
+		  <input id="inputBox" type="text" class="live-search-box" placeholder="search here">
+		  <ul class="live-search-list repairTradeSearch" style="display: none !important;" id='searchParent'>
+			<li id='res' class="d-none">
+			  <p style="color: black;">Nothing found!</p>
+			</li>
+			<li id='loading' class="d-none">
+			  <p style="color: black;">Loading...</p>
+			</li>
+			<div id="searchBefore"></div>
+		  </ul>
+		</div>
+		<ul class="nav nav-pills" role="tablist">
+		  <li class="nav-item">
+			<a class="nav-link active">{{pair}}</a>
+		  </li>
+		</ul>
+		<div class="tab-content d-none d-lg-block">
+		  <div class="tab-pane fade show d-block">
+			<table class="table">
+			  <thead>
+				<tr>
+				  <th>Pairs</th>
+				  <th>Last Price</th>
+				  <th>Change</th>
+				</tr>
+			  </thead>
+			  <tbody id="markets-list-trade"></tbody>
+			</table>
+		  </div>
+		</div>
+	  </div>
+	</div>
+	<div class="col-md-6">
+	  <div class="main-chart mb15">
+		<!-- TradingView Widget BEGIN -->
+		<div class="tradingview-widget-container">
+		  <div id="tradingview_e8053"></div>
+		  <script src="https://s3.tradingview.com/tv.js"></script> 
+		  <script>
 
 
-              if (localStorage.getItem('theme') == 'true'){
-                    var chartTheme = 'Light';
-                  }
-                  else{
-                    var chartTheme = 'Dark';
-                  }
-              new TradingView.widget(
-                {
-                  "width": "100%",
-                  "height": 550,
-                  "symbol": "{{pair}}",
-                  "interval": "D",
-                  "timezone": "Etc/UTC",
-                  "theme": chartTheme,
-                  "style": "1",
-                  "isTransparent": true,
-                  "locale": "en",
-                  "toolbar_bg": "#f1f3f6",
-                  "enable_publishing": false,
-                  "withdateranges": true,
-                  "hide_side_toolbar": false,
-                  "allow_symbol_change": false,
-                  "show_popup_button": true,
-                  "popup_width": "1000",
-                  "popup_height": "650",
-                  "container_id": "tradingview_e8053"
-                }
-              );
-          </script>
-        </div><!-- TradingView Widget END -->
-      </div>{% if user.is_authenticated %}
-      <div class="market-trade">
-        <ul class="nav nav-pills" role="tablist">
-          <li class="nav-item">
-            <a class="nav-link active" data-toggle="pill" href="#pills-trade-market" role="tab" aria-selected="true">Market</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" data-toggle="pill" href="#pills-limit" role="tab" aria-selected="false">Limit</a>
-          </li>
-        </ul>
-        <div class="tab-content">
-          <div class="tab-pane fade show active" id="pills-trade-market" role="tabpanel">
-            <div class="d-flex justify-content-between">
-              <div class="market-trade-buy">
-                <div class="input-group">
-                  <input type="number" class="form-control" placeholder="Amount" id="uValue" onkeypress='validate(event)'>
-                  <div class="input-group-append">
-                    <span id="buyPairChanger" class="input-group-text btn">USDT</span>
-                  </div>
-                </div>
-                <ul class="market-trade-list" id="usdtPercentage">
-                  <li>
-                    <a href="#!">25%</a>
-                  </li>
-                  <li>
-                    <a href="#!">50%</a>
-                  </li>
-                  <li>
-                    <a href="#!">75%</a>
-                  </li>
-                  <li>
-                    <a href="#!">100%</a>
-                  </li>
-                </ul>
-                <p>Margin: <span id="usdtAmount"></span></p><button class="btn buy" onclick="trade('buy', '{{name}}')">Buy {{name}}</button>
-              </div>
-              <div class="market-trade-sell">
-                <div class="input-group">
-                  <input type="number" class="form-control" placeholder="Amount" id="pValue" onkeypress='validate(event)'>
-                  <div class="input-group-append">
-                    <span id="sellPairChanger" class="input-group-text btn">{{name}}</span>
-                  </div>
-                </div>
-                <ul class="market-trade-list" id="pairPercentage">
-                  <li>
-                    <a href="#!">25%</a>
-                  </li>
-                  <li>
-                    <a href="#!">50%</a>
-                  </li>
-                  <li>
-                    <a href="#!">75%</a>
-                  </li>
-                  <li>
-                    <a href="#!">100%</a>
-                  </li>
-                </ul>
-                <p>Margin: <span id="pairAmount"></span></p><button class="btn sell" onclick="trade('sell', '{{name}}')">Sell {{name}}</button>
-              </div>
-            </div>
-          </div>
-          <div class="tab-pane fade" id="pills-limit" role="tabpanel">
-            <div class="d-flex justify-content-between">
-              <div class="market-trade-buy">
-                <div class="input-group">
-                  <input id="limit-buy-price" type="number" class="form-control" oninput="calculateTotalLimit('buy')" placeholder="Price" onkeypress='validate(event)'>
-                  <div class="input-group-append">
-                    <span class="input-group-text">USDT</span>
-                  </div>
-                </div>
-                <div class="input-group">
-                  <input id="limit-buy-amount" type="number" class="form-control" oninput="calculateTotalLimit('buy')" placeholder="Amount" onkeypress='validate(event)'>
-                  <div class="input-group-append">
-                    <span class="input-group-text">{{name}}</span>
-                  </div>
-                </div>
-                <ul class="market-trade-list" id="usdtPercentageLimit">
-                  <li>
-                    <a href="#!">25%</a>
-                  </li>
-                  <li>
-                    <a href="#!">50%</a>
-                  </li>
-                  <li>
-                    <a href="#!">75%</a>
-                  </li>
-                  <li>
-                    <a href="#!">100%</a>
-                  </li>
-                </ul>
-                <p>Total: <span id="totalBuyLimit">0 USD</span></p>
-                <p>Margin: <span id="usdtAmountLimit"></span></p>
-                <button class="btn buy" onclick="limit('buy', '{{name}}')">Buy</button>
-              </div>
-              <div class="market-trade-sell">
-                <div class="input-group">
-                  <input id="limit-sell-price" type="number" oninput="calculateTotalLimit('sell')" class="form-control" placeholder="Price" onkeypress='validate(event)'>
-                  <div class="input-group-append">
-                    <span class="input-group-text">USDT</span>
-                  </div>
-                </div>
-                <div class="input-group">
-                  <input id="limit-sell-amount" type="number" oninput="calculateTotalLimit('sell')" class="form-control" placeholder="Amount" onkeypress='validate(event)'>
-                  <div class="input-group-append">
-                    <span class="input-group-text">{{name}}</span>
-                  </div>
-                </div>
-                <ul class="market-trade-list" id="pairPercentageLimit">
-                  <li>
-                    <a href="#!">25%</a>
-                  </li>
-                  <li>
-                    <a href="#!">50%</a>
-                  </li>
-                  <li>
-                    <a href="#!">75%</a>
-                  </li>
-                  <li>
-                    <a href="#!">100%</a>
-                  </li>
-                </ul>
-                <p>Total: <span id="totalSellLimit">0 USD</span></p>
-                <p>Margin: <span id="pairAmountLimit"></span></p>
-                <button class="btn sell" onclick="limit('sell', '{{name}}')">Sell</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <!-- <script src="{% static 'exchange/js/trade.js' %}"></script> -->
-          {% else %}
-      <div class="mt-5 d-flex justify-content-center mb-5">
-        <div class="d-flex justify-content-center">
-          <div class="form-access">
-            <span class="errors">You should Login.</span> <a class="btn btn-primary d-block" href="{% url 'login' %}">Login</a>
-          </div>
-        </div>
-      </div>{% endif %}
-    </div>
-    <script>
-      var user = '{{user}}';
-      var pair = '{{name}}'+'-USDT';
-    </script>
-    <script src="{% static 'exchange/js/trade.js' %}"></script>
-    <div class="col-md-3">
-      <div class="order-book mb15 d-none d-lg-block">
-        <h2 class="heading">Order book</h2>
-        <table class="table">
-          <thead>
-            <tr>
-              <th>Price(BTC)</th>
-              <th>Amount(ETH)</th>
-              <th>Total(ETH)</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr class="red-bg-80">
-              <td class="red">0.022572</td>
-              <td>1.253415</td>
-              <td>15.27648</td>
-            </tr>
-            <tr class="red-bg-60">
-              <td class="red">0.020371</td>
-              <td>1.205415</td>
-              <td>15.25648</td>
-            </tr>
-            <tr class="red-bg-40">
-              <td class="red">0.023572</td>
-              <td>1.645415</td>
-              <td>15.23648</td>
-            </tr>
-            <tr class="red-bg-20">
-              <td class="red">0.032378</td>
-              <td>1.206715</td>
-              <td>15.25348</td>
-            </tr>
-            <tr class="red-bg-10">
-              <td class="red">0.022573</td>
-              <td>1.262415</td>
-              <td>15.19648</td>
-            </tr>
-            <tr class="red-bg-8">
-              <td class="red">0.154377</td>
-              <td>1.225415</td>
-              <td>15.35648</td>
-            </tr>
-            <tr class="red-bg-5">
-              <td class="red">0.120373</td>
-              <td>1.285415</td>
-              <td>15.25648</td>
-            </tr>
-            <tr class="red-bg">
-              <td class="red">0.028576</td>
-              <td>1.291415</td>
-              <td>15.26448</td>
-            </tr>
-          </tbody>
-          <tbody class="ob-heading">
-            <tr>
-              <td><span>Last Price</span> 0.020367</td>
-              <td><span>USD</span> 148.65</td>
-              <td class="red"><span>Change</span> -0.51%</td>
-            </tr>
-          </tbody>
-          <tbody>
-            <tr class="green-bg">
-              <td class="green">0.158373</td>
-              <td>1.209515</td>
-              <td>15.23248</td>
-            </tr>
-            <tr class="green-bg-5">
-              <td class="green">0.020851</td>
-              <td>1.206245</td>
-              <td>15.25458</td>
-            </tr>
-            <tr class="green-bg-8">
-              <td class="green">0.025375</td>
-              <td>1.205715</td>
-              <td>15.65648</td>
-            </tr>
-            <tr class="green-bg-10">
-              <td class="green">0.020252</td>
-              <td>1.205495</td>
-              <td>15.24548</td>
-            </tr>
-            <tr class="green-bg-20">
-              <td class="green">0.020373</td>
-              <td>1.205415</td>
-              <td>15.25648</td>
-            </tr>
-            <tr class="green-bg-40">
-              <td class="green">0.020156</td>
-              <td>1.207515</td>
-              <td>15.28948</td>
-            </tr>
-            <tr class="green-bg-60">
-              <td class="green">0.540375</td>
-              <td>1.205915</td>
-              <td>15.25748</td>
-            </tr>
-            <tr class="green-bg-80">
-              <td class="green">0.020372</td>
-              <td>1.205415</td>
-              <td>15.25648</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <div class="market-history">
-        <ul class="nav nav-pills" role="tablist">
-          <li class="nav-item">
-            <a class="nav-link active" data-toggle="pill" href="#recent-trades" role="tab" aria-selected="true">Recent Trades for {{ name }}-USDT</a>
-          </li>
-        </ul>
-        <div class="tab-content">
-          <div class="tab-pane fade show active d-block" id="recent-trades" role="tabpanel">
-            <p style="display:none" id="beforeRecent"></p>
-            <table class="table">
-              <thead>
-                <tr>
-                  <th>Price(USD)</th>
-                  <th>Amount({{ name }})</th>
-                  <th>Time</th>
-                </tr>
-              </thead>
-              <tbody id='recentTradesHistory'></tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>{% if user.is_authenticated %}
-    <div class="col-md-12">
-      <div class="market-history market-order mt15">
-        <ul class="nav nav-pills" role="tablist">
-          <li class="nav-item">
-            <a class="nav-link active" data-toggle="pill" href="#order-history" role="tab" aria-selected="true">Order
-              history</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" data-toggle="pill" href="#open-orders" role="tab" aria-selected="false">Open
-              Orders</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" data-toggle="pill" href="#stop-orders" role="tab" aria-selected="false">Closed
-              Orders</a>
-          </li>
-        </ul>
-        <div class="tab-content" style="height:500px; overflow-y: auto;">
-          
-          <div class="tab-pane fade show active" id="order-history" role="tabpanel">
-            <ul class="d-flex justify-content-between market-order-item ul">
-              <li>Time</li>
-              <li>All pairs</li>
-              <li>Buy/Sell</li>
-              <li>Price(USD)</li>
-              <li>Amount</li>
-              <li>Total(USD)</li>
-            </ul>
-            <div id="market-orders">
-              <p style="display:none" id="before"></p>{% if user.is_authenticated %} {% else %} <span class="no-data">No data</span> {% endif %}
-            </div>
-          </div>
-          <div class="tab-pane fade" id="open-orders" role="tabpanel">
-            <ul class="d-flex justify-content-between market-order-item ul">
-              <li>Time</li>
-              <li>All pairs</li>
-              <li>Buy/Sell</li>
-              <li>Price(USD)</li>
-              <li>Amount</li>
-              <li>Total(USD)</li>
-              <li></li>
-            </ul>
-            <span class="no-data">
-              <i class="icon ion-md-document"></i>
-              No data
-            </span>
-            <div id="open-limit-orders">
-              <!-- open orders here -->
-            </div>
-          </div>
-          <div class="tab-pane fade" id="stop-orders" role="tabpanel">
-            <ul class="d-flex justify-content-between market-order-item">
-              <li>Time</li>
-              <li>All pairs</li>
-              <li>Buy/Sell</li>
-              <li>Price(USD)</li>
-              <li>Amount</li>
-              <li>Total(USD)</li>
-            </ul>
-            <span class="no-data">
-              <i class="icon ion-md-document"></i>
-              No data
-            </span>
-            <div id="closed-limit-orders">
-              <!-- closed orders here -->
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>{% endif %}
+			  if (localStorage.getItem('theme') == 'true'){
+					var chartTheme = 'Light';
+				  }
+				  else{
+					var chartTheme = 'Dark';
+				  }
+			  new TradingView.widget(
+				{
+				  "width": "100%",
+				  "height": 550,
+				  "symbol": "{{pair}}",
+				  "interval": "D",
+				  "timezone": "Etc/UTC",
+				  "theme": chartTheme,
+				  "style": "1",
+				  "isTransparent": true,
+				  "locale": "en",
+				  "toolbar_bg": "#f1f3f6",
+				  "enable_publishing": false,
+				  "withdateranges": true,
+				  "hide_side_toolbar": false,
+				  "allow_symbol_change": false,
+				  "show_popup_button": true,
+				  "popup_width": "1000",
+				  "popup_height": "650",
+				  "container_id": "tradingview_e8053"
+				}
+			  );
+		  </script>
+		</div><!-- TradingView Widget END -->
+	  </div>{% if user.is_authenticated %}
+	  <div class="market-trade">
+		<ul class="nav nav-pills" role="tablist">
+		  <li class="nav-item">
+			<a class="nav-link active" data-toggle="pill" href="#pills-trade-market" role="tab" aria-selected="true">Market</a>
+		  </li>
+		  <li class="nav-item">
+			<a class="nav-link" data-toggle="pill" href="#pills-limit" role="tab" aria-selected="false">Limit</a>
+		  </li>
+		</ul>
+		<div class="tab-content">
+		  <div class="tab-pane fade show active" id="pills-trade-market" role="tabpanel">
+			<div class="d-flex justify-content-between">
+			  <div class="market-trade-buy">
+				<div class="input-group">
+				  <input type="number" class="form-control" placeholder="Amount" id="uValue" onkeypress='validate(event)'>
+				  <div class="input-group-append">
+					<span id="buyPairChanger" class="input-group-text btn">USDT</span>
+				  </div>
+				</div>
+				<ul class="market-trade-list" id="usdtPercentage">
+				  <li>
+					<a href="#!">25%</a>
+				  </li>
+				  <li>
+					<a href="#!">50%</a>
+				  </li>
+				  <li>
+					<a href="#!">75%</a>
+				  </li>
+				  <li>
+					<a href="#!">100%</a>
+				  </li>
+				</ul>
+				<p>Margin: <span id="usdtAmount"></span></p><button class="btn buy" onclick="trade('buy', '{{name}}')">Buy {{name}}</button>
+			  </div>
+			  <div class="market-trade-sell">
+				<div class="input-group">
+				  <input type="number" class="form-control" placeholder="Amount" id="pValue" onkeypress='validate(event)'>
+				  <div class="input-group-append">
+					<span id="sellPairChanger" class="input-group-text btn">{{name}}</span>
+				  </div>
+				</div>
+				<ul class="market-trade-list" id="pairPercentage">
+				  <li>
+					<a href="#!">25%</a>
+				  </li>
+				  <li>
+					<a href="#!">50%</a>
+				  </li>
+				  <li>
+					<a href="#!">75%</a>
+				  </li>
+				  <li>
+					<a href="#!">100%</a>
+				  </li>
+				</ul>
+				<p>Margin: <span id="pairAmount"></span></p><button class="btn sell" onclick="trade('sell', '{{name}}')">Sell {{name}}</button>
+			  </div>
+			</div>
+		  </div>
+		  <div class="tab-pane fade" id="pills-limit" role="tabpanel">
+			<div class="d-flex justify-content-between">
+			  <div class="market-trade-buy">
+				<div class="input-group">
+				  <input id="limit-buy-price" type="number" class="form-control" oninput="calculateTotalLimit('buy')" placeholder="Price" onkeypress='validate(event)'>
+				  <div class="input-group-append">
+					<span class="input-group-text">USDT</span>
+				  </div>
+				</div>
+				<div class="input-group">
+				  <input id="limit-buy-amount" type="number" class="form-control" oninput="calculateTotalLimit('buy')" placeholder="Amount" onkeypress='validate(event)'>
+				  <div class="input-group-append">
+					<span class="input-group-text">{{name}}</span>
+				  </div>
+				</div>
+				<ul class="market-trade-list" id="usdtPercentageLimit">
+				  <li>
+					<a href="#!">25%</a>
+				  </li>
+				  <li>
+					<a href="#!">50%</a>
+				  </li>
+				  <li>
+					<a href="#!">75%</a>
+				  </li>
+				  <li>
+					<a href="#!">100%</a>
+				  </li>
+				</ul>
+				<p>Total: <span id="totalBuyLimit">0 USD</span></p>
+				<p>Margin: <span id="usdtAmountLimit"></span></p>
+				<button class="btn buy" onclick="limit('buy', '{{name}}')">Buy</button>
+			  </div>
+			  <div class="market-trade-sell">
+				<div class="input-group">
+				  <input id="limit-sell-price" type="number" oninput="calculateTotalLimit('sell')" class="form-control" placeholder="Price" onkeypress='validate(event)'>
+				  <div class="input-group-append">
+					<span class="input-group-text">USDT</span>
+				  </div>
+				</div>
+				<div class="input-group">
+				  <input id="limit-sell-amount" type="number" oninput="calculateTotalLimit('sell')" class="form-control" placeholder="Amount" onkeypress='validate(event)'>
+				  <div class="input-group-append">
+					<span class="input-group-text">{{name}}</span>
+				  </div>
+				</div>
+				<ul class="market-trade-list" id="pairPercentageLimit">
+				  <li>
+					<a href="#!">25%</a>
+				  </li>
+				  <li>
+					<a href="#!">50%</a>
+				  </li>
+				  <li>
+					<a href="#!">75%</a>
+				  </li>
+				  <li>
+					<a href="#!">100%</a>
+				  </li>
+				</ul>
+				<p>Total: <span id="totalSellLimit">0 USD</span></p>
+				<p>Margin: <span id="pairAmountLimit"></span></p>
+				<button class="btn sell" onclick="limit('sell', '{{name}}')">Sell</button>
+			  </div>
+			</div>
+		  </div>
+		</div>
+	  </div>
+	  <!-- <script src="{% static 'exchange/js/trade.js' %}"></script> -->
+		  {% else %}
+	  <div class="mt-5 d-flex justify-content-center mb-5">
+		<div class="d-flex justify-content-center">
+		  <div class="form-access">
+			<span class="errors">You should Login.</span> <a class="btn btn-primary d-block" href="{% url 'login' %}">Login</a>
+		  </div>
+		</div>
+	  </div>{% endif %}
+	</div>
+	<script>
+	  var user = '{{user}}';
+	  var pair = '{{name}}'+'-USDT';
+	</script>
+	<script src="{% static 'exchange/js/trade.js' %}"></script>
+	<div class="col-md-3">
+	  <div class="order-book mb15 d-none d-lg-block">
+		<h2 class="heading">Order book</h2>
+		<table class="table">
+		  <thead>
+			<tr>
+			  <th>Price(BTC)</th>
+			  <th>Amount(ETH)</th>
+			  <th>Total(ETH)</th>
+			</tr>
+		  </thead>
+		  <tbody>
+			<tr class="red-bg-80">
+			  <td class="red">0.022572</td>
+			  <td>1.253415</td>
+			  <td>15.27648</td>
+			</tr>
+			<tr class="red-bg-60">
+			  <td class="red">0.020371</td>
+			  <td>1.205415</td>
+			  <td>15.25648</td>
+			</tr>
+			<tr class="red-bg-40">
+			  <td class="red">0.023572</td>
+			  <td>1.645415</td>
+			  <td>15.23648</td>
+			</tr>
+			<tr class="red-bg-20">
+			  <td class="red">0.032378</td>
+			  <td>1.206715</td>
+			  <td>15.25348</td>
+			</tr>
+			<tr class="red-bg-10">
+			  <td class="red">0.022573</td>
+			  <td>1.262415</td>
+			  <td>15.19648</td>
+			</tr>
+			<tr class="red-bg-8">
+			  <td class="red">0.154377</td>
+			  <td>1.225415</td>
+			  <td>15.35648</td>
+			</tr>
+			<tr class="red-bg-5">
+			  <td class="red">0.120373</td>
+			  <td>1.285415</td>
+			  <td>15.25648</td>
+			</tr>
+			<tr class="red-bg">
+			  <td class="red">0.028576</td>
+			  <td>1.291415</td>
+			  <td>15.26448</td>
+			</tr>
+		  </tbody>
+		  <tbody class="ob-heading">
+			<tr>
+			  <td><span>Last Price</span> 0.020367</td>
+			  <td><span>USD</span> 148.65</td>
+			  <td class="red"><span>Change</span> -0.51%</td>
+			</tr>
+		  </tbody>
+		  <tbody>
+			<tr class="green-bg">
+			  <td class="green">0.158373</td>
+			  <td>1.209515</td>
+			  <td>15.23248</td>
+			</tr>
+			<tr class="green-bg-5">
+			  <td class="green">0.020851</td>
+			  <td>1.206245</td>
+			  <td>15.25458</td>
+			</tr>
+			<tr class="green-bg-8">
+			  <td class="green">0.025375</td>
+			  <td>1.205715</td>
+			  <td>15.65648</td>
+			</tr>
+			<tr class="green-bg-10">
+			  <td class="green">0.020252</td>
+			  <td>1.205495</td>
+			  <td>15.24548</td>
+			</tr>
+			<tr class="green-bg-20">
+			  <td class="green">0.020373</td>
+			  <td>1.205415</td>
+			  <td>15.25648</td>
+			</tr>
+			<tr class="green-bg-40">
+			  <td class="green">0.020156</td>
+			  <td>1.207515</td>
+			  <td>15.28948</td>
+			</tr>
+			<tr class="green-bg-60">
+			  <td class="green">0.540375</td>
+			  <td>1.205915</td>
+			  <td>15.25748</td>
+			</tr>
+			<tr class="green-bg-80">
+			  <td class="green">0.020372</td>
+			  <td>1.205415</td>
+			  <td>15.25648</td>
+			</tr>
+		  </tbody>
+		</table>
+	  </div>
+	  <div class="market-history">
+		<ul class="nav nav-pills" role="tablist">
+		  <li class="nav-item">
+			<a class="nav-link active" data-toggle="pill" href="#recent-trades" role="tab" aria-selected="true">Recent Trades for {{ name }}-USDT</a>
+		  </li>
+		</ul>
+		<div class="tab-content">
+		  <div class="tab-pane fade show active d-block" id="recent-trades" role="tabpanel">
+			<p style="display:none" id="beforeRecent"></p>
+			<table class="table">
+			  <thead>
+				<tr>
+				  <th>Price(USD)</th>
+				  <th>Amount({{ name }})</th>
+				  <th>Time</th>
+				</tr>
+			  </thead>
+			  <tbody id='recentTradesHistory'></tbody>
+			</table>
+		  </div>
+		</div>
+	  </div>
+	</div>{% if user.is_authenticated %}
+	<div class="col-md-12">
+	  <div class="market-history market-order mt15">
+		<ul class="nav nav-pills" role="tablist">
+		  <li class="nav-item">
+			<a class="nav-link active" data-toggle="pill" href="#order-history" role="tab" aria-selected="true">Order
+			  history</a>
+		  </li>
+		  <li class="nav-item">
+			<a class="nav-link" data-toggle="pill" href="#open-orders" role="tab" aria-selected="false">Open
+			  Orders</a>
+		  </li>
+		  <li class="nav-item">
+			<a class="nav-link" data-toggle="pill" href="#stop-orders" role="tab" aria-selected="false">Closed
+			  Orders</a>
+		  </li>
+		</ul>
+		<div class="tab-content" style="height:500px; overflow-y: auto;">
+		  
+		  <div class="tab-pane fade show active" id="order-history" role="tabpanel">
+			<ul class="d-flex justify-content-between market-order-item ul">
+			  <li>Time</li>
+			  <li>All pairs</li>
+			  <li>Buy/Sell</li>
+			  <li>Price(USD)</li>
+			  <li>Amount</li>
+			  <li>Total(USD)</li>
+			</ul>
+			<div id="market-orders">
+			  <p style="display:none" id="before"></p>{% if user.is_authenticated %} {% else %} <span class="no-data">No data</span> {% endif %}
+			</div>
+		  </div>
+		  <div class="tab-pane fade" id="open-orders" role="tabpanel">
+			<ul class="d-flex justify-content-between market-order-item ul">
+			  <li>Time</li>
+			  <li>All pairs</li>
+			  <li>Buy/Sell</li>
+			  <li>Price(USD)</li>
+			  <li>Amount</li>
+			  <li>Total(USD)</li>
+			  <li></li>
+			</ul>
+			<span class="no-data">
+			  <i class="icon ion-md-document"></i>
+			  No data
+			</span>
+			<div id="open-limit-orders">
+			  <!-- open orders here -->
+			</div>
+		  </div>
+		  <div class="tab-pane fade" id="stop-orders" role="tabpanel">
+			<ul class="d-flex justify-content-between market-order-item">
+			  <li>Time</li>
+			  <li>All pairs</li>
+			  <li>Buy/Sell</li>
+			  <li>Price(USD)</li>
+			  <li>Amount</li>
+			  <li>Total(USD)</li>
+			</ul>
+			<span class="no-data">
+			  <i class="icon ion-md-document"></i>
+			  No data
+			</span>
+			<div id="closed-limit-orders">
+			  <!-- closed orders here -->
+			</div>
+		  </div>
+		</div>
+	  </div>
+	</div>{% endif %}
   </div>
 </div>
 <div id="alert" class="alerts"></div>

@@ -1,7 +1,10 @@
-from exchange.common_functions import calc_equivalent
+import time
 from datetime import datetime, timedelta
+
+import requests
 from django.conf import settings
-import time, requests
+from exchange.common_functions import calc_equivalent
+
 
 class Charts:
     def __init__(self, user, portfo, histories, orderMargin):
@@ -26,7 +29,9 @@ class Charts:
             return
 
         now_timestamp = time.time()
-        first_date = first_date + (datetime.fromtimestamp(now_timestamp) - datetime.utcfromtimestamp(now_timestamp))
+        first_date = first_date + (
+            datetime.fromtimestamp(now_timestamp) - datetime.utcfromtimestamp(now_timestamp)
+        )
         end_date = datetime.now()
         start_date = end_date - timedelta(days=30)
 
@@ -39,7 +44,7 @@ class Charts:
             self.percents = [0] * 30
             delta = timedelta(days=1)
             while start_date <= end_date:
-                self.dates.append(start_date.strftime('%m-%d'))
+                self.dates.append(start_date.strftime("%m-%d"))
                 start_date += delta
             self.get_latest()
 
@@ -55,7 +60,11 @@ class Charts:
             price_index += 1
             try:
                 for item in self.histories:
-                    if item.time.year == start_date.year and item.time.month == start_date.month and item.time.day == start_date.day:
+                    if (
+                        item.time.year == start_date.year
+                        and item.time.month == start_date.month
+                        and item.time.day == start_date.day
+                    ):
                         hst_dict = item.histAmount
                         hastrade = True
             except Exception as e:
@@ -63,8 +72,8 @@ class Charts:
 
             if hastrade:
                 for dc in hst_dict:
-                    crp = hst_dict[dc]['cryptoName']
-                    amount = float(hst_dict[dc]['amount'])
+                    crp = hst_dict[dc]["cryptoName"]
+                    amount = float(hst_dict[dc]["amount"])
                     total += self.prices[crp][price_index] * amount
 
                 if not ispast:
@@ -77,7 +86,7 @@ class Charts:
             else:
                 self.values.append(0)
                 self.percents.append(0)
-            self.dates.append(start_date.strftime('%m-%d'))
+            self.dates.append(start_date.strftime("%m-%d"))
 
             start_date += delta
 
@@ -85,17 +94,25 @@ class Charts:
         for index, item in enumerate(self.portfo):
             self.prices[item.cryptoName] = []
             response = requests.get(
-                'https://min-api.cryptocompare.com/data/v2/histoday?fsym='+item.cryptoName+'&tsym=USDT&limit='+str(limit))
-            response = response.json()['Data']['Data']
-            
+                "https://min-api.cryptocompare.com/data/v2/histoday?fsym="
+                + item.cryptoName
+                + "&tsym=USDT&limit="
+                + str(limit)
+            )
+            response = response.json()["Data"]["Data"]
+
             for i in response:
-                self.prices[item.cryptoName].append(float(i['close']))
+                self.prices[item.cryptoName].append(float(i["close"]))
 
     def get_latest(self):
         total = 0
         for item in self.portfo:
-            response = requests.get('https://min-api.cryptocompare.com/data/price?fsym='+item.cryptoName+'&tsyms=USDT')
-            price = float(response.json()['USDT'])
+            response = requests.get(
+                "https://min-api.cryptocompare.com/data/price?fsym="
+                + item.cryptoName
+                + "&tsyms=USDT"
+            )
+            price = float(response.json()["USDT"])
             total += price * item.amount
         self.percents.append(round((total - settings.DEFAULT_BALANCE) / 10, 2))
         self.values.append(total - settings.DEFAULT_BALANCE)
@@ -103,23 +120,22 @@ class Charts:
     def bar_chart(self):
         if not self.haveTrade:
             return False
-        x = self.dates 
+        x = self.dates
         y = self.values
         return x, y
 
     def assetAllocation(self):
         cryptoDic = {}
         for index, item in enumerate(self.portfo):
-            if calc_equivalent(item.cryptoName, 'USDT', item.amount)[1] != 0:
-                cryptoDic[item.cryptoName] = calc_equivalent(
-                                                    item.cryptoName, 
-                                                    'USDT', 
-                                                    item.amount)[1]
-        
+            if calc_equivalent(item.cryptoName, "USDT", item.amount)[1] != 0:
+                cryptoDic[item.cryptoName] = calc_equivalent(item.cryptoName, "USDT", item.amount)[
+                    1
+                ]
+
         labels = list(cryptoDic.keys())
         data = list(cryptoDic.values())
 
-        assetAllocation = [['Asset', 'Percent']]
+        assetAllocation = [["Asset", "Percent"]]
         for label, item in zip(labels, data):
             temp = []
             temp.append(label)

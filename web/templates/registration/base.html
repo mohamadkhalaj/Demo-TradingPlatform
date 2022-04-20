@@ -19,180 +19,180 @@
 
 <body id="dark">
   <header class="dark-bb">
-    <nav class="navbar navbar-expand-lg">
-      <a class="navbar-brand" href="{% url 'exchange:home' %}"><img src="{% static 'exchange/img/logo-light.svg' %}" alt="logo"></a>
-      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#headerMenu"
-        aria-controls="headerMenu" aria-expanded="false" aria-label="Toggle navigation">
-        <i class="icon ion-md-menu"></i>
-      </button>
+	<nav class="navbar navbar-expand-lg">
+	  <a class="navbar-brand" href="{% url 'exchange:home' %}"><img src="{% static 'exchange/img/logo-light.svg' %}" alt="logo"></a>
+	  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#headerMenu"
+		aria-controls="headerMenu" aria-expanded="false" aria-label="Toggle navigation">
+		<i class="icon ion-md-menu"></i>
+	  </button>
 
-      <div class="collapse navbar-collapse" id="headerMenu">
-        <ul class="navbar-nav mr-auto">
-          <li class="nav-item dropdown">
-            <a class="nav-link" href="{% url 'account:trade' %}" aria-haspopup="true"
-              aria-expanded="false">
-              Trade
-            </a>
-          </li>
-          <li class="nav-item dropdown">
-            <a class="nav-link" href="{% url 'exchange:markets' %}" aria-haspopup="true"
-              aria-expanded="false">
-              Markets
-            </a>
-          </li>
+	  <div class="collapse navbar-collapse" id="headerMenu">
+		<ul class="navbar-nav mr-auto">
+		  <li class="nav-item dropdown">
+			<a class="nav-link" href="{% url 'account:trade' %}" aria-haspopup="true"
+			  aria-expanded="false">
+			  Trade
+			</a>
+		  </li>
+		  <li class="nav-item dropdown">
+			<a class="nav-link" href="{% url 'exchange:markets' %}" aria-haspopup="true"
+			  aria-expanded="false">
+			  Markets
+			</a>
+		  </li>
 
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true"
-              aria-expanded="false">
-              Dashboard
-            </a>
-            <div class="dropdown-menu">
-              <a class="dropdown-item" href="{% url 'account:profile' %}">Profile</a>
-              <a class="dropdown-item" href="{% url 'account:wallet' %}">Wallet</a>
-              <a class="dropdown-item" href="{% url 'account:tradeHistory' %}">Trade history</a>
-            </div>
-          </li>
-        </ul>
-        <ul class="navbar-nav ml-auto">
-          <li class="nav-item header-custom-icon">
-            <a class="nav-link" href="#" id="clickFullscreen">
-              <i class="icon ion-md-expand"></i>
-            </a>
-          </li>
-          {% if user.is_authenticated %}
-            <li class="nav-item dropdown header-custom-icon">
-              <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true"
-                aria-expanded="false">
-                <i class="icon ion-md-notifications"></i>
-                <span class="circle-pulse"></span>
-              </a>
-              <div class="dropdown-menu">
-                <div class="dropdown-header d-flex align-items-center justify-content-between">
-                  <p class="mb-0 font-weight-medium">6 New Notifications</p>
-                  <a href="#!" class="text-muted">Clear all</a>
-                </div>
-                <div class="dropdown-body">
-                  <a href="#!" class="dropdown-item">
-                    <div class="icon">
-                      <i class="icon ion-md-lock"></i>
-                    </div>
-                    <div class="content">
-                      <p>Account password change</p>
-                      <p class="sub-text text-muted">5 sec ago</p>
-                    </div>
-                  </a>
-                  <a href="#!" class="dropdown-item">
-                    <div class="icon">
-                      <i class="icon ion-md-alert"></i>
-                    </div>
-                    <div class="content">
-                      <p>Solve the security issue</p>
-                      <p class="sub-text text-muted">10 min ago</p>
-                    </div>
-                  </a>
-                  <a href="#!" class="dropdown-item">
-                    <div class="icon">
-                      <i class="icon ion-logo-android"></i>
-                    </div>
-                    <div class="content">
-                      <p>Download android app</p>
-                      <p class="sub-text text-muted">1 hrs ago</p>
-                    </div>
-                  </a>
-                  <a href="#!" class="dropdown-item">
-                    <div class="icon">
-                      <i class="icon ion-logo-bitcoin"></i>
-                    </div>
-                    <div class="content">
-                      <p>Bitcoin price is high now</p>
-                      <p class="sub-text text-muted">2 hrs ago</p>
-                    </div>
-                  </a>
-                  <a href="#!" class="dropdown-item">
-                    <div class="icon">
-                      <i class="icon ion-logo-usd"></i>
-                    </div>
-                    <div class="content">
-                      <p>Payment completed</p>
-                      <p class="sub-text text-muted">4 hrs ago</p>
-                    </div>
-                  </a>
-                </div>
-                <div class="dropdown-footer d-flex align-items-center justify-content-center">
-                  <a href="#!">View all</a>
-                </div>
-              </div>
-            </li>
-          {% endif %}
-          <li class="nav-item dropdown header-img-icon">
-            {% if user.is_authenticated %}
-              <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true"
-                aria-expanded="false">
-                <img src="{% gravatar_url user.email 150 %}" class="img-circle" alt="{{user.username}}'s avatar">
-              </a>
-              <div class="dropdown-menu">
-                <div class="dropdown-header d-flex flex-column align-items-center">
-                  <div class="figure mb-3">
-                    <img src="{% gravatar_url user.email 150 %}" class="img-circle" alt="{{user.username}}'s avatar">
-                  </div>
-                  <div class="info text-center">
-                    <p class="name font-weight-bold mb-0">
-                      {% if user.get_full_name %}
-                          {{ user.get_full_name }}
-                      {% else %}
-                          {{ user.username }}
-                      {% endif %}
-                    </p>
-                    <p class="email text-muted mb-3">
-                      {{user.email}}
-                    </p>
-                  </div>
-                </div>
-                <div class="dropdown-body">
-                  <ul class="profile-nav">
-                    <li class="nav-item">
-                      <a href="{% url 'account:profile' %}" class="nav-link">
-                        <i class="icon ion-md-person"></i>
-                        <span>Profile</span>
-                      </a>
-                    </li>
-                    <li class="nav-item">
-                      <a href="{% url 'account:wallet' %}" class="nav-link">
-                        <i class="icon ion-md-wallet"></i>
-                        <span>My Wallet</span>
-                      </a>
-                    </li>
-                    <li class="nav-item">
-                      <a href="{% url 'account:tradeHistory' %}" class="nav-link">
-                        <i class="icon ion-md-settings"></i>
-                        <span>Trade history</span>
-                      </a>
-                    </li>
-                    <li class="nav-item" id="changeThemeDark">
-                        <a href="#!" class="nav-link">
-                          <i class="icon ion-md-moon"></i>
-                          <span>Theme</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                      <a href="{% url 'logout' %}" class="nav-link red">
-                        <i class="icon ion-md-power"></i>
-                        <span>Log Out</span>
-                      </a>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            {% else %}
-              <a class="nav-link" href="{% url 'login' %}" role="button" aria-haspopup="true"
-                aria-expanded="false">
-                <img src="{% gravatar_url 'test@gmail.com' 150 %}" class="img-circle" alt="avatar">
-              </a>
-            {% endif %}
-          </li>
-        </ul>
-      </div>
-    </nav>
+		  <li class="nav-item dropdown">
+			<a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true"
+			  aria-expanded="false">
+			  Dashboard
+			</a>
+			<div class="dropdown-menu">
+			  <a class="dropdown-item" href="{% url 'account:profile' %}">Profile</a>
+			  <a class="dropdown-item" href="{% url 'account:wallet' %}">Wallet</a>
+			  <a class="dropdown-item" href="{% url 'account:tradeHistory' %}">Trade history</a>
+			</div>
+		  </li>
+		</ul>
+		<ul class="navbar-nav ml-auto">
+		  <li class="nav-item header-custom-icon">
+			<a class="nav-link" href="#" id="clickFullscreen">
+			  <i class="icon ion-md-expand"></i>
+			</a>
+		  </li>
+		  {% if user.is_authenticated %}
+			<li class="nav-item dropdown header-custom-icon">
+			  <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true"
+				aria-expanded="false">
+				<i class="icon ion-md-notifications"></i>
+				<span class="circle-pulse"></span>
+			  </a>
+			  <div class="dropdown-menu">
+				<div class="dropdown-header d-flex align-items-center justify-content-between">
+				  <p class="mb-0 font-weight-medium">6 New Notifications</p>
+				  <a href="#!" class="text-muted">Clear all</a>
+				</div>
+				<div class="dropdown-body">
+				  <a href="#!" class="dropdown-item">
+					<div class="icon">
+					  <i class="icon ion-md-lock"></i>
+					</div>
+					<div class="content">
+					  <p>Account password change</p>
+					  <p class="sub-text text-muted">5 sec ago</p>
+					</div>
+				  </a>
+				  <a href="#!" class="dropdown-item">
+					<div class="icon">
+					  <i class="icon ion-md-alert"></i>
+					</div>
+					<div class="content">
+					  <p>Solve the security issue</p>
+					  <p class="sub-text text-muted">10 min ago</p>
+					</div>
+				  </a>
+				  <a href="#!" class="dropdown-item">
+					<div class="icon">
+					  <i class="icon ion-logo-android"></i>
+					</div>
+					<div class="content">
+					  <p>Download android app</p>
+					  <p class="sub-text text-muted">1 hrs ago</p>
+					</div>
+				  </a>
+				  <a href="#!" class="dropdown-item">
+					<div class="icon">
+					  <i class="icon ion-logo-bitcoin"></i>
+					</div>
+					<div class="content">
+					  <p>Bitcoin price is high now</p>
+					  <p class="sub-text text-muted">2 hrs ago</p>
+					</div>
+				  </a>
+				  <a href="#!" class="dropdown-item">
+					<div class="icon">
+					  <i class="icon ion-logo-usd"></i>
+					</div>
+					<div class="content">
+					  <p>Payment completed</p>
+					  <p class="sub-text text-muted">4 hrs ago</p>
+					</div>
+				  </a>
+				</div>
+				<div class="dropdown-footer d-flex align-items-center justify-content-center">
+				  <a href="#!">View all</a>
+				</div>
+			  </div>
+			</li>
+		  {% endif %}
+		  <li class="nav-item dropdown header-img-icon">
+			{% if user.is_authenticated %}
+			  <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true"
+				aria-expanded="false">
+				<img src="{% gravatar_url user.email 150 %}" class="img-circle" alt="{{user.username}}'s avatar">
+			  </a>
+			  <div class="dropdown-menu">
+				<div class="dropdown-header d-flex flex-column align-items-center">
+				  <div class="figure mb-3">
+					<img src="{% gravatar_url user.email 150 %}" class="img-circle" alt="{{user.username}}'s avatar">
+				  </div>
+				  <div class="info text-center">
+					<p class="name font-weight-bold mb-0">
+					  {% if user.get_full_name %}
+						  {{ user.get_full_name }}
+					  {% else %}
+						  {{ user.username }}
+					  {% endif %}
+					</p>
+					<p class="email text-muted mb-3">
+					  {{user.email}}
+					</p>
+				  </div>
+				</div>
+				<div class="dropdown-body">
+				  <ul class="profile-nav">
+					<li class="nav-item">
+					  <a href="{% url 'account:profile' %}" class="nav-link">
+						<i class="icon ion-md-person"></i>
+						<span>Profile</span>
+					  </a>
+					</li>
+					<li class="nav-item">
+					  <a href="{% url 'account:wallet' %}" class="nav-link">
+						<i class="icon ion-md-wallet"></i>
+						<span>My Wallet</span>
+					  </a>
+					</li>
+					<li class="nav-item">
+					  <a href="{% url 'account:tradeHistory' %}" class="nav-link">
+						<i class="icon ion-md-settings"></i>
+						<span>Trade history</span>
+					  </a>
+					</li>
+					<li class="nav-item" id="changeThemeDark">
+						<a href="#!" class="nav-link">
+						  <i class="icon ion-md-moon"></i>
+						  <span>Theme</span>
+						</a>
+					</li>
+					<li class="nav-item">
+					  <a href="{% url 'logout' %}" class="nav-link red">
+						<i class="icon ion-md-power"></i>
+						<span>Log Out</span>
+					  </a>
+					</li>
+				  </ul>
+				</div>
+			  </div>
+			{% else %}
+			  <a class="nav-link" href="{% url 'login' %}" role="button" aria-haspopup="true"
+				aria-expanded="false">
+				<img src="{% gravatar_url 'test@gmail.com' 150 %}" class="img-circle" alt="avatar">
+			  </a>
+			{% endif %}
+		  </li>
+		</ul>
+	  </div>
+	</nav>
   </header>
 
 {% block main %}
@@ -204,11 +204,11 @@
   <script src="{% static 'exchange/js/amcharts.min.js' %}"></script>
   <script src="{% static 'exchange/js/custom.js' %}"></script>
   <script>
-    if (localStorage.getItem('theme') == 'true'){
-      var auto = true;
-      $('#changeThemeDark').click()
-      $('.live-search-list').toggle();
-    }
+	if (localStorage.getItem('theme') == 'true'){
+	  var auto = true;
+	  $('#changeThemeDark').click()
+	  $('.live-search-list').toggle();
+	}
   </script>
 </body>
 

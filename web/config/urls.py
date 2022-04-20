@@ -1,22 +1,18 @@
-from django.conf.urls.static import static
-from django.urls import path, include , re_path
-from django.contrib import admin
+from account.views import Login, Register, activate
 from django.conf import settings
-from account.views import (
-        Login, 
-        Register, 
-        activate
-    )
+from django.conf.urls.static import static
+from django.contrib import admin
+from django.urls import include, path
 
 urlpatterns = [
-    path('login/', Login.as_view(), name = 'login'),
-    path('signup/',Register.as_view(), name = 'signUp'),
-    path('activate/<uidb64>/<token>/', activate, name='activate'),
-    path('admin/', admin.site.urls),
-    path('', include('exchange.urls')),
-    path('account/', include('account.urls')),
-    path('', include('django.contrib.auth.urls')),
-    path('', include('social_django.urls', namespace='social')),
+    path("login/", Login.as_view(), name="login"),
+    path("signup/", Register.as_view(), name="signUp"),
+    path("activate/<uidb64>/<token>/", activate, name="activate"),
+    path("admin/", admin.site.urls),
+    path("", include("exchange.urls")),
+    path("account/", include("account.urls")),
+    path("", include("django.contrib.auth.urls")),
+    path("", include("social_django.urls", namespace="social")),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 handler404 = "config.views.page_not_found_view"

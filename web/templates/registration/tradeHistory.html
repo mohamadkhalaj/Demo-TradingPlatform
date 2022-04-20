@@ -6,52 +6,52 @@
 
 <div class="settings mtb15">
   <div class="container-fluid">
-    <div class="row">
-      <div class="col-md-12 col-lg-3">
-        <div class="nav flex-column nav-pills settings-nav" id="v-pills-tab" role="tablist"
-          aria-orientation="vertical">
-          <a class="nav-link" id="settings-profile-tab" href="{% url 'account:profile' %}">Profile</a>
-          
-          <a class="nav-link" id="settings-wallet-tab" href="{% url 'account:wallet' %}"> Wallet</a>
-          
-          <a class="nav-link active" id="settings-tab" href="{% url 'account:tradeHistory' %}">Trade history</a>
-        </div>
-      </div>
-        <div class="tab-pane fade show active" id="settings" role="tabpanel" aria-labelledby="settings-tab">
-          <div class="card">
-            <div class="card-body">
-              <h5 id="hisrtoryTitle" class="card-title">Please wait...</h5>
-              <div class="wallet-history">
-                <table class="table">
-                  <thead>
-                    <tr id="tableHeader" class="d-none">
-                      <th>No.</th>
-                      <th>Pair</th>
-                      <th>Type</th>
-                      <th>Date</th>
-                      <th>Price</th>
-                      <th>Amount</th>
-                      <th>Total</th>
-                    </tr>
-                  </thead>
-                  <tbody id="histories">
-                  </tbody>
-                </table>
-              </div>
-              <div class="text-center demo markets-pair-list">
-                
-                  <button id="paginationPrev" href="#" style="margin-top:50px; margin-right: 10px;" class="load-more btn">Previous Page</button>
-            
-                  <span id="paginationText" class="green" style=" position: absolute; bottom: 25px;margin-left: 34px;">1</span>
-            
-                  <button id="paginationNext" href="#" style="margin-top:50px; margin-left: 90px;" class="load-more btn">Next Page</button>
-            
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+	<div class="row">
+	  <div class="col-md-12 col-lg-3">
+		<div class="nav flex-column nav-pills settings-nav" id="v-pills-tab" role="tablist"
+		  aria-orientation="vertical">
+		  <a class="nav-link" id="settings-profile-tab" href="{% url 'account:profile' %}">Profile</a>
+		  
+		  <a class="nav-link" id="settings-wallet-tab" href="{% url 'account:wallet' %}"> Wallet</a>
+		  
+		  <a class="nav-link active" id="settings-tab" href="{% url 'account:tradeHistory' %}">Trade history</a>
+		</div>
+	  </div>
+		<div class="tab-pane fade show active" id="settings" role="tabpanel" aria-labelledby="settings-tab">
+		  <div class="card">
+			<div class="card-body">
+			  <h5 id="hisrtoryTitle" class="card-title">Please wait...</h5>
+			  <div class="wallet-history">
+				<table class="table">
+				  <thead>
+					<tr id="tableHeader" class="d-none">
+					  <th>No.</th>
+					  <th>Pair</th>
+					  <th>Type</th>
+					  <th>Date</th>
+					  <th>Price</th>
+					  <th>Amount</th>
+					  <th>Total</th>
+					</tr>
+				  </thead>
+				  <tbody id="histories">
+				  </tbody>
+				</table>
+			  </div>
+			  <div class="text-center demo markets-pair-list">
+				
+				  <button id="paginationPrev" href="#" style="margin-top:50px; margin-right: 10px;" class="load-more btn">Previous Page</button>
+			
+				  <span id="paginationText" class="green" style=" position: absolute; bottom: 25px;margin-left: 34px;">1</span>
+			
+				  <button id="paginationNext" href="#" style="margin-top:50px; margin-left: 90px;" class="load-more btn">Next Page</button>
+			
+			  </div>
+			</div>
+		  </div>
+		</div>
+	  </div>
+	</div>
   </div>
 </div>
 </div>
