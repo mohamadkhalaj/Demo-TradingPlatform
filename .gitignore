@@ -9,6 +9,7 @@ staticfiles
 web/static/
 db.sqlite3
 .idea
+.vscode
 # C extensions
 *.so
 
