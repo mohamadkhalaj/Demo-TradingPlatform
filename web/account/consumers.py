@@ -111,10 +111,10 @@ class ChartSocket(AsyncJsonWebsocketConsumer):
 
         dictionary = {}
 
-        orderMargin = await self.getOrders()
-        chart = Charts(self.user, portfolio, trades, orderMargin)
+        # orderMargin = await self.getOrders()
+        chart = Charts(portfolio, trades)
         assetAllocation = chart.assetAllocation()
-        pnl = chart.bar_chart()
+        pnl = chart.profit_loss()
 
         dictionary["assetAllocation"] = assetAllocation
         dictionary["pnl"] = pnl
@@ -201,7 +201,8 @@ class WalletSocket(AsyncJsonWebsocketConsumer):
             )
 
         availableMargin = await self.getOrders()
-        dictionary["total"] = pretify(totalMargin + availableMargin)
+        # dictionary["total"] = pretify(totalMargin + availableMargin)
+        dictionary["total"] = None
         dictionary["assets"] = array
         dictionary["available"] = pretify(totalMargin)
 

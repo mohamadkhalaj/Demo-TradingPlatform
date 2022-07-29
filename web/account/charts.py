@@ -1,98 +1,63 @@
-import time
 from datetime import datetime, timedelta
-
 import requests
 from django.conf import settings
 from exchange.common_functions import calc_equivalent
 
 
 class Charts:
-    def __init__(self, user, portfo, histories, orderMargin):
-        self.user = user
-        self.portfo = portfo
+    def __init__(self, portfolio, histories):
+        self.portfo = portfolio
         self.histories = histories
-        self.dates = []
-        self.values = []
-        self.percents = []
-        self.prices = dict()
-        self.orderMargin = orderMargin
-        self.haveTrade = True
-        self.func()
+        self.dayNumber = 30
 
-    def func(self):
 
-        try:
-            first_date = self.histories[0].time.replace(tzinfo=None)
-        except Exception as e:
-            print(e)
-            self.haveTrade = False
-            return
-
-        now_timestamp = time.time()
-        first_date = first_date + (
-            datetime.fromtimestamp(now_timestamp) - datetime.utcfromtimestamp(now_timestamp)
-        )
+    def profit_loss(self):
         end_date = datetime.now()
-        start_date = end_date - timedelta(days=30)
+        start_date = end_date - timedelta(days=self.dayNumber)
+        dates = [(start_date + timedelta(days=d)).strftime("%m-%d") for d in range(0, (end_date-start_date).days + 1)]
 
-        daysAgo = (end_date - first_date).days
-        if daysAgo >= 1:
-            self.get_prices((end_date - start_date).days)
-            self.pnl(start_date, end_date)
+        if not self.histories:
+            return dates, [0] * self.dayNumber
+        
+        first_date = self.histories[0].time.replace(tzinfo=None)
+        prices = self.get_prices(self.dayNumber)   
+        daysAgo = (end_date-first_date).days
+
+        if daysAgo < 1:
+            baseBalance = settings.DEFAULT_BALANCE      
+            values = [0] * 29
+            percents = [0] * 29
         else:
-            self.values = [0] * 30
-            self.percents = [0] * 30
-            delta = timedelta(days=1)
-            while start_date <= end_date:
-                self.dates.append(start_date.strftime("%m-%d"))
-                start_date += delta
-            self.get_latest()
-
-    def pnl(self, start_date, end_date):
-        delta = timedelta(days=1)
-        price_index = -1
-        hastrade = False
-        ispast = False
-        pastBalance = None
-
-        while start_date <= end_date:
-            total = 0
-            price_index += 1
-            try:
-                for item in self.histories:
-                    if (
-                        item.time.year == start_date.year
-                        and item.time.month == start_date.month
-                        and item.time.day == start_date.day
-                    ):
-                        hst_dict = item.histAmount
-                        hastrade = True
-            except Exception as e:
-                print(e)
-
-            if hastrade:
-                for dc in hst_dict:
-                    crp = hst_dict[dc]["cryptoName"]
-                    amount = float(hst_dict[dc]["amount"])
-                    total += self.prices[crp][price_index] * amount
-
-                if not ispast:
-                    pastBalance = total
-                    ispast = True
-
-                self.values.append(total - pastBalance)
-                self.percents.append(round(((total - pastBalance) * 100 / pastBalance), 2))
-
+            if 1 <= daysAgo <= self.dayNumber:
+                baseBalance = settings.DEFAULT_BALANCE
+                historyDict = None
             else:
-                self.values.append(0)
-                self.percents.append(0)
-            self.dates.append(start_date.strftime("%m-%d"))
+                historyDict, baseBalance = self.get_balance(None, start_date, prices, 0)
 
-            start_date += delta
+            values, percents = self.calculate_pnl(start_date, end_date, historyDict, prices, baseBalance)
+        
+        latestValue, latestPercentage = self.get_latest(baseBalance, prices)
+        values.append(latestValue)
+        percents.append(latestPercentage)
+
+        return dates, values
+        
+
+    def get_latest(self, balance, prices):
+        total = 0
+        for item in self.portfo:
+            price = prices[item.cryptoName][-1]
+            total += price * item.amount
+        
+        value = total - balance
+        percentage = round(value / 10, 2)
+
+        return value, percentage
+
 
     def get_prices(self, limit):
-        for index, item in enumerate(self.portfo):
-            self.prices[item.cryptoName] = []
+        prices = dict()
+        for item in self.portfo:
             response = requests.get(
                 "https://min-api.cryptocompare.com/data/v2/histoday?fsym="
                 + item.cryptoName
@@ -100,29 +65,60 @@ class Charts:
                 + str(limit)
             )
             response = response.json()["Data"]["Data"]
+            prices[item.cryptoName] = list()
+            prices[item.cryptoName] = [float(resp["close"]) for resp in response]
 
-            for i in response:
-                self.prices[item.cryptoName].append(float(i["close"]))
+        return prices
 
-    def get_latest(self):
-        total = 0
-        for item in self.portfo:
-            response = requests.get(
-                "https://min-api.cryptocompare.com/data/price?fsym="
-                + item.cryptoName
-                + "&tsyms=USDT"
-            )
-            price = float(response.json()["USDT"])
-            total += price * item.amount
-        self.percents.append(round((total - settings.DEFAULT_BALANCE) / 10, 2))
-        self.values.append(total - settings.DEFAULT_BALANCE)
 
-    def bar_chart(self):
-        if not self.haveTrade:
-            return False
-        x = self.dates
-        y = self.values
-        return x, y
+    def get_balance(self, historyDict, date, prices, price_index):
+        if not historyDict:
+            for hst in self.histories:
+                curDate = hst.time.replace(tzinfo=None)
+                if curDate < date:
+                    historyDict = hst.histAmount
+        
+        total = 0       
+        for hst in historyDict:
+            crypto = historyDict[hst]['cryptoName']
+            amount = float(historyDict[hst]["amount"])
+            total += prices[crypto][price_index] * amount
+
+        return historyDict, total
+
+           
+    def calculate_pnl(self, start_date, end_date, historyDict, prices, baseBalance):
+        values = [] 
+        percents = [] 
+        price_index = -1     
+        delta = timedelta(days=1) 
+
+        while start_date <= end_date:
+            price_index += 1
+
+            for item in self.histories:
+                    if (
+                        item.time.year == start_date.year
+                        and item.time.month == start_date.month
+                        and item.time.day == start_date.day
+                    ):
+                        historyDict = item.histAmount
+
+            if historyDict:
+                total = self.get_balance(historyDict, None, prices, price_index)[1]
+            else:
+                total = baseBalance
+            
+            # print('base balance:', str(baseBalance), 'total:', str(total), 'btc price:', str(prices['BTC'][price_index]))
+            
+            sub = total - baseBalance
+            values.append(sub)
+            percents.append(sub/total * 100)
+
+            start_date += delta
+    
+        return values, percents
+
 
     def assetAllocation(self):
         cryptoDic = {}
