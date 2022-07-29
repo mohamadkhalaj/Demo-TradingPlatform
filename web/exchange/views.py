@@ -1,37 +1,20 @@
 import json
 import re
 import urllib.parse
-
 import channels.layers
 import requests
 from account.models import User
 from asgiref.sync import async_to_sync
-from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.shortcuts import render
 from requests.structures import CaseInsensitiveDict
-
 from .common_functions import Give_equivalent
 from .models import Portfolio, TradeHistory
 from .trade import Trade
 
 
 def home(request):
-    # request.user.delete()
-    if request.user.is_authenticated:
-        obj = User.objects.get(username=request.user)
-        if obj.first_login:
-            newObj = Portfolio(
-                usr=request.user,
-                cryptoName="USDT",
-                amount=settings.DEFAULT_BALANCE,
-                equivalentAmount=None,
-            )
-            newObj.save()
-            obj.first_login = False
-            obj.save()
-
     return render(request, "exchange/index.html")
 
 
