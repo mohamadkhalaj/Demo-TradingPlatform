@@ -1,6 +1,11 @@
 // assets socket data
 var assetsObj = [];
-assetSocket = new WebSocket('ws://' + window.location.host + '/ws/wallet/');
+try {
+  assetSocket = new WebSocket('ws://' + window.location.host + '/ws/wallet/');
+}
+catch (e) {
+  assetSocket = new WebSocket('wss://' + window.location.host + '/ws/wallet/');
+}
 
 assetSocket.onopen = function () {
     assetSocket.send(JSON.stringify({"start":1}));
@@ -194,7 +199,12 @@ function socketMessage(e) {
     }
 };
 
-socket = new WebSocket('ws://' + window.location.host + '/ws/wallet/chart/');
+try {
+  socket = new WebSocket('ws://' + window.location.host + '/ws/wallet/chart/');
+}
+catch (e) {
+  socket = new WebSocket('wss://' + window.location.host + '/ws/wallet/chart/');
+}
 
 socket.onopen = function () {
     socket.send(JSON.stringify({"start":1}));
@@ -217,7 +227,12 @@ window.ononline = (event) => {
     console.log("You are now connected to the network.")
 
     assetSocket.close()
-    assetSocket = new WebSocket('ws://' + window.location.host + '/ws/wallet/');
+    try {
+      assetSocket = new WebSocket('ws://' + window.location.host + '/ws/wallet/');
+    }
+    catch (e) {
+      assetSocket = new WebSocket('wss://' + window.location.host + '/ws/wallet/');
+    }
 
     assetSocket.onopen = function () {
         assetSocket.send(JSON.stringify({"start":1}));
@@ -239,7 +254,12 @@ window.ononline = (event) => {
     };
 
     socket.close()
-    socket = new WebSocket('ws://' + window.location.host + '/ws/wallet/chart/');
+    try {
+      socket = new WebSocket('ws://' + window.location.host + '/ws/wallet/chart/');
+    }
+    catch (e) {
+      socket = new WebSocket('wss://' + window.location.host + '/ws/wallet/chart/');
+    }
 
     socket.onopen = function () {
         socket.send(JSON.stringify({"start":1}));

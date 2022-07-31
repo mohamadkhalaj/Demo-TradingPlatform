@@ -1,6 +1,10 @@
 var page = 0
-
-var socket = new WebSocket('ws://' + window.location.host + '/ws/');
+try {
+    var socket = new WebSocket('ws://' + window.location.host + '/ws/');
+}
+catch (e) {
+    var socket = new WebSocket('wss://' + window.location.host + '/ws/');
+}
 socket.onopen = function () {
     socket.send(JSON.stringify({"page":0, RequestType : 'market'}));
 };
@@ -111,8 +115,12 @@ function pagination() {
 
             clickTimeout = setTimeout(function(){
                 socket.close()
-                socket = new WebSocket('ws://' + window.location.host + '/ws/');
-
+                try {
+                    var socket = new WebSocket('ws://' + window.location.host + '/ws/');
+                }
+                catch (e) {
+                    var socket = new WebSocket('wss://' + window.location.host + '/ws/');
+                }
                 socket.onopen = function () {
                     socket.send(JSON.stringify({"page":page}));
                 };
@@ -139,7 +147,12 @@ function pagination() {
 
             clickTimeout = setTimeout(function(){
                 socket.close()
-                socket = new WebSocket('ws://' + window.location.host + '/ws/');
+                try {
+                    var socket = new WebSocket('ws://' + window.location.host + '/ws/');
+                }
+                catch (e) {
+                    var socket = new WebSocket('wss://' + window.location.host + '/ws/');
+                }
 
                 socket.onopen = function () {
                     socket.send(JSON.stringify({"page":page, RequestType : 'market'}));
@@ -167,7 +180,12 @@ window.ononline = (event) => {
     console.log("You are now connected to the network.")
 
     socket.close()
-    socket = new WebSocket('ws://' + window.location.host + '/ws/');
+    try {
+        var socket = new WebSocket('ws://' + window.location.host + '/ws/');
+    }
+    catch (e) {
+        var socket = new WebSocket('wss://' + window.location.host + '/ws/');
+    }
     socket.onopen = function () {
         socket.send(JSON.stringify({"page":page, RequestType : 'market'}));
     };

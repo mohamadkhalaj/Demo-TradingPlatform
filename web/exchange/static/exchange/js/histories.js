@@ -1,4 +1,9 @@
-var histSocket = new WebSocket('ws://' + window.location.host + '/ws/histories/');
+try {
+    var histSocket = new WebSocket('ws://' + window.location.host + '/ws/histories/');
+}
+catch (e) {
+    var histSocket = new WebSocket('wss://' + window.location.host + '/ws/histories/');
+}
 var page = 1;
 var res = null;
 var liveRequest = false;

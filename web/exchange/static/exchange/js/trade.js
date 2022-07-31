@@ -1,5 +1,15 @@
-var tradeSocket = new WebSocket('ws://' + window.location.host + '/ws/trade/');
-var tradeListSocket = new WebSocket('ws://' + window.location.host + '/ws/trade/prices/');
+try {
+    var tradeSocket = new WebSocket('ws://' + window.location.host + '/ws/trade/');
+}
+catch (e) {
+    var tradeSocket = new WebSocket('wss://' + window.location.host + '/ws/trade/');
+}
+try {
+    var tradeListSocket = new WebSocket('ws://' + window.location.host + '/ws/trade/prices/');
+}
+catch (e) {
+    var tradeListSocket = new WebSocket('wss://' + window.location.host + '/ws/trade/prices/');
+}
 var main_url = window.location.origin;
 var usdtValue = 0;
 var pairValue = 0;
@@ -625,7 +635,12 @@ window.onoffline = (event) => {
 window.ononline = (event) => {
     createAlert('info', "You are now connected to the network.")
     tradeSocket.close()
-    tradeSocket = new WebSocket('ws://' + window.location.host + '/ws/trade/');
+    try {
+        var tradeSocket = new WebSocket('ws://' + window.location.host + '/ws/trade/');
+    }
+    catch (e) {
+        var tradeSocket = new WebSocket('wss://' + window.location.host + '/ws/trade/');
+    }
     tradeSocket.onopen = e => {
         tradeSocketOpen(e)
     }
@@ -637,7 +652,12 @@ window.ononline = (event) => {
     }
 
     tradeListSocket.close()
-    tradeListSocket = new WebSocket('ws://' + window.location.host + '/ws/trade/prices/');
+    try {
+        var tradeListSocket = new WebSocket('ws://' + window.location.host + '/ws/trade/prices/');
+    }
+    catch (e) {
+        var tradeListSocket = new WebSocket('wss://' + window.location.host + '/ws/trade/prices/');
+    }
     tradeListSocket.onopen = function (e) {
         tradeListSocketOpen(e, true)
     };
