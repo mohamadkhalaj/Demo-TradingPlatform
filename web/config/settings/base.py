@@ -1,4 +1,3 @@
-from email.policy import default
 from pathlib import Path
 
 import environ
