@@ -59,13 +59,13 @@ jobs:
           pip install -r requirements.txt
       - name: Collect statics
         run: |
-          python manage.py collectstatic --noinput  
+          python web/manage.py collectstatic --noinput  
       - name: Make migrations
         run: |
-          python manage.py makemigrations
+          python web/manage.py makemigrations
       - name: Migrate
         run: |
-          python manage.py migrate
+          python web/manage.py migrate
   #Before deploy job you would usually have the build job in case you are using docker images
   deploy-job:
       runs-on: ubuntu-latest
