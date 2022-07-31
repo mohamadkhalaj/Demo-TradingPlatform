@@ -11,3 +11,5 @@ django-minify-html==1.3.0
 sentry_sdk==1.8.0
 # Cache
 django-redis==5.2.0
+# Hcaptcha
+django-hCaptcha==0.2.0
