@@ -1,0 +1,81 @@
+# Controls when the workflow will run
+on:
+  pull_request:
+    branches: [master, socket]
+  push:
+    branches: [master, socket]
+ 
+jobs:
+  health-checkup-job: #Check the healthy by running tests
+    runs-on: ubuntu-latest
+    services:
+      postgres_main:
+        image: postgres:latest
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: exchange
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+      redis:
+        # Docker Hub image
+        image: redis
+        ports:
+          - 6379:6379
+        # Set health checks to wait until redis has started
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Setup Python 3.8
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.8
+      - name: Install requirements
+        env:
+          DJANGO_DEBUG: "False"
+          DJANGO_SECRET_KEY: "secretsecretsecretsecret123456"
+          DJANGO_SETTINGS_MODULE: "config.settings.production"
+          DJANGO_ALLOWED_HOSTS: "*"
+          DJANGO_ADMIN_URL: "admin/"
+          DATABASE_URL: "postgres://postgres:postgres@127.0.0.1:5432/$POSTGRES_DB"
+          EMAIL_HOST_USER: ${{EMAIL_HOST_USER}}
+          EMAIL_HOST_PASSWORD: ${{EMAIL_HOST_PASSWORD}}
+          SOCIAL_AUTH_GOOGLE_OAUTH2_KEY: ${{SOCIAL_AUTH_GOOGLE_OAUTH2_KEY}}
+          SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET: ${{SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET}}
+          HCAPTCHA_SITEKEY: ${{HCAPTCHA_SITEKEY}}
+          HCAPTCHA_SECRET: ${{HCAPTCHA_SECRET}}
+          CRYPTO_COMPARE_API: ${{CRYPTO_COMPARE_API}}
+          SENTRY_DSN: ${{SENTRY_DSN}}
+          REDIS_URL: "localhost"
+        run: |
+          pip install -r requirements.txt && pip install -r requirements/local.txt
+      - name: Collect statics
+        run: |
+          python manage.py collectstatic --noinput  
+      - name: Make migrations
+        run: |
+          python manage.py makemigrations
+      - name: Migrate
+        run: |
+          python manage.py migrate
+  #Before deploy job you would usually have the build job in case you are using docker images
+  deploy-job:
+      runs-on: ubuntu-latest
+      needs: [health-checkup-job]
+      steps:
+        - name: Init heroku
+          uses: actions/checkout@v3
+        - name: Deploying to heroku
+          uses: akhileshns/heroku-deploy@v3.12.12
+          with:
+            heroku_api_key: ${{secrets.HEROKU_API_KEY}}
+            heroku_app_name: ${{secrets.HEROKU_APP_NAME}}
+            heroku_email: ${{secrets.HEROKU_EMAIL}}
