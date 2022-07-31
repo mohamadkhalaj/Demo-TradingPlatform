@@ -46,14 +46,14 @@ jobs:
           DJANGO_ALLOWED_HOSTS: "*"
           DJANGO_ADMIN_URL: "admin/"
           DATABASE_URL: "postgres://postgres:postgres@127.0.0.1:5432/$POSTGRES_DB"
-          EMAIL_HOST_USER: ${{secrets.EMAIL_HOST_USER}}
-          EMAIL_HOST_PASSWORD: ${{secrets.EMAIL_HOST_PASSWORD}}
-          SOCIAL_AUTH_GOOGLE_OAUTH2_KEY: ${{secrets.SOCIAL_AUTH_GOOGLE_OAUTH2_KEY}}
-          SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET: ${{secrets.SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET}}
-          HCAPTCHA_SITEKEY: ${{secrets.HCAPTCHA_SITEKEY}}
-          HCAPTCHA_SECRET: ${{secrets.HCAPTCHA_SECRET}}
-          CRYPTO_COMPARE_API: ${{secrets.CRYPTO_COMPARE_API}}
-          SENTRY_DSN: ${{secrets.SENTRY_DSN}}
+          CRYPTO_COMPARE_API: ${{ secrets.CRYPTO_COMPARE_API }}
+          EMAIL_HOST_USER: ${{ secrets.EMAIL_HOST_USER }}
+          EMAIL_HOST_PASSWORD: ${{ secrets.EMAIL_HOST_PASSWORD }}
+          SOCIAL_AUTH_GOOGLE_OAUTH2_KEY: ${{ secrets.SOCIAL_AUTH_GOOGLE_OAUTH2_KEY }}
+          SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET: ${{ secrets.SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET }}
+          HCAPTCHA_SITEKEY: ${{ secrets.HCAPTCHA_SITEKEY }}
+          HCAPTCHA_SECRET: ${{ secrets.HCAPTCHA_SECRET }}
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
           REDIS_URL: "localhost"
         run: |
           pip install -r requirements.txt
@@ -76,6 +76,6 @@ jobs:
         - name: Deploying to heroku
           uses: akhileshns/heroku-deploy@v3.12.12
           with:
-            heroku_api_key: ${{secrets.HEROKU_API_KEY}}
-            heroku_app_name: ${{secrets.HEROKU_APP_NAME}}
-            heroku_email: ${{secrets.HEROKU_EMAIL}}
+            heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
+            heroku_app_name: ${{ secrets.HEROKU_APP_NAME }}
+            heroku_email: ${{ secrets.HEROKU_EMAIL }}
