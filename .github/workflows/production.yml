@@ -34,10 +34,10 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - name: Checkout code
         uses: actions/checkout@v3
-      - name: Setup Python 3.8
+      - name: Setup Python 3.10.5
         uses: actions/setup-python@v4
         with:
-          python-version: 3.8
+          python-version: 3.10.5
       - name: Install requirements
         env:
           DJANGO_DEBUG: "False"

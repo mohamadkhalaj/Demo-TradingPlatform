@@ -13,6 +13,17 @@ services:
     volumes:
       - ./web:/web
 
+  db:
+    restart: always
+    container_name: db
+    image: postgres:latest
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+    volumes:
+      - ./postgre:/var/lib/postgresql/data
+
   nginx:
     restart: always
     build: ./nginx/
@@ -20,4 +31,4 @@ services:
     ports:
       - "80:80"
     volumes:
-      - ./web/static:/web/static
+      - ./web/staticfiles:/web/staticfiles
