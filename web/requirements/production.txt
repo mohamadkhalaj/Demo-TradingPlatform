@@ -1,0 +1,13 @@
+-r base.txt
+
+gunicorn==20.1.0  # https://github.com/benoitc/gunicorn
+daphne==3.0.2
+psycopg2==2.9.3  # https://github.com/psycopg/psycopg2
+
+django-anymail==8.6  # https://github.com/anymail/django-anymail
+# minify html/css/js
+django-minify-html==1.3.0
+# sentry error tracking for production
+sentry_sdk==1.8.0
+# Cache
+django-redis==5.2.0
