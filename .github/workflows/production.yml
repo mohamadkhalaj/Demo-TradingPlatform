@@ -56,7 +56,7 @@ jobs:
           SENTRY_DSN: ${{secrets.SENTRY_DSN}}
           REDIS_URL: "localhost"
         run: |
-          pip install -r requirements.txt && pip install -r requirements/local.txt
+          pip install -r requirements.txt
       - name: Collect statics
         run: |
           python manage.py collectstatic --noinput  
