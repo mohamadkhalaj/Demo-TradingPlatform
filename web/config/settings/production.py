@@ -19,8 +19,8 @@ INSTALLED_APPS += THIRD_PARTY_APPS
 
 # Hcaptcha
 HCAPTCHA_DEFAULT_CONFIG = {"hl": "en"}
-HCAPTCHA_SECRET = env("HCAPTCHA_SECRET")
-HCAPTCHA_SITEKEY = env("HCAPTCHA_SITEKEY")
+HCAPTCHA_SECRET = env("HCAPTCHA_SECRET", default="something")
+HCAPTCHA_SITEKEY = env("HCAPTCHA_SITEKEY", default="something")
 HCAPTCHA_TIMEOUT = 5
 
 # CACHES
@@ -40,7 +40,7 @@ CACHES = {
 
 # SENTRY ISSUE TRACKER CONFIGURATION
 sentry_sdk.init(
-    dsn=env("SENTRY_DSN"),
+    dsn=env("SENTRY_DSN", default="something"),
     integrations=[
         DjangoIntegration(),
     ],
