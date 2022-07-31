@@ -1,11 +1,19 @@
+import os
+
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 
 from .models import User
 
+is_production = os.environ.get("DJANGO_SETTINGS_MODULE") == "config.settings.production"
+if is_production:
+    from hcaptcha.fields import hCaptchaField
+
 
 class LoginForm(AuthenticationForm):
-    # hcaptcha = hCaptchaField()
+    if is_production:
+        hcaptcha = hCaptchaField()
+
     class Meta:
         model = User
         fields = "__all__"
@@ -34,7 +42,8 @@ class ProfileForm(forms.ModelForm):
 
 
 class SignupForm(UserCreationForm):
-    # hcaptcha = hCaptchaField()
+    if is_production:
+        hcaptcha = hCaptchaField()
     email = forms.EmailField(max_length=200)
 
     class Meta:
