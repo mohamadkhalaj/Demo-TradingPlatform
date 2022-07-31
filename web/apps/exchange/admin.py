@@ -1,13 +1,6 @@
 from django.contrib import admin
 
-from .models import (
-    FuturesHistory,
-    FuturesOrders,
-    Portfolio,
-    SpotOrders,
-    TradeHistory,
-    visitor,
-)
+from .models import FuturesHistory, FuturesOrders, Portfolio, SpotOrders, TradeHistory, visitor
 
 admin.site.site_header = "Demo Exchange Admin"
 

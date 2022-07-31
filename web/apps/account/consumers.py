@@ -175,9 +175,7 @@ class WalletSocket(AsyncJsonWebsocketConsumer):
         cryptocompare.cryptocompare._set_api_key_parameter(CRYPTO_COMPARE_API)
         portfolio = await self.getPortfolio()
         dictionary = {}
-        totalMargin = sum(
-            [calc_equivalent(item.cryptoName, "USDT", item.amount)[1] for item in portfolio]
-        )
+        totalMargin = sum([calc_equivalent(item.cryptoName, "USDT", item.amount)[1] for item in portfolio])
 
         assets = {}
         for item in portfolio:

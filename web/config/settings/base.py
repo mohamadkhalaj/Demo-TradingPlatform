@@ -1,3 +1,5 @@
+import os
+import sys
 from pathlib import Path
 
 import environ
@@ -6,9 +8,12 @@ from decouple import config as env
 env_ = environ.Env()
 
 BASE_DIR = Path(__file__).resolve(strict=True).parent.parent.parent
-APPS_DIR = BASE_DIR / "exchange"
+APPS_DIR = BASE_DIR / "apps"
+sys.path.insert(0, os.path.join(BASE_DIR, "apps"))
 
 DEBUG = env("DJANGO_DEBUG", default=False)
+
+ADMIN_URL = "admin/"
 
 DEBUG_PROPAGATE_EXCEPTIONS = False
 CORS_ORIGIN_ALLOW_ALL = True
@@ -32,10 +37,15 @@ THIRD_PARTY_APPS = [
     "social_django",
     "channels",
     "corsheaders",
+    "admin_honeypot",
 ]
 LOCAL_APPS = [
-    "exchange",
-    "account",
+    "apps.account",
+    "apps.future",
+    "apps.exchange",
+    "apps.spot",
+    "apps.limit_order",
+    "apps.core",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -67,7 +77,7 @@ TEMPLATES = [
         # https://docs.djangoproject.com/en/dev/ref/settings/#std:setting-TEMPLATES-BACKEND
         "BACKEND": "django.template.backends.django.DjangoTemplates",
         # https://docs.djangoproject.com/en/dev/ref/settings/#dirs
-        "DIRS": [str(BASE_DIR / "templates")],
+        "DIRS": [str(APPS_DIR / "templates")],
         # https://docs.djangoproject.com/en/dev/ref/settings/#app-dirs
         "APP_DIRS": True,
         "OPTIONS": {
@@ -93,11 +103,12 @@ AUTHENTICATION_BACKENDS = (
 
 ASGI_APPLICATION = "config.routing.application"
 
+REDIS_HOST = env("REDIS_URL", default="localhost")
 CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [env("REDIS_URL", "redis://redis:6379")],
+            "hosts": [(REDIS_HOST, 6379)],
         },
     },
 }

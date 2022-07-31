@@ -1,15 +1,6 @@
 from django.urls import path
 
-from .views import (
-    echo,
-    home,
-    markets,
-    portfolio,
-    recentTrades,
-    search,
-    trade,
-    tradinghistory,
-)
+from .views import echo, home, markets, portfolio, recentTrades, search, trade, tradinghistory
 
 app_name = "exchange"
 urlpatterns = [

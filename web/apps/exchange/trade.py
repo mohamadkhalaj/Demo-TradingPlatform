@@ -49,9 +49,7 @@ class Trade:
                     obj.amount = obj.amount + toAdd
                     obj.save()
                 except:
-                    newCrypto = Portfolio(
-                        usr=self.user, cryptoName=self.base, amount=toAdd, equivalentAmount=None
-                    )
+                    newCrypto = Portfolio(usr=self.user, cryptoName=self.base, amount=toAdd, equivalentAmount=None)
                     newCrypto.save()
         #     type = sell
         else:
@@ -74,9 +72,7 @@ class Trade:
                     obj.amount = obj.amount + toAdd
                     obj.save()
                 except:
-                    newCrypto = Portfolio(
-                        usr=self.user, cryptoName=self.qoute, amount=toAdd, equivalentAmount=None
-                    )
+                    newCrypto = Portfolio(usr=self.user, cryptoName=self.qoute, amount=toAdd, equivalentAmount=None)
                     newCrypto.save()
         # create history and give results
         if state == 0:
@@ -118,11 +114,7 @@ class Trade:
     def calc_equivalent(self, base, qoute, amount):
         base = base.upper()
         response = requests.get(
-            "https://min-api.cryptocompare.com/data/pricemulti?fsyms="
-            + base
-            + ","
-            + qoute
-            + "&tsyms=USDT,USDT"
+            "https://min-api.cryptocompare.com/data/pricemulti?fsyms=" + base + "," + qoute + "&tsyms=USDT,USDT"
         )
         response = response.json()
         basePrice = float(response[base]["USDT"])

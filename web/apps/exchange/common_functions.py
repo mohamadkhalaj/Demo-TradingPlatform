@@ -9,11 +9,7 @@ class Give_equivalent:
     def calc_equivalent(self, base, qoute, amount):
         base = base.upper()
         response = requests.get(
-            "https://min-api.cryptocompare.com/data/pricemulti?fsyms="
-            + base
-            + ","
-            + qoute
-            + "&tsyms=USDT,USDT"
+            "https://min-api.cryptocompare.com/data/pricemulti?fsyms=" + base + "," + qoute + "&tsyms=USDT,USDT"
         )
         response = response.json()
         basePrice = float(response[base]["USDT"])
@@ -37,11 +33,7 @@ class Give_equivalent:
 
 def calc_equivalent(base, qoute, amount):
     response = requests.get(
-        "https://min-api.cryptocompare.com/data/pricemulti?fsyms="
-        + base
-        + ","
-        + qoute
-        + "&tsyms=USDT,USDT"
+        "https://min-api.cryptocompare.com/data/pricemulti?fsyms=" + base + "," + qoute + "&tsyms=USDT,USDT"
     )
     response = response.json()
     basePrice = float(response[base]["USDT"])
@@ -66,9 +58,7 @@ def pretify(float_num):
 
 
 def search(pair):
-    res = requests.get(
-        f"https://symbol-search.tradingview.com/symbol_search/?text={pair}&type=crypto"
-    )
+    res = requests.get(f"https://symbol-search.tradingview.com/symbol_search/?text={pair}&type=crypto")
     if res.status_code == 200:
         res = res.json()
         if len(res) == 0:

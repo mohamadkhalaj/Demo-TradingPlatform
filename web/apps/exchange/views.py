@@ -1,14 +1,15 @@
 import json
 import re
 import urllib.parse
+
 import channels.layers
 import requests
-from account.models import User
 from asgiref.sync import async_to_sync
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.shortcuts import render
 from requests.structures import CaseInsensitiveDict
+
 from .common_functions import Give_equivalent
 from .models import Portfolio, TradeHistory
 from .trade import Trade
@@ -34,9 +35,7 @@ def search(request, value):
 
     if resp != "null":
         for item in resp:
-            item[
-                "image"
-            ] = f'https://cdn.arzdigital.com/uploads/assets/coins/icons/32x32/{item["slug"]}.png'
+            item["image"] = f'https://cdn.arzdigital.com/uploads/assets/coins/icons/32x32/{item["slug"]}.png'
     return JsonResponse(resp, safe=False)
 
 
@@ -57,9 +56,7 @@ def trade(request, value):
     result = tradeObject.result
     if result["state"] == 0:
         channel_layer = channels.layers.get_channel_layer()
-        async_to_sync(channel_layer.group_send)(
-            "orderBook", {"type": "order.display", "content": result}
-        )
+        async_to_sync(channel_layer.group_send)("orderBook", {"type": "order.display", "content": result})
     return JsonResponse(result)
 
 
@@ -103,9 +100,7 @@ def tradinghistory(request):
 
 def recentTrades(request):
     resJson = dict()
-    for index, item in enumerate(
-        TradeHistory.objects.filter(amount__gt=0).order_by("-time").iterator()
-    ):
+    for index, item in enumerate(TradeHistory.objects.filter(amount__gt=0).order_by("-time").iterator()):
         resJson[index] = {
             "type": item.type,
             "pair": item.pair,

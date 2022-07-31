@@ -52,9 +52,7 @@ class TradeConsumer(AsyncJsonWebsocketConsumer):
             else:
                 trade_response = {"0": {"header": "trade_response", "state": result["state"]}}
 
-            await self.channel_layer.group_send(
-                self.unicastName, {"type": "send.data", "content": trade_response}
-            )
+            await self.channel_layer.group_send(self.unicastName, {"type": "send.data", "content": trade_response})
             # successful trade
             if result["state"] == 0:
                 hist_response = {
@@ -70,14 +68,10 @@ class TradeConsumer(AsyncJsonWebsocketConsumer):
                     }
                 }
                 # trade page group send
-                await self.channel_layer.group_send(
-                    self.unicastName, {"type": "send.data", "content": hist_response}
-                )
+                await self.channel_layer.group_send(self.unicastName, {"type": "send.data", "content": hist_response})
                 # recent page group send
                 channel = get_channel_layer()
-                await channel.group_send(
-                    f"{self.user}_HSTunicast", {"type": "send.data", "content": hist_response}
-                )
+                await channel.group_send(f"{self.user}_HSTunicast", {"type": "send.data", "content": hist_response})
                 recentTrades_response = {
                     "0": {
                         "header": "recent_response",
@@ -93,26 +87,18 @@ class TradeConsumer(AsyncJsonWebsocketConsumer):
                     self.broadcastName, {"type": "send.data", "content": recentTrades_response}
                 )
                 portfo = await self.getPortfolio()
-                await self.channel_layer.group_send(
-                    self.unicastName, {"type": "send.data", "content": portfo}
-                )
+                await self.channel_layer.group_send(self.unicastName, {"type": "send.data", "content": portfo})
         elif self.header == "limit_request":
             result, order_response = await self.addOrder(content)
             await self.send_json(result)
             if result["0"]["state"] == 0:
-                await self.channel_layer.group_send(
-                    self.unicastName, {"type": "send.data", "content": order_response}
-                )
+                await self.channel_layer.group_send(self.unicastName, {"type": "send.data", "content": order_response})
                 portfo = await self.getPortfolio()
-                await self.channel_layer.group_send(
-                    self.unicastName, {"type": "send.data", "content": portfo}
-                )
+                await self.channel_layer.group_send(self.unicastName, {"type": "send.data", "content": portfo})
         elif self.header == "delOrder_request":
             await self.deleteOrder(content["id"])
             portfo = await self.getPortfolio()
-            await self.channel_layer.group_send(
-                self.unicastName, {"type": "send.data", "content": portfo}
-            )
+            await self.channel_layer.group_send(self.unicastName, {"type": "send.data", "content": portfo})
 
     async def disconnect(self, code):
         self.channel_layer.group_discard("unicastName", self.channel_name)
@@ -127,9 +113,7 @@ class TradeConsumer(AsyncJsonWebsocketConsumer):
     @database_sync_to_async
     def trade(self, content):
 
-        tradeObject = Trade(
-            self.user, self.orderType, content["type"], content["pair"], content["amount"]
-        )
+        tradeObject = Trade(self.user, self.orderType, content["type"], content["pair"], content["amount"])
         result = tradeObject.result
 
         return result
