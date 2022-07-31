@@ -38,15 +38,6 @@ CACHES = {
     }
 }
 
-CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "channels_redis.core.RedisChannelLayer",
-        "CONFIG": {
-            "hosts": [env("REDIS_URL", "redis://redis:6379")],
-        },
-    },
-}
-
 # SENTRY ISSUE TRACKER CONFIGURATION
 sentry_sdk.init(
     dsn=env("SENTRY_DSN", default="something"),

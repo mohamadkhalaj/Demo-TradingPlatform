@@ -104,15 +104,19 @@ AUTHENTICATION_BACKENDS = (
 ASGI_APPLICATION = "config.routing.application"
 
 REDIS_HOST = env("REDIS_URL", default="localhost")
+if ":" in REDIS_HOST:
+    REDIS_HOST = [env("REDIS_URL", "redis://redis:6379")]
+else:
+    REDIS_HOST = [(REDIS_HOST, 6379)]
+
 CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [(REDIS_HOST, 6379)],
+            "hosts": REDIS_HOST,
         },
     },
 }
-
 
 DATABASES = {
     "default": env_.db(
