@@ -2,8 +2,6 @@ from django.conf import settings
 from django.contrib.humanize.templatetags.humanize import naturaltime
 from django.db import models
 
-# from django.conf import DEFAULT_CONTENT_TYPE_DEPRECATED_MSG
-
 
 class Portfolio(models.Model):
     usr = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
