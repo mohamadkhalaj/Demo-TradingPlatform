@@ -17,7 +17,7 @@ ADMIN_URL = "admin/"
 
 DEBUG_PROPAGATE_EXCEPTIONS = False
 CORS_ORIGIN_ALLOW_ALL = True
-LOGIN_REDIRECT_URL = "exchange:home"
+LOGIN_REDIRECT_URL = "home"
 LOGIN_URL = "login"
 LOGOUT_REDIRECT_URL = "login"
 SOCIAL_AUTH_URL_NAMESPACE = "social"
@@ -41,6 +41,7 @@ THIRD_PARTY_APPS = [
 ]
 LOCAL_APPS = [
     "apps.account",
+    "apps.middlewares",
     "apps.future",
     "apps.exchange",
     "apps.spot",
@@ -51,7 +52,7 @@ LOCAL_APPS = [
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
 MIDDLEWARE = [
-    "config.middleware.vistorsMiddleware",
+    "middlewares.visitors.vistorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",

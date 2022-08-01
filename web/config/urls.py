@@ -4,7 +4,11 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
 
+from .views import home
+
+app_name = "config"
 urlpatterns = [
+    path("", home, name="home"),
     path("login/", Login.as_view(), name="login"),
     path("signup/", Register.as_view(), name="signUp"),
     path("activate/<uidb64>/<token>/", activate, name="activate"),

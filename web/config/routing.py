@@ -11,13 +11,18 @@ django.setup()
 
 from account import routing as account_routing
 from exchange import routing as exchange_routing
+from spot import routing as spot_routing
 
 application = ProtocolTypeRouter(
     {
         "websocket": AllowedHostsOriginValidator(
             SessionMiddlewareStack(
                 AuthMiddlewareStack(
-                    URLRouter(account_routing.websocket_urlpatterns + exchange_routing.websocket_urlpatterns)
+                    URLRouter(
+                        spot_routing.websocket_urlpatterns
+                        + exchange_routing.websocket_urlpatterns
+                        + account_routing.websocket_urlpatterns
+                    )
                 )
             )
         )
