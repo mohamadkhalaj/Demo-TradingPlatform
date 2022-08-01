@@ -35,11 +35,11 @@ class TradeConsumer(AsyncJsonWebsocketConsumer):
             await (self.send_json(content2))
             if self.user.is_authenticated:
                 await (self.send_json(content1))
-                content3 = await self.getOrders()
+                content3 = await self.get_orders()
                 await (self.send_json(content3))
 
             if self.user.is_authenticated:
-                portfo = await self.getPortfolio()
+                portfo = await self.get_portfolio()
                 await (self.send_json(portfo))
 
         elif self.header == "trade_request":
@@ -86,18 +86,18 @@ class TradeConsumer(AsyncJsonWebsocketConsumer):
                 await self.channel_layer.group_send(
                     self.broadcastName, {"type": "send.data", "content": recentTrades_response}
                 )
-                portfo = await self.getPortfolio()
+                portfo = await self.get_portfolio()
                 await self.channel_layer.group_send(self.unicastName, {"type": "send.data", "content": portfo})
         elif self.header == "limit_request":
-            result, order_response = await self.addOrder(content)
+            result, order_response = await self.add_order(content)
             await self.send_json(result)
             if result["0"]["state"] == 0:
                 await self.channel_layer.group_send(self.unicastName, {"type": "send.data", "content": order_response})
-                portfo = await self.getPortfolio()
+                portfo = await self.get_portfolio()
                 await self.channel_layer.group_send(self.unicastName, {"type": "send.data", "content": portfo})
         elif self.header == "delOrder_request":
-            await self.deleteOrder(content["id"])
-            portfo = await self.getPortfolio()
+            await self.delete_order(content["id"])
+            portfo = await self.get_portfolio()
             await self.channel_layer.group_send(self.unicastName, {"type": "send.data", "content": portfo})
 
     async def disconnect(self, code):
@@ -151,7 +151,7 @@ class TradeConsumer(AsyncJsonWebsocketConsumer):
         return hist_content, recent_content
 
     @database_sync_to_async
-    def getPortfolio(self):
+    def get_portfolio(self):
 
         resJson = dict()
 
@@ -172,7 +172,7 @@ class TradeConsumer(AsyncJsonWebsocketConsumer):
         return resJson
 
     @database_sync_to_async
-    def addOrder(self, content):
+    def add_order(self, content):
         # print(content)
         portfo = Portfolio.objects.filter(usr=self.user, marketType="spot")
 
@@ -237,7 +237,7 @@ class TradeConsumer(AsyncJsonWebsocketConsumer):
         return {"0": {"header": "limit_response", "state": state}}, response
 
     @database_sync_to_async
-    def deleteOrder(self, id):
+    def delete_order(self, id):
         ordersObj = SpotOrders.objects.filter(usr=self.user)
         ordersObj = ordersObj.get(id=id)
         portfo = Portfolio.objects.filter(usr=self.user, marketType="spot")
@@ -254,7 +254,7 @@ class TradeConsumer(AsyncJsonWebsocketConsumer):
         ordersObj.delete()
 
     @database_sync_to_async
-    def getOrders(self):
+    def get_orders(self):
         ordersObj = SpotOrders.objects.filter(usr=self.user)
         orders = dict()
         for index, item in enumerate(ordersObj.iterator()):
