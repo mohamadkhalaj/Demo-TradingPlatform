@@ -1,15 +1,11 @@
 from django.urls import path
 
-from .views import echo, home, markets, portfolio, recentTrades, search, trade, tradinghistory
+from .views import exchange_trade, markets, search_cryptos
 
 app_name = "exchange"
 urlpatterns = [
-    path("", home, name="home"),
     path("markets/", markets, name="markets"),
-    path("trade/<str:value>", trade, name="trade"),
-    path("portfolio/", portfolio, name="portfolio"),
-    path("tradinghistory/", tradinghistory, name="tradinghistory"),
-    path("recentTrades/", recentTrades, name="recentTrades"),
-    path("echo/", echo, name="echo"),
-    path("search/<str:value>", search, name="search"),
+    path("search/<str:value>", search_cryptos, name="search"),
+    path("trade/<str:pair>", exchange_trade, name="exchange_trade"),
+    path("trade/", exchange_trade, name="exchange_trade"),
 ]

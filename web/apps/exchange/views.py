@@ -1,25 +1,37 @@
 import json
-import re
 import urllib.parse
 
-import channels.layers
 import requests
-from asgiref.sync import async_to_sync
-from django.contrib.auth.decorators import login_required
+from core.utils import search_symbol
 from django.http import JsonResponse
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from requests.structures import CaseInsensitiveDict
 
-from .common_functions import Give_equivalent
-from .models import Portfolio, TradeHistory
-from .trade import Trade
+
+def exchange_trade(request, pair="BINANCE:BTCUSDT"):
+
+    if pair != "BINANCE:BTCUSDT":
+        name = pair.split("-")[0]
+        pair = search_symbol(pair)
+    else:
+        name = "BTC"
+
+    context = {"pair": pair, "name": name.upper()}
+
+    if not pair:
+        pair = "BINANCE:BTCUSDT"
+        name = "BTC"
+
+        context = {
+            "pair": pair,
+            "name": name.upper(),
+        }
+        return redirect("/account/trade/BTC-USDT")
+    else:
+        return render(request, "registration/trade.html", context=context)
 
 
-def home(request):
-    return render(request, "exchange/index.html")
-
-
-def search(request, value):
+def search_cryptos(request, value):
 
     headers = CaseInsensitiveDict()
     url = "https://arzdigital.com/wp-admin/admin-ajax.php"
@@ -39,76 +51,5 @@ def search(request, value):
     return JsonResponse(resp, safe=False)
 
 
-def signUp(request):
-    return render(request, "registration/signup.html")
-
-
 def markets(request):
     return render(request, "exchange/markets.html")
-
-
-@login_required()
-def trade(request, value):
-    value = re.sub("'", '"', value)
-    value = json.loads(value)
-
-    tradeObject = Trade(request.user, "market", value["type"], value["pair"], value["amount"])
-    result = tradeObject.result
-    if result["state"] == 0:
-        channel_layer = channels.layers.get_channel_layer()
-        async_to_sync(channel_layer.group_send)("orderBook", {"type": "order.display", "content": result})
-    return JsonResponse(result)
-
-
-@login_required()
-def portfolio(request):
-    eq = Give_equivalent()
-    resJson = dict()
-    for index, item in enumerate(Portfolio.objects.filter(usr=request.user).iterator()):
-        if item.cryptoName == "USDT":
-            equivalentAmount = None
-        else:
-            equivalentAmount = eq.calc_equivalent(item.cryptoName, "USDT", item.amount)[1]
-        resJson[index] = {
-            "cryptoName": item.cryptoName,
-            "amount": item.amount,
-            "equivalentAmount": equivalentAmount,
-            "marketType": item.marketType,
-        }
-    return JsonResponse(resJson)
-
-
-@login_required()
-def tradinghistory(request):
-    resJson = dict()
-
-    for index, item in enumerate(
-        TradeHistory.objects.filter(usr=request.user, amount__gt=0).order_by("-time").iterator()
-    ):
-        resJson[index] = {
-            "type": item.type,
-            "pair": item.pair,
-            "histAmount": item.histAmount,
-            "amount": item.amount,
-            "price": item.price,
-            "time": item.time,
-            "complete": item.complete,
-            "orderType": item.orderType,
-        }
-    return JsonResponse(resJson)
-
-
-def recentTrades(request):
-    resJson = dict()
-    for index, item in enumerate(TradeHistory.objects.filter(amount__gt=0).order_by("-time").iterator()):
-        resJson[index] = {
-            "type": item.type,
-            "pair": item.pair,
-            "pairPrice": item.price,
-            "amount": item.amount,
-        }
-    return JsonResponse(resJson)
-
-
-def echo(request):
-    return render(request, "exchange/echo.html")

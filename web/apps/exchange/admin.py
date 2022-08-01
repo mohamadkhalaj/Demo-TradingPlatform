@@ -1,8 +1,10 @@
+from account.models import User
 from django.contrib import admin
+from django.contrib.auth.admin import UserAdmin
 
-from .models import FuturesHistory, FuturesOrders, Portfolio, SpotOrders, TradeHistory, visitor
+from exchange.models import Portfolio, TradeHistory
 
-admin.site.site_header = "Demo Exchange Admin"
+admin.site.register(User, UserAdmin)
 
 
 class TradeHistoryAdmin(admin.ModelAdmin):
@@ -28,81 +30,3 @@ class PortfolioAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Portfolio, PortfolioAdmin)
-
-
-class visitorAdmin(admin.ModelAdmin):
-    list_display = ("ip_address", "humanizeTime", "userAgent", "path", "isAdminPanel")
-    list_filter = ("ip_address", "time", "isAdminPanel")
-    search_fields = ("userAgent",)
-
-
-admin.site.register(visitor, visitorAdmin)
-
-
-class SpotOrdersAdmin(admin.ModelAdmin):
-    list_display = (
-        "usr",
-        "type",
-        "pair",
-        "amount",
-        "price",
-        "mortgage",
-        "humanizeTime",
-    )
-    list_filter = (
-        "usr",
-        "type",
-        "pair",
-        "mortgage",
-    )
-
-
-admin.site.register(SpotOrders, SpotOrdersAdmin)
-
-
-class FuturesOrdersAdmin(admin.ModelAdmin):
-    list_display = (
-        "usr",
-        "type",
-        "pair",
-        "amount",
-        "entryPrice",
-        "marketPrice",
-        "liqPrice",
-        "leverage",
-        "orderType",
-        "marginType",
-        "complete",
-        "pnl",
-        "triggerConditions",
-        "humanizeTime",
-    )
-    list_filter = (
-        "usr",
-        "type",
-        "pair",
-        "entryPrice",
-        "marketPrice",
-        "liqPrice",
-        "leverage",
-        "orderType",
-        "marginType",
-        "complete",
-        "pnl",
-        "triggerConditions",
-    )
-
-
-admin.site.register(FuturesOrders, FuturesOrdersAdmin)
-
-
-class FuturesHistoryAdmin(admin.ModelAdmin):
-    list_display = (
-        "orderDetails",
-        "histAmount",
-        "humanizeTime",
-    )
-    list_filter = ("orderDetails",)
-
-
-admin.site.register(FuturesHistory, FuturesHistoryAdmin)

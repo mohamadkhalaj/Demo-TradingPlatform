@@ -14,7 +14,6 @@ except ImportError:
 
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from django.views.generic import CreateView, UpdateView
-from exchange.common_functions import search
 
 from .forms import LoginForm, ProfileForm, SignupForm
 from .models import User
@@ -31,39 +30,6 @@ class Profile(LoginRequiredMixin, UpdateView):
         return User.objects.get(pk=self.request.user.pk)
 
 
-@login_required
-def wallet(request):
-    return render(request, "registration/wallet.html")
-
-
-@login_required
-def tradeHistory(request):
-    return render(request, "registration/tradeHistory.html")
-
-
-def trade(request, pair="BINANCE:BTCUSDT"):
-
-    if pair != "BINANCE:BTCUSDT":
-        name = pair.split("-")[0]
-        pair = search(pair)
-    else:
-        name = "BTC"
-
-    context = {"pair": pair, "name": name.upper()}
-
-    if not pair:
-        pair = "BINANCE:BTCUSDT"
-        name = "BTC"
-
-        context = {
-            "pair": pair,
-            "name": name.upper(),
-        }
-        return redirect("/account/trade/BTC-USDT")
-    else:
-        return render(request, "registration/trade.html", context=context)
-
-
 class Login(LoginView):
     form_class = LoginForm
     redirect_authenticated_user = True
@@ -75,7 +41,7 @@ class Register(CreateView):
 
     def get(self, request, *args, **kwargs):
         if request.user.is_authenticated:
-            return redirect("exchange:home")
+            return redirect("home")
         return super(Register, self).get(request, *args, **kwargs)
 
     def form_valid(self, form):
@@ -128,3 +94,17 @@ def activate(request, uidb64, token):
             "message": "This link has been expired.",
         }
         return render(request, "registration/messages.html", context=context)
+
+
+def sign_up(request):
+    return render(request, "registration/signup.html")
+
+
+@login_required
+def wallet(request):
+    return render(request, "registration/wallet.html")
+
+
+@login_required
+def trade_history(request):
+    return render(request, "registration/tradeHistory.html")
