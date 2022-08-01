@@ -60,7 +60,7 @@ function createAssets(data) {
             var symbol = 'BTC';
         }
         
-        a.setAttribute('href',`/account/trade/${symbol}-USDT`)
+        a.setAttribute('href',`/trade/${symbol}-USDT`)
         a.classList.add('nav-link', 'd-flex', 'justify-content-between', 'align-items-center')
         a.setAttribute('target','_blank')
 

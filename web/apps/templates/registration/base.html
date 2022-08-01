@@ -14,13 +14,13 @@
   <link rel="stylesheet" href="{% static 'exchange/css/style.css' %}">
   <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.1/css/font-awesome.min.css" rel="stylesheet" crossorigin="anonymous">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.1/animate.min.css" rel="stylesheet" crossorigin="anonymous">
-  <script src="{% static 'exchange/js/jquery-3.4.1.min.js' %}"></script>
+  <script src="{% static 'exchange/js/base/jquery-3.4.1.min.js' %}"></script>
 </head>
 
 <body id="dark">
   <header class="dark-bb">
 	<nav class="navbar navbar-expand-lg">
-	  <a class="navbar-brand" href="{% url 'exchange:home' %}"><img src="{% static 'exchange/img/logo-light.svg' %}" alt="logo"></a>
+	  <a class="navbar-brand" href="{% url 'home' %}"><img src="{% static 'exchange/img/logo-light.svg' %}" alt="logo"></a>
 	  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#headerMenu"
 		aria-controls="headerMenu" aria-expanded="false" aria-label="Toggle navigation">
 		<i class="icon ion-md-menu"></i>
@@ -29,7 +29,7 @@
 	  <div class="collapse navbar-collapse" id="headerMenu">
 		<ul class="navbar-nav mr-auto">
 		  <li class="nav-item dropdown">
-			<a class="nav-link" href="{% url 'account:trade' %}" aria-haspopup="true"
+			<a class="nav-link" href="{% url 'exchange:exchange_trade' %}" aria-haspopup="true"
 			  aria-expanded="false">
 			  Trade
 			</a>
@@ -198,11 +198,11 @@
 {% block main %}
 {% endblock %}
 
-  <script src="{% static 'exchange/js/popper.min.js' %}"></script>
-  <script src="{% static 'exchange/js/bootstrap.min.js' %}"></script>
-  <script src="{% static 'exchange/js/amcharts-core.min.js' %}"></script>
-  <script src="{% static 'exchange/js/amcharts.min.js' %}"></script>
-  <script src="{% static 'exchange/js/custom.js' %}"></script>
+  <script src="{% static 'exchange/js/base/popper.min.js' %}"></script>
+  <script src="{% static 'exchange/js/base/bootstrap.min.js' %}"></script>
+  <script src="{% static 'exchange/js/chart/amcharts-core.min.js' %}"></script>
+  <script src="{% static 'exchange/js/chart/amcharts.min.js' %}"></script>
+  <script src="{% static 'exchange/js/base/custom.js' %}"></script>
   <script>
 	if (localStorage.getItem('theme') == 'true'){
 	  var auto = true;

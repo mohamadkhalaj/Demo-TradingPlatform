@@ -23,7 +23,7 @@ socket.onclose = function(e) {
 function fillData(data) {
     Object.keys(data).forEach(function(item, index) {
         obj = data[index]
-        document.getElementById(index + '_tr').setAttribute('data-href',`/account/trade/${obj["symbol"]}-USDT`)
+        document.getElementById(index + '_tr').setAttribute('data-href',`/trade/${obj["symbol"]}-USDT`)
         document.getElementById(index + '_image').src = `${obj["img"]}`
         document.getElementById(index + '_name').innerText = `${obj["symbol"]} (${obj["name"]})`
         document.getElementById(index + '_current_price').innerText = obj['price']

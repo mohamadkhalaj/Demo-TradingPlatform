@@ -67,7 +67,7 @@ function createReasult(data) {
     image.setAttribute('style', 'height:18px; margin-right: 10px;')
     coin.setAttribute('style', 'display:block ruby')
     name.innerText = data['name'] + ` (${data["symbol"]})`
-    a.href = `/account/trade/${data["symbol"]}-USDT`
+    a.href = `/trade/${data["symbol"]}-USDT`
 
     coin.appendChild(image)
     coin.appendChild(name)

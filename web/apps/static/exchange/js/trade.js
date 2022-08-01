@@ -574,10 +574,10 @@ function priceList(data){
 
         if(index != 2){
             tr_elem = document.getElementById(index + '_tr');
-            tr_elem.setAttribute('data-href',`/account/trade/${obj["pair"]}`);
+            tr_elem.setAttribute('data-href',`/trade/${obj["pair"]}`);
 
             tr_elem.onclick = function(){
-                window.location = `/account/trade/${obj["pair"]}`;
+                window.location = `/trade/${obj["pair"]}`;
             }
             
             document.getElementById(index + '_pair').innerText = `${obj["pair"]}`;
