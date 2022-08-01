@@ -5,9 +5,6 @@ import requests
 from decouple import config
 from exchange.models import Portfolio
 
-dictionary = {}
-RequestType = ""
-
 
 def get_crypto_compare():
     CRYPTO_COMPARE_API = config("CRYPTO_COMPARE_API")
