@@ -2579,3 +2579,28 @@ tbody.ob-heading {
     color:  red;
     cursor:  pointer;
 }
+
+.prev-next {
+    border: 1px solid #2a2e39;
+    color: #ffffff !important;
+    display: inline-block;
+    padding: 11px 30px 8px;
+    color: #4a4a4a;
+    margin-top: 50px;
+    transition: 0.3s;
+}
+
+.prev-next:hover {
+    color: #fff;
+    border: 1px solid #007bff;
+    background: #007bff;
+}
+
+.pagination-number {
+    position:absolute;
+    bottom:5px;
+}
+
+.paginator-container {
+    text-align:center;
+}

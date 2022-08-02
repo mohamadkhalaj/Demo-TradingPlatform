@@ -123,20 +123,24 @@
 				</table>
 			  </div>
 			</div>
-			<div class="text-center demo">
-			  
-				<button id="paginationPrev" href="#" style="margin-right: 10px" class="load-more btn">Previous Page</button>
-
-				<span id="paginationText" class="green" style="position: absolute; bottom: 8px;margin-left: 21px;"></span>
-
-				<button id="paginationNext" href="#" style="margin-left: 90px" class="load-more btn">Next Page</button>
-
-			</div>
-		  </div>
 		</div>
-	  </div>
 	</div>
-  </div>
+</div>
+</div>
+<div class="container paginator-container">
+	<div class="row">
+		<div class="col-5">
+			<button id="paginationPrev" href="#" class="prev-next btn">Previous</button>
+		</div>
+		<div class="col-2">
+			<span id="paginationText" class="green pagination-number"></span>
+		</div>
+		<div class="col-5">
+			<button id="paginationNext" href="#" class="prev-next btn">Next</button>
+		</div>
+	</div>
+</div>
+</div>
 
 <script src="{% static 'exchange/js/markets.js' %}"></script>
 <script src="{% static 'exchange/js/search.js' %}"></script>
