@@ -17,7 +17,7 @@ fonttools==4.34.4
 gunicorn==20.1.0
 idna==3.3
 kiwisolver==1.4.4
-matplotlib==3.5.1
+matplotlib==3.5.2
 numpy==1.22.0
 oauthlib==3.2.0
 packaging==21.3
