@@ -930,6 +930,7 @@
     if (ThemeOn) {
       $('#changeThemeLight a i').attr('class', 'icon ion-md-moon');
       $('header').attr('class', 'dark-bb');
+      $('.prev-next').addClass('prev-next-dark');
       $('body').attr('id', 'dark');
 
       $('#searchParent').attr('style', 'background-Color: white');
@@ -940,6 +941,7 @@
       $('#changeThemeLight a i').attr('class', 'icon ion-md-sunny');
       $('header').attr('class', 'light-bb');
       $('body').attr('id', 'light');
+      $('.prev-next').removeClass('prev-next-dark');
 
       $('#searchParent').attr('style', 'background-Color: aliceblue');
       $('#inputBox').attr('style', 'background-Color: aliceblue');
@@ -961,7 +963,7 @@
     if (ThemeOn) {
       
       $('#changeThemeDark a i').attr('class', 'icon ion-md-sunny');
-
+      $('.prev-next').addClass('prev-next-dark');
       $('#searchParent').attr('style', 'background-Color: aliceblue');
       $('#inputBox').attr('style', 'background-Color: aliceblue');
 
@@ -970,7 +972,7 @@
       $('.navbar-brand img').attr('src', '/static/exchange/img/logo-dark.svg');
     } else {
       $('#changeThemeDark a i').attr('class', 'icon ion-md-moon');
-
+      $('.prev-next').removeClass('prev-next-dark');
       $('#searchParent').attr('style', 'background-Color: white');
       $('#inputBox').attr('style', 'background-Color: #131722');
 

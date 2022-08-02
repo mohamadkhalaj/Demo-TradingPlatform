@@ -2456,6 +2456,7 @@ tbody.ob-heading {
   right: 30px;
   width: 400px;
   min-height: 300px;
+  display: none;
 }
 .alerts .alert {
   position: relative;
@@ -2590,6 +2591,10 @@ tbody.ob-heading {
     transition: 0.3s;
 }
 
+.prev-next-dark {
+    color: #4a4a4a !important;
+}
+
 .prev-next:hover {
     color: #fff;
     border: 1px solid #007bff;
@@ -2603,4 +2608,8 @@ tbody.ob-heading {
 
 .paginator-container {
     text-align:center;
+}
+
+#settings {
+    overflow-x:hidden;
 }

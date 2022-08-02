@@ -494,6 +494,8 @@ function validate(evt) {
 
 function closeAlert(){
     var alertBox = this.parentNode;
+    var parent = document.getElementById('alert');
+    parent.style.display = 'block';
     alertBox.classList.remove('bounceInRight');
     alertBox.classList.add('bounceOutRight', 'd-none');    
 }
@@ -502,6 +504,7 @@ function createAlert(type, message) {
     var logos = ['fa-info', 'fa-check', 'fa-exclamation-triangle']
 
     var parent = document.getElementById('alert');
+    parent.style.display = 'block';
     var mainDiv = document.createElement("div")
 
     var errorTitle = ''
@@ -565,6 +568,7 @@ function createAlert(type, message) {
     parent.appendChild(mainDiv)
 
     setTimeout(function(param){
+        parent.style.display = 'none';
         mainDiv.remove()
     }.bind(null), 5000);
 }
