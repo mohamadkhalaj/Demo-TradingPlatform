@@ -46,7 +46,6 @@ class TradeConsumer(AsyncJsonWebsocketConsumer):
             self.pair = content["pair"]
             self.orderType = content["orderType"]
             result = await self.trade(content)
-            # print('result: ', result)
             if result["state"] == -1:
                 trade_response = {"0": result}
             else:
@@ -134,7 +133,7 @@ class TradeConsumer(AsyncJsonWebsocketConsumer):
                     "pair": item.pair,
                     "pairPrice": item.pairPrice,
                     "amount": item.amount,
-                    "date": item.time.strftime("%Y-%m-%d:%H:%M"),
+                    "date": item.time.strftime("%m-%d:%H:%M"),
                     "price": item.price,
                     "orderType": item.orderType,
                 }
@@ -228,7 +227,7 @@ class TradeConsumer(AsyncJsonWebsocketConsumer):
                     "amount": dbAmount,
                     "price": content["tradeSize"],
                     "orderType": "limit",
-                    "date": date.strftime("%Y:%m:%d:%H:%M"),
+                    "date": date.strftime("%m:%d:%H:%M"),
                     "pairPrice": content["price"],
                     "id": id,
                 }
@@ -263,7 +262,7 @@ class TradeConsumer(AsyncJsonWebsocketConsumer):
                 "type": item.type,
                 "pair": item.pair,
                 "amount": item.amount,
-                "date": item.time.strftime("%Y-%m-%d:%H:%M"),
+                "date": item.time.strftime("%m-%d:%H:%M"),
                 "pairPrice": item.pairPrice,
                 "price": item.price,
                 "orderType": "limit",
