@@ -13,7 +13,7 @@ var parent = document.getElementById("histories");
 
 histSocket.onopen = function(e){
     console.log('socket connected');  
-    pagination();
+    pagination(histSocket);
     histSocket.send(JSON.stringify({'page': page}))
 }
 

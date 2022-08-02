@@ -116,10 +116,10 @@ function pagination() {
             clickTimeout = setTimeout(function(){
                 socket.close()
                 try {
-                    var socket = new WebSocket('ws://' + window.location.host + '/ws/');
+                    socket = new WebSocket('ws://' + window.location.host + '/ws/');
                 }
                 catch (e) {
-                    var socket = new WebSocket('wss://' + window.location.host + '/ws/');
+                    socket = new WebSocket('wss://' + window.location.host + '/ws/');
                 }
                 socket.onopen = function () {
                     socket.send(JSON.stringify({"page":page}));
@@ -148,10 +148,10 @@ function pagination() {
             clickTimeout = setTimeout(function(){
                 socket.close()
                 try {
-                    var socket = new WebSocket('ws://' + window.location.host + '/ws/');
+                    socket = new WebSocket('ws://' + window.location.host + '/ws/');
                 }
                 catch (e) {
-                    var socket = new WebSocket('wss://' + window.location.host + '/ws/');
+                    socket = new WebSocket('wss://' + window.location.host + '/ws/');
                 }
 
                 socket.onopen = function () {
@@ -181,10 +181,10 @@ window.ononline = (event) => {
 
     socket.close()
     try {
-        var socket = new WebSocket('ws://' + window.location.host + '/ws/');
+        socket = new WebSocket('ws://' + window.location.host + '/ws/');
     }
     catch (e) {
-        var socket = new WebSocket('wss://' + window.location.host + '/ws/');
+        socket = new WebSocket('wss://' + window.location.host + '/ws/');
     }
     socket.onopen = function () {
         socket.send(JSON.stringify({"page":page, RequestType : 'market'}));
@@ -202,4 +202,4 @@ window.ononline = (event) => {
 };
 
 initial()
-pagination()
+pagination(socket)
