@@ -1,6 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth.views import LoginView
+from django.contrib.auth.views import LoginView, PasswordChangeView, PasswordResetView
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import EmailMessage
 from django.shortcuts import redirect, render
@@ -15,7 +15,7 @@ except ImportError:
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from django.views.generic import CreateView, UpdateView
 
-from .forms import LoginForm, ProfileForm, SignupForm
+from .forms import LoginForm, PasswordChangeFormOauth, PasswordResetFormAllowNoPassword, ProfileForm, SignupForm
 from .models import User
 from .tokens import account_activation_token
 
@@ -33,6 +33,16 @@ class Profile(LoginRequiredMixin, UpdateView):
 class Login(LoginView):
     form_class = LoginForm
     redirect_authenticated_user = True
+
+
+class PasswordChange(PasswordChangeView):
+    form_class = PasswordChangeFormOauth
+    template_name = "registration/password_change_form.html"
+
+
+class PasswordReset(PasswordResetView):
+    form_class = PasswordResetFormAllowNoPassword
+    template_name = "registration/password_reset_form.html"
 
 
 class Register(CreateView):
@@ -65,7 +75,7 @@ class Register(CreateView):
 
         context = {
             "title": "Signup",
-            "redirect": "exchange:home",
+            "redirect": "home",
             "message": "Please confirm your email address to complete the registration.",
         }
         return render(self.request, "registration/messages.html", context=context)

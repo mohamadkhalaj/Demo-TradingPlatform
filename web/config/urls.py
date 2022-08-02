@@ -1,4 +1,4 @@
-from account.views import Login, Register, activate
+from account.views import Login, PasswordChange, PasswordReset, Register, activate
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
@@ -11,6 +11,8 @@ urlpatterns = [
     path("", home, name="home"),
     path("login/", Login.as_view(), name="login"),
     path("signup/", Register.as_view(), name="signUp"),
+    path("password_reset/", PasswordReset.as_view(), name="password_reset"),
+    path("password_change/", PasswordChange.as_view(), name="password_change"),
     path("activate/<uidb64>/<token>/", activate, name="activate"),
     path(settings.ADMIN_URL, admin.site.urls),
     path("admin/", include("admin_honeypot.urls", namespace="admin_honeypot")),
