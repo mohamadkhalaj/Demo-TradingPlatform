@@ -2440,10 +2440,11 @@ tbody.ob-heading {
 }
 
 .errors {
-    margin: 13px;
-    font-size: 18px;
     color: #007bff;
-    text-align: justify;
+    font-size: 14px !important;
+    color: #007bff !important;
+    text-align: justify !important;
+    margin-top: 5px !important;
 }
 
 .img-circle {

@@ -6,22 +6,22 @@
 
 <div class="vh-100 d-flex justify-content-center">
 <div class="form-access my-auto" style="max-width: min-content;">
-	{% if form.non_field_errors %}
-		<div class="errors">
-		{% for error in form.non_field_errors %}
-			<span>{{error}}</span>
-		{% endfor %}
-		</div>
-	{% endif %}
 	<form method = "post">
+		{% if form.non_field_errors %}
+			<div>
+			{% for error in form.non_field_errors %}
+						<span class="errors">{{error}}</span>
+			{% endfor %}
+			</div>
+		{% endif %}
 		{% csrf_token %}
 		<span>Sign In</span>
 		<div class="form-group">
 			{{form.username|add_class:"form-control"|attr:"placeholder:Username"}}
 			{% if form.username.errors %}
-				<div class="errors">
+				<div>
 					{% for error in form.username.errors %}
-				<span>{{error}}</span>
+				<span class="errors">{{error}}</span>
 			{% endfor %}
 			</div>
 			{% endif %}
@@ -29,9 +29,9 @@
 		<div class="form-group">
 			{{form.password|add_class:"form-control"|attr:"placeholder:Password"}}
 			{% if form.password.errors %}
-				<div class="errors">
+				<div>
 					{% for error in form.password.errors %}
-						<span>{{error}}</span>
+						<span  class="errors">{{error}}</span>
 					{% endfor %}
 				</div>
 			{% endif %}
@@ -42,9 +42,9 @@
 		<div style="margin-bottom: -13px;">
 			{{form.hcaptcha|add_class:"form-control"}}
 			{% if form.hcaptcha.errors %}
-				<div class="errors">
+				<div>
 					{% for error in form.hcaptcha.errors %}
-				<span>{{error}}</span>
+						<span  class="errors">{{error}}</span>
 			{% endfor %}
 			</div>
 			{% endif %}
