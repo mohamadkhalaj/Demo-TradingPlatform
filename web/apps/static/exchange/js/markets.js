@@ -101,7 +101,7 @@ function initial() {
     }
 }
 
-function pagination() {
+function pagination(socket) {
 
     var clickTimeout;
     $('#paginationText').text(page + 1 + '/' + 30)
@@ -122,7 +122,7 @@ function pagination() {
                     socket = new WebSocket('wss://' + window.location.host + '/ws/');
                 }
                 socket.onopen = function () {
-                    socket.send(JSON.stringify({"page":page}));
+                    socket.send(JSON.stringify({"page":page, RequestType : 'market'}));
                 };
 
                 socket.onmessage = function(e) {
