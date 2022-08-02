@@ -54,6 +54,7 @@ class TradeConsumer(AsyncJsonWebsocketConsumer):
             await self.channel_layer.group_send(self.unicastName, {"type": "send.data", "content": trade_response})
             # successful trade
             if result["state"] == 0:
+                date_obj = datetime.strptime(result["date"], "%Y:%m:%d:%H:%M")
                 hist_response = {
                     "0": {
                         "header": "hist_response",
@@ -62,7 +63,7 @@ class TradeConsumer(AsyncJsonWebsocketConsumer):
                         "amount": result["amount"],
                         "price": result["price"],
                         "orderType": content["orderType"],
-                        "date": result["date"],
+                        "date": date_obj.strftime("%m-%d:%H:%M"),
                         "pairPrice": result["pairPrice"],
                     }
                 }
@@ -71,6 +72,7 @@ class TradeConsumer(AsyncJsonWebsocketConsumer):
                 # recent page group send
                 channel = get_channel_layer()
                 await channel.group_send(f"{self.user}_HSTunicast", {"type": "send.data", "content": hist_response})
+
                 recentTrades_response = {
                     "0": {
                         "header": "recent_response",
