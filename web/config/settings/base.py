@@ -87,6 +87,8 @@ TEMPLATES = [
                 "django.template.context_processors.debug",
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
+                "social_django.context_processors.backends",
+                "social_django.context_processors.login_redirect",
                 "django.template.context_processors.i18n",
                 "django.template.context_processors.media",
                 "django.template.context_processors.static",
@@ -190,7 +192,7 @@ SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = env("SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET", defau
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#session-cookie-httponly
 SESSION_COOKIE_HTTPONLY = True
-SESSION_COOKIE_SAMESITE = "Strict"
+SESSION_COOKIE_SAMESITE = "Lax"
 # https://docs.djangoproject.com/en/dev/ref/settings/#csrf-cookie-httponly
 CSRF_COOKIE_HTTPONLY = True
 CSRF_COOKIE_SAMESITE = "Strict"

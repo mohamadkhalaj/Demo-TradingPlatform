@@ -16,6 +16,7 @@ THIRD_PARTY_APPS = [
     "hcaptcha",
 ]
 INSTALLED_APPS += THIRD_PARTY_APPS
+SOCIAL_AUTH_JSONFIELD_ENABLED = True
 
 # Hcaptcha
 HCAPTCHA_DEFAULT_CONFIG = {"hl": "en"}
@@ -73,6 +74,7 @@ SECURE_HSTS_INCLUDE_SUBDOMAINS = env_("DJANGO_SECURE_HSTS_INCLUDE_SUBDOMAINS", d
 SECURE_HSTS_PRELOAD = env_("DJANGO_SECURE_HSTS_PRELOAD", default=True)
 # https://docs.djangoproject.com/en/dev/ref/middleware/#x-content-type-options-nosniff
 SECURE_CONTENT_TYPE_NOSNIFF = env_("DJANGO_SECURE_CONTENT_TYPE_NOSNIFF", default=True)
+SOCIAL_AUTH_REDIRECT_IS_HTTPS = True
 
 # STATIC
 # ------------------------
