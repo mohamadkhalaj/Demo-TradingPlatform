@@ -17,7 +17,7 @@
 		{% csrf_token %}
 		<span>Sign In</span>
 		<div class="form-group">
-			{{form.username|add_class:"form-control"|attr:"placeholder:Username"}}
+			{{form.username|add_class:"form-control"|attr:"placeholder:Email or Username"}}
 			{% if form.username.errors %}
 				<div>
 					{% for error in form.username.errors %}

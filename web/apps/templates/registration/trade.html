@@ -85,7 +85,7 @@
 			<a class="nav-link" data-toggle="pill" href="#pills-limit" role="tab" aria-selected="false">Limit</a>
 		  </li>
 		</ul>
-		<div class="tab-content">
+		<div class="tab-content" style="overflow-x: hidden;">
 		  <div class="tab-pane fade show active" id="pills-trade-market" role="tabpanel">
 			<div class="d-flex justify-content-between">
 			  <div class="market-trade-buy">
@@ -109,7 +109,7 @@
 					<a href="#!">100%</a>
 				  </li>
 				</ul>
-				<p>Margin: <span id="usdtAmount"></span></p><button class="btn buy" onclick="trade('buy', '{{name}}')">Buy {{name}}</button>
+				<p>Margin: <span id="usdtAmount"></span></p>
 			  </div>
 			  <div class="market-trade-sell">
 				<div class="input-group">
@@ -132,8 +132,16 @@
 					<a href="#!">100%</a>
 				  </li>
 				</ul>
-				<p>Margin: <span id="pairAmount"></span></p><button class="btn sell" onclick="trade('sell', '{{name}}')">Sell {{name}}</button>
+				<p>Margin: <span id="pairAmount"></span></p>
 			  </div>
+			</div>
+			<div class="row">
+				<div class="col-md-6">
+					<button class="btn buy" onclick="trade('buy', '{{name}}')">Buy {{name}}</button>
+				</div>
+				<div class="col-md-6">
+					<button class="btn sell" onclick="trade('sell', '{{name}}')">Sell {{name}}</button>
+				</div>
 			</div>
 		  </div>
 		  <div class="tab-pane fade" id="pills-limit" role="tabpanel">
@@ -167,7 +175,6 @@
 				</ul>
 				<p>Total: <span id="totalBuyLimit">0 USD</span></p>
 				<p>Margin: <span id="usdtAmountLimit"></span></p>
-				<button class="btn buy" onclick="limit('buy', '{{name}}')">Buy</button>
 			  </div>
 			  <div class="market-trade-sell">
 				<div class="input-group">
@@ -198,13 +205,19 @@
 				</ul>
 				<p>Total: <span id="totalSellLimit">0 USD</span></p>
 				<p>Margin: <span id="pairAmountLimit"></span></p>
-				<button class="btn sell" onclick="limit('sell', '{{name}}')">Sell</button>
 			  </div>
+			</div>
+			<div class="row">
+				<div class="col-md-6">
+					<button class="btn buy" onclick="limit('buy', '{{name}}')">Buy</button>
+				</div>
+				<div class="col-md-6">
+					<button class="btn sell" onclick="limit('sell', '{{name}}')">Sell</button>
+				</div>
 			</div>
 		  </div>
 		</div>
 	  </div>
-	  {% comment %} <script src="{% static 'exchange/js/trade.js' %}"></script> {% endcomment %}
 		  {% else %}
 	  <div class="mt-5 d-flex justify-content-center mb-5">
 		<div class="d-flex justify-content-center">

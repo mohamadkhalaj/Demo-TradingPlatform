@@ -2455,9 +2455,10 @@ tbody.ob-heading {
   position: fixed;
   top: 40px;
   right: 30px;
-  width: 400px;
+  width: 300px;
   min-height: 300px;
   display: none;
+  z-index: 100;
 }
 .alerts .alert {
   position: relative;
