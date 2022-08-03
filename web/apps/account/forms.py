@@ -1,6 +1,5 @@
 import os
 import unicodedata
-from collections import UserList
 
 from django import forms
 from django.contrib.auth.forms import (

@@ -31,7 +31,6 @@ class EmailOrUsernameModelBackend(ModelBackend):
             # filter user case insensitively
             temp = self.case_insensitive_username(kwargs)
             kwargs = temp
-            print(kwargs)
             user = User._default_manager.filter(**kwargs).get()
         except User.DoesNotExist:
             # Run the default password hasher once to reduce the timing
@@ -44,6 +43,5 @@ class EmailOrUsernameModelBackend(ModelBackend):
     def case_insensitive_username(self, kwargs):
         temp = {}
         for key in kwargs.keys():
-            print(key)
             temp[key + "__iexact"] = kwargs[key]
         return temp
