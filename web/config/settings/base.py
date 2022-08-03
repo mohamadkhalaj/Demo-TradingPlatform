@@ -101,7 +101,7 @@ TEMPLATES = [
 
 AUTHENTICATION_BACKENDS = (
     "social_core.backends.google.GoogleOAuth2",
-    "django.contrib.auth.backends.ModelBackend",
+    "account.backends.EmailOrUsernameModelBackend",
 )
 
 ASGI_APPLICATION = "config.routing.application"
