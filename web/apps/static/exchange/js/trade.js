@@ -40,7 +40,7 @@ var createdRecentTrades = [];
 var activeAlerts = [];
 
 function tradeSocketOpen() {
-    tradeSocket.send(JSON.stringify({'header': 'attribs', 'current_pair': pair, 'page': 'trade'}));
+    // tradeSocket.send(JSON.stringify({'header': 'attribs', 'current_pair': pair, 'page': 'trade'}));
     removeRecentTrades();
     removeHistory();
     removeOpenOrders();
@@ -53,48 +53,53 @@ tradeSocket.onopen = () => {
 
 function tradeSocketMessage(e) {
     data = JSON.parse(e.data);
-    // console.log(data)
-    Object.keys(data).forEach(function(index){
-        obj = data[index]
-        // console.log(obj)
-        header = obj['header']
+    console.log(data)
+    if(data["successful"] == true){
+        createAlert('success', data["message"])
+    }else{
+        createAlert('danger', data["message"])
+    }
+    // Object.keys(data).forEach(function(index){
+    //     obj = data[index]
+    //     // console.log(obj)
+    //     header = obj['header']
 
-        if((header == 'trade_response' || header == 'limit_response') && user != 'AnonymousUser'){
-            state = obj['state'];
+    //     if((header == 'trade_response' || header == 'limit_response') && user != 'AnonymousUser'){
+    //         state = obj['state'];
             
-            if(state == -1){
-                createAlert('danger', obj['message'])
-            }
-            else if(state == 0){
-                if(header == 'trade_response'){
-                    createAlert('success', 'Order filled!')
-                    uValue.value = 0;
-                    pValue.value = 0;
-                }else{
-                    createAlert('success', 'Order added!');
-                    limit_buy_price.value = 0;
-                    limit_buy_amount.value = 0;
-                    limit_sell_price.value = 0;
-                    limit_sell_amount.value = 0;
-                }
+    //         if(state == -1){
+    //             createAlert('danger', obj['message'])
+    //         }
+    //         else if(state == 0){
+    //             if(header == 'trade_response'){
+    //                 createAlert('success', 'Order filled!')
+    //                 uValue.value = 0;
+    //                 pValue.value = 0;
+    //             }else{
+    //                 createAlert('success', 'Order added!');
+    //                 limit_buy_price.value = 0;
+    //                 limit_buy_amount.value = 0;
+    //                 limit_sell_price.value = 0;
+    //                 limit_sell_amount.value = 0;
+    //             }
                 
-            }else{
-                createAlert('danger', 'Insufficient balance!')
-            }
-        }  
-        else if((header=='hist_response' || header=='orders_response') && user!='AnonymousUser'){
-            getHistory(obj, header);
-        }
-        else if(header == 'recent_response'){
-            if(obj['pair'] == pair){
-                recentTrades(obj);
-            }           
-        }
-        else if(header == 'portfo_response' && user != 'AnonymousUser'){
-            getPortfolio(obj);
-        }
+    //         }else{
+    //             createAlert('danger', 'Insufficient balance!')
+    //         }
+    //     }  
+    //     else if((header=='hist_response' || header=='orders_response') && user!='AnonymousUser'){
+    //         getHistory(obj, header);
+    //     }
+    //     else if(header == 'recent_response'){
+    //         if(obj['pair'] == pair){
+    //             recentTrades(obj);
+    //         }           
+    //     }
+    //     else if(header == 'portfo_response' && user != 'AnonymousUser'){
+    //         getPortfolio(obj);
+    //     }
 
-    })
+    // })
     try {
         if(document.getElementById('open-limit-orders').childElementCount > 0){
             document.querySelector('.no-data').style.display = 'none';
@@ -208,7 +213,6 @@ function trade(type, pair) {
     }    
     else{
         var reqJson = {
-            'header': 'trade_request',
             'orderType': 'market',
             'pair' : `${pair}-USDT`,
             'type' : type,

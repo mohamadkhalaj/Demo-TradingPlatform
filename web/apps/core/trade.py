@@ -1,7 +1,7 @@
 from django.conf import settings
 from matplotlib.pyplot import hist
 from .utils import calc_equivalent
-from .models import Portfolio, TradeHistory
+from exchange.models import Portfolio, TradeHistory
 
 
 class Trade:
@@ -19,18 +19,18 @@ class Trade:
     
     def spotTrade(self):
         message = None
-        pairPrice = calc_equivalent(self.base, self.qoute)[0]
+        pairPrice = calc_equivalent(self.base, self.quote)
 
         if self.crp == self.base:
             equivalent = self.amount * pairPrice
             amount = f'{self.amount} {self.base}'
 
             if equivalent < settings.MINIMUM_TRADE_SIZE:
-                message = f"minimum trade size is {settings.MINIMUM_TRADE_SIZE} $, but your's is:"\
+                message = f"minimum trade size is {settings.MINIMUM_TRADE_SIZE} $, but your's is: "\
                             +f"{self.amount} {self.crp}={round(equivalent, 2)}$ !"
             else:
                 if self.type == 'buy':
-                    is_available = self.check_available(equivalent, self.qoute)
+                    is_available = self.check_available(equivalent, self.quote)
                     toAdd = [self.base, self.amount]
                     toSub = [self.quote, equivalent]
                 else:
@@ -42,9 +42,8 @@ class Trade:
             equivalent = self.amount / pairPrice
             amount = f'{equivalent} {self.base}'
 
-            if equivalent < settings.MINIMUM_TRADE_SIZE:
-                message = f"minimum trade size is {settings.MINIMUM_TRADE_SIZE} $, but your's is:"\
-                            +f"{self.amount} {self.crp}={self.amount}$ !"
+            if self.amount < settings.MINIMUM_TRADE_SIZE:
+                message = f"minimum trade size is {settings.MINIMUM_TRADE_SIZE} $, but your's is: {self.amount} $ !"
             else:
                 if self.type == 'buy':
                     is_available = self.check_available(self.amount, self.quote)
@@ -67,28 +66,23 @@ class Trade:
             obj.amount = obj.amount - toSub[1]
             obj.save()
 
-            obj, created = Portfolio.objects.get_or_create(
-                usr=self.user,
-                cryptoName=toAdd[0],
-                amount=self.amount
-            )
-
-            if not created:
+            try:
+                obj = self.portfo.get(cryptoName=toAdd[0])
                 obj.amount = obj.amount + toAdd[1]
                 obj.save()
+            except:
+                Portfolio.objects.create(usr=self.user, cryptoName=toAdd[0], amount=toAdd[1])
 
             histAmount = dict()
             for item in self.portfo.iterator():
-                histAmount["cryptoName"] = item.cryptoName
-                histAmount["amount"] = item.amount
+                histAmount[item.cryptoName] = item.amount
 
             TradeHistory.objects.create(
                 usr=self.user,
                 type=self.type,
                 pair=self.pair,
                 histAmount=histAmount,
-                amount=self.amount,
-                price=pairPrice,
+                amount=amount,
                 complete=True,
                 orderType=self.orderType,
                 pairPrice=pairPrice

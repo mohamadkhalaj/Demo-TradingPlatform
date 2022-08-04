@@ -26,14 +26,18 @@ def check_symbol_balance(amount, name, user):
 def calc_equivalent(base, qoute, amount=None):
     response = requests.get(
         "https://min-api.cryptocompare.com/data/pricemulti?fsyms=" + base + "," + qoute + "&tsyms=USDT,USDT"
-    )
-    response = response.json()
+    ).json()
+    
     basePrice = float(response[base]["USDT"])
     qoutePrice = float(response[qoute]["USDT"])
     pairPrice = basePrice / qoutePrice
-    equivalent = pairPrice * amount
+    
+    if amount:
+        equivalent = pairPrice * amount
+        return pairPrice, equivalent
+    else:
+        return pairPrice
 
-    return pairPrice, equivalent
 
 
 def pretify(float_num):
