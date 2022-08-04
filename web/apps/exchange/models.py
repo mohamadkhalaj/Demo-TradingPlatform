@@ -1,3 +1,4 @@
+import requests
 from django.conf import settings
 from django.contrib.humanize.templatetags.humanize import naturaltime
 from django.db import models
@@ -13,6 +14,15 @@ class Portfolio(models.Model):
     def __str__(self):
         return f"{self.usr} {self.cryptoName}"
 
+    @property
+    def get_dollar_equivalent(self):
+        response = requests.get(
+            f"https://min-api.cryptocompare.com/data/price?fsym={self.cryptoName}&tsyms=USDT"
+        ).json()
+        price = float(response['USDT'])
+
+        return price * self.amount
+
 
 # details of terminated spot orders
 class TradeHistory(models.Model):
@@ -22,8 +32,7 @@ class TradeHistory(models.Model):
     pairPrice = models.FloatField()
     orderType = models.CharField(max_length=15, default=None)  # market/limit
     histAmount = models.JSONField(default=None)
-    amount = models.FloatField()
-    price = models.FloatField()
+    amount = models.CharField(max_length=10)
     time = models.DateTimeField(auto_now=True)
     complete = models.BooleanField(default=True)
 

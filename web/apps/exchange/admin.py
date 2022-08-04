@@ -12,7 +12,6 @@ class TradeHistoryAdmin(admin.ModelAdmin):
         "type",
         "pair",
         "amount",
-        "price",
         "humanizeTime",
         "usr",
         "orderType",
