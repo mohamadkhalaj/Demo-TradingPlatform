@@ -78,8 +78,8 @@ class Charts:
 
         total = 0
         for hst in historyDict:
-            crypto = historyDict[hst]["cryptoName"]
-            amount = float(historyDict[hst]["amount"])
+            crypto = hst
+            amount = historyDict[hst]
             total += prices[crypto][price_index] * amount
 
         return historyDict, total

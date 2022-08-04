@@ -23,7 +23,7 @@ def check_symbol_balance(amount, name, user):
         return 2
 
 
-def calc_equivalent(base, qoute, amount):
+def calc_equivalent(base, qoute, amount=None):
     response = requests.get(
         "https://min-api.cryptocompare.com/data/pricemulti?fsyms=" + base + "," + qoute + "&tsyms=USDT,USDT"
     )

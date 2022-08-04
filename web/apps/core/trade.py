@@ -1,144 +1,132 @@
-from datetime import datetime
-
-import requests
 from django.conf import settings
-from exchange.models import Portfolio, TradeHistory
+from matplotlib.pyplot import hist
+from .utils import calc_equivalent
+from .models import Portfolio, TradeHistory
 
 
 class Trade:
-    def __init__(self, user, orderType, type, pair, amount):
+    def __init__(self, user, inputs):
         self.user = user
-        self.orderType = orderType
-        self.portfo = Portfolio.objects.filter(usr=self.user, marketType="spot")
-        self.result = None
-        self.type = type
-        self.pair = pair
-        self.amount = float(amount.split(" ")[0])
-        self.crp = amount.split(" ")[1]
-        self.base = pair.split("-")[0]
-        self.qoute = pair.split("-")[1]
-        self.pairPrice = 0
-        self.equivalent = 0
-        self.callf()
-        # dict = {'pair':'MANA-USDT', 'type':'buy', 'amount':'20 MANA'}
+        self.portfo = Portfolio.objects.filter(usr=self.user, marketType='spot')
+        self.orderType = inputs['orderType']
+        self.type = inputs['type']
+        self.pair = inputs['pair']
+        self.base = inputs['pair'].split('-')[0]
+        self.quote = inputs['pair'].split('-')[1]
+        self.crp = inputs['amount'].split(' ')[1]
+        self.amount = float(inputs['amount'].split(' ')[0])
 
-    def callf(self):
-        self.equivalent, message = self.calc_equivalent(self.base, self.qoute, self.amount)
-        if message:
-            self.result = {"header": "trade_response", "state": -1, "message": message}
-            return
+    
+    def spotTrade(self):
+        message = None
+        pairPrice = calc_equivalent(self.base, self.qoute)[0]
 
-        if self.type == "buy":
-            if self.crp == self.base:
-                state = self.check_available(self.equivalent, self.qoute)
-                toSub = price = self.equivalent
-                toAdd = self.amount
+        if self.crp == self.base:
+            equivalent = self.amount * pairPrice
+            amount = f'{self.amount} {self.base}'
+
+            if equivalent < settings.MINIMUM_TRADE_SIZE:
+                message = f"minimum trade size is {settings.MINIMUM_TRADE_SIZE} $, but your's is:"\
+                            +f"{self.amount} {self.crp}={round(equivalent, 2)}$ !"
             else:
-                state = self.check_available(self.amount, self.qoute)
-                toSub = price = self.amount
-                toAdd = self.equivalent
-            if state == 0:
-                # subtract
-                obj = self.portfo.get(cryptoName=self.qoute)
-                obj.amount = obj.amount - toSub
-                obj.save()
-                # add
-                try:
-                    obj = self.portfo.get(cryptoName=self.base)
-                    obj.amount = obj.amount + toAdd
-                    obj.save()
-                except:
-                    newCrypto = Portfolio(usr=self.user, cryptoName=self.base, amount=toAdd, equivalentAmount=None)
-                    newCrypto.save()
-        #     type = sell
+                if self.type == 'buy':
+                    is_available = self.check_available(equivalent, self.qoute)
+                    toAdd = [self.base, self.amount]
+                    toSub = [self.quote, equivalent]
+                else:
+                    is_available = self.check_available(self.amount, self.base)
+                    toAdd = [self.quote, equivalent]
+                    toSub = [self.base, self.amount]  
+
         else:
-            if self.crp == self.base:
-                state = self.check_available(self.amount, self.base)
-                toSub = self.amount
-                toAdd = price = self.equivalent
+            equivalent = self.amount / pairPrice
+            amount = f'{equivalent} {self.base}'
+
+            if equivalent < settings.MINIMUM_TRADE_SIZE:
+                message = f"minimum trade size is {settings.MINIMUM_TRADE_SIZE} $, but your's is:"\
+                            +f"{self.amount} {self.crp}={self.amount}$ !"
             else:
-                state = self.check_available(self.equivalent, self.base)
-                toSub = self.equivalent
-                toAdd = price = self.amount
-            if state == 0:
-                # subtract
-                obj = self.portfo.get(cryptoName=self.base)
-                obj.amount = obj.amount - toSub
+                if self.type == 'buy':
+                    is_available = self.check_available(self.amount, self.quote)
+                    toAdd = [self.base, equivalent]
+                    toSub = [self.quote, self.amount]
+                else:
+                    is_available = self.check_available(equivalent, self.base)
+                    toAdd = [self.quote, self.amount]
+                    toSub = [self.base, equivalent]
+
+        if message:
+            tradeResponse = {
+                    "successful": False,
+                    "message": message
+            }
+            return tradeResponse
+
+        if is_available:
+            obj = self.portfo.get(cryptoName=toSub[0])
+            obj.amount = obj.amount - toSub[1]
+            obj.save()
+
+            obj, created = Portfolio.objects.get_or_create(
+                usr=self.user,
+                cryptoName=toAdd[0],
+                amount=self.amount
+            )
+
+            if not created:
+                obj.amount = obj.amount + toAdd[1]
                 obj.save()
-                # add
-                try:
-                    obj = self.portfo.get(cryptoName=self.qoute)
-                    obj.amount = obj.amount + toAdd
-                    obj.save()
-                except:
-                    newCrypto = Portfolio(usr=self.user, cryptoName=self.qoute, amount=toAdd, equivalentAmount=None)
-                    newCrypto.save()
-        # create history and give results
-        if state == 0:
+
             histAmount = dict()
-            for index, item in enumerate(self.portfo.iterator()):
-                histAmount[index] = {"cryptoName": item.cryptoName, "amount": item.amount}
+            for item in self.portfo.iterator():
+                histAmount["cryptoName"] = item.cryptoName
+                histAmount["amount"] = item.amount
 
-            if self.crp == self.base:
-                amount = self.amount
-            else:
-                amount = self.equivalent
-
-            newHistory = TradeHistory(
+            TradeHistory.objects.create(
                 usr=self.user,
                 type=self.type,
                 pair=self.pair,
                 histAmount=histAmount,
-                amount=amount,
-                price=price,
+                amount=self.amount,
+                price=pairPrice,
                 complete=True,
                 orderType=self.orderType,
-                pairPrice=self.pairPrice,
+                pairPrice=pairPrice
             )
-            newHistory.save()
-            date = datetime.now()
 
-            self.result = {
-                "state": 0,
-                "price": price,
-                "amount": amount,
-                "date": date.strftime("%Y:%m:%d:%H:%M"),
-                "type": self.type,
-                "pairPrice": self.pairPrice,
-                "time": date.strftime("%H:%M:%S"),
+            tradeResponse = {
+                "successful": True,
+                "message": 'Order filled!'
             }
+
+            tradeResult = {
+                "0": {
+                    "type": self.type,
+                    "pair": self.pair,
+                    "pairPrice": pairPrice,
+                    "amount": amount,
+                }
+            }
+
+            executed_time = TradeHistory.objects.filter(usr=self.user).last().time.replace(tzinfo=None)
+
+            return tradeResponse, tradeResult, executed_time
+
         else:
-            self.result = {"state": state}
+            tradeResponse = {
+                "successful": False,
+                "message": 'Insufficient balance!'
+            }
 
-    def calc_equivalent(self, base, qoute, amount):
-        base = base.upper()
-        response = requests.get(
-            "https://min-api.cryptocompare.com/data/pricemulti?fsyms=" + base + "," + qoute + "&tsyms=USDT,USDT"
-        )
-        response = response.json()
-        basePrice = float(response[base]["USDT"])
-        qoutePrice = float(response[qoute]["USDT"])
-        self.pairPrice = basePrice / qoutePrice
+        return tradeResponse
 
-        message = None
-        if self.crp == base:
-            equivalent = self.pairPrice * amount
-            if self.orderType == "market" and equivalent < settings.MINIMUM_TRADE_SIZE:
-                message = f"minimum trade size is {settings.MINIMUM_TRADE_SIZE} $, but you entered: {self.amount} {self.crp}={round(equivalent, 2)}$ !"
-        else:
-            equivalent = amount / self.pairPrice
-            if self.orderType == "market" and self.amount < settings.MINIMUM_TRADE_SIZE:
-                message = f"minimum trade size is {settings.MINIMUM_TRADE_SIZE} $, but you entered: {self.amount} {self.crp}={self.amount}$ !"
-
-        return equivalent, message
 
     def check_available(self, amount, name):
         try:
             obj = self.portfo.get(cryptoName=name)
             if amount <= obj.amount:
-                return 0
+                return True
             else:
-                return 1
-        except Exception as e:
-            print(e)
-            return 2
+                return False
+        except:
+            return False   
