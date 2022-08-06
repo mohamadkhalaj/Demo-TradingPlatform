@@ -1,15 +1,22 @@
 try {
-    var tradeSocket = new WebSocket('ws://' + window.location.host + '/ws/trade/');
-}
-catch (e) {
-    var tradeSocket = new WebSocket('wss://' + window.location.host + '/ws/trade/');
-}
-try {
     var tradeListSocket = new WebSocket('ws://' + window.location.host + '/ws/trade/prices/');
 }
 catch (e) {
     var tradeListSocket = new WebSocket('wss://' + window.location.host + '/ws/trade/prices/');
 }
+try {
+    var assetSocket = new WebSocket('ws://' + window.location.host + '/ws/trade/asset/');
+}
+catch (e) {
+    var assetSocket = new WebSocket('wss://' + window.location.host + '/ws/trade/asset/');
+}
+try {
+    var tradeSocket = new WebSocket('ws://' + window.location.host + '/ws/trade/');
+}
+catch (e) {
+    var tradeSocket = new WebSocket('wss://' + window.location.host + '/ws/trade/');
+}
+
 var main_url = window.location.origin;
 var usdtValue = 0;
 var pairValue = 0;
@@ -40,7 +47,7 @@ var createdRecentTrades = [];
 var activeAlerts = [];
 
 function tradeSocketOpen() {
-    // tradeSocket.send(JSON.stringify({'header': 'attribs', 'current_pair': pair, 'page': 'trade'}));
+    tradeSocket.send(JSON.stringify({"currentPair": pair}));
     removeRecentTrades();
     removeHistory();
     removeOpenOrders();
@@ -53,7 +60,6 @@ tradeSocket.onopen = () => {
 
 function tradeSocketMessage(e) {
     data = JSON.parse(e.data);
-    console.log(data)
     if(data["successful"] == true){
         createAlert('success', data["message"])
     }else{
@@ -94,9 +100,6 @@ function tradeSocketMessage(e) {
     //         if(obj['pair'] == pair){
     //             recentTrades(obj);
     //         }           
-    //     }
-    //     else if(header == 'portfo_response' && user != 'AnonymousUser'){
-    //         getPortfolio(obj);
     //     }
 
     // })
@@ -152,47 +155,60 @@ function tradeListSocketClose() {
 tradeListSocket.onclose = function(e) {
     tradeListSocketClose()
 };
+// asset socket
+function assetSocketMessage(e) {
+    var message = e.data;
+    data = JSON.parse(message)  
+    getPortfolio(data)
+}
 
-function getPortfolio(res) {
-    var pair = res['cryptoName']
-    var usdtAmount = document.getElementById('usdtAmount');
-    var pairAmount = document.getElementById('pairAmount');
-    
-    var usdtAmountLimit = document.getElementById('usdtAmountLimit');
-    var pairAmountLimit = document.getElementById('pairAmountLimit');
-    
-    pairAmount.innerText = `0 ${pair}`
-    pairAmountLimit.innerText = `0 ${pair}`
-    
+assetSocket.onmessage = function(e) {
+    assetSocketMessage(e)
+};
 
-    if (res['cryptoName'] == 'USDT') {
-        usdtAmount.innerText = `${res['amount'].toFixed(1)} USDT`
-        usdtAmountLimit.innerText = `${res['amount'].toFixed(1)} USDT`
-        usdtValue = res['amount'].toFixed(1)
-    }
-    else{
-        var amount = res['amount']
-        var equivalentAmount = res['equivalentAmount']
+function getPortfolio(data) {
+    Object.keys(data).forEach(function(index){
+        obj = data[index]
+        var pair = obj['cryptoName']
+        var usdtAmount = document.getElementById('usdtAmount');
+        var pairAmount = document.getElementById('pairAmount');
+        
+        var usdtAmountLimit = document.getElementById('usdtAmountLimit');
+        var pairAmountLimit = document.getElementById('pairAmountLimit');
+        
+        // pairAmount.innerText = `0 ${pair}`
+        // pairAmountLimit.innerText = `0 ${pair}`
+        
 
-        if (amount >= 1) {
-            amount = amount.toFixed(1)
+        if (obj['cryptoName'] == 'USDT') {
+            usdtAmount.innerText = `${obj['amount'].toFixed(1)} USDT`
+            usdtAmountLimit.innerText = `${obj['amount'].toFixed(1)} USDT`
+            usdtValue = obj['amount'].toFixed(1)
         }
-        else {
-            amount = amount.toFixed(6)
-        }
+        else if(obj['cryptoName'] != 'USDT' && obj['cryptoName'] == globPair){
+            var amount = obj['amount']
+            var equivalentAmount = obj['equivalentAmount']
 
-        if (equivalentAmount >= 1) {
-            equivalentAmount = equivalentAmount.toFixed(1)
+            if (amount >= 1) {
+                amount = amount.toFixed(1)
+            }
+            else {
+                amount = amount.toFixed(6)
+            }
+
+            if (equivalentAmount >= 1) {
+                equivalentAmount = equivalentAmount.toFixed(1)
+            }
+            else {
+                equivalentAmount = equivalentAmount.toFixed(4)
+            }
+            pairAmount.innerText = `${amount} ${pair} = ${equivalentAmount} USDT`
+            pairAmountLimit.innerText = `${amount} ${pair} = ${equivalentAmount} USDT`
+            pairUsdtValue = equivalentAmount;
+            pairValue = obj['amount']
         }
-        else {
-            equivalentAmount = equivalentAmount.toFixed(4)
-        }
-        pairAmount.innerText = `${amount} ${pair} = ${equivalentAmount} USDT`
-        pairAmountLimit.innerText = `${amount} ${pair} = ${equivalentAmount} USDT`
-        pairUsdtValue = equivalentAmount;
-        pairValue = res['amount']
-    }
-    
+    })
+        
 }
 
 function trade(type, pair) {
@@ -222,6 +238,7 @@ function trade(type, pair) {
     }
     
 }
+
 function limit(type, pair){
     clearAllAlerts();
 

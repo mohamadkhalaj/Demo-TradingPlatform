@@ -19,16 +19,36 @@ class TradeConsumer(AsyncJsonWebsocketConsumer):
 
 
     async def receive_json(self, content, **kwargs):
-        result = await self.trade(content)
-        print(result)
-       
-        try:
-            tradeResponse, tradeResult, executedTime = result
-        except ValueError:
-            tradeResponse = result
+        channel = get_channel_layer()
 
-        await self.channel_layer.group_send(self.unicastName, {"type": "send.data", "content": tradeResponse})
-        
+        if content.get("currentPair"):
+            self.currentPair = content.get("currentPair")     
+            await channel.group_send(
+                f"{self.user}_asset",
+                {"type": "send.data", "content": await self.get_assetAmount()}
+            )
+
+        else:
+            result = await self.trade(content)   
+            try:
+                tradeResponse, tradeResult, executedTime = result        
+                await channel.group_send(
+                    f"{self.user}_asset", 
+                    {"type": "send.data", "content": await self.get_assetAmount()}
+                )
+            except ValueError:
+                tradeResponse = result
+
+            await self.channel_layer.group_send(
+                    self.unicastName, 
+                    {"type": "send.data", 
+                    "content": tradeResponse}
+            )
+
+
+    async def disconnect(self, code):
+        self.channel_layer.group_discard("unicastName", self.channel_name)
+
 
     async def send_data(self, event):
         data = event["content"]
@@ -39,5 +59,28 @@ class TradeConsumer(AsyncJsonWebsocketConsumer):
     def trade(self, content):
         tradeObject = Trade(self.user, content)
         result = tradeObject.spotTrade()
+
+        return result
+
+
+    @database_sync_to_async
+    def get_assetAmount(self):
+        currencies = [self.currentPair.split('-')[0], self.currentPair.split('-')[1]]
+        result = dict()
+        
+        for index, currency in enumerate(currencies):
+            try:
+                portfo = Portfolio.objects.get(cryptoName=currency, usr=self.user)       
+                equivalentAmount = portfo.get_dollar_equivalent if currency != 'USDT' else None
+                amount = portfo.amount
+            except Portfolio.DoesNotExist:
+                amount = 0
+                equivalentAmount = 0
+
+            result[str(index)] = {
+                    "cryptoName": currency,
+                    "amount": amount,
+                    "equivalentAmount": equivalentAmount,
+                }
 
         return result
