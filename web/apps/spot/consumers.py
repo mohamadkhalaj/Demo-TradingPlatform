@@ -11,9 +11,12 @@ class TradeConsumer(AsyncJsonWebsocketConsumer):
     async def connect(self):
         self.user = self.scope["user"]
         self.unicastName = f"{self.user}_unicast"
+        self.broadcastName = "broadcast"
 
+        await (self.channel_layer.group_add)(self.broadcastName, self.channel_name)
         if self.user.is_authenticated:
             await (self.channel_layer.group_add)(self.unicastName, self.channel_name)
+         
 
         await self.accept()
 
@@ -22,11 +25,12 @@ class TradeConsumer(AsyncJsonWebsocketConsumer):
         channel = get_channel_layer()
 
         if content.get("currentPair"):
-            self.currentPair = content.get("currentPair")     
+            self.currentPair = content.get("currentPair")
             await channel.group_send(
                 f"{self.user}_asset",
-                {"type": "send.data", "content": await self.get_assetAmount()}
+                {"type": "send.data", "content": await self.get_assetAmount()},
             )
+            await self.send_json(await self.get_recentTrades())
 
         else:
             result = await self.trade(content)   
@@ -35,6 +39,11 @@ class TradeConsumer(AsyncJsonWebsocketConsumer):
                 await channel.group_send(
                     f"{self.user}_asset", 
                     {"type": "send.data", "content": await self.get_assetAmount()}
+                )
+                tradeResult["0"]["time"] = executedTime.strftime("%H:%M:%S")
+                await self.channel_layer.group_send(
+                    self.broadcastName, 
+                    {"type": "send.data", "content": tradeResult}
                 )
             except ValueError:
                 tradeResponse = result
@@ -48,6 +57,7 @@ class TradeConsumer(AsyncJsonWebsocketConsumer):
 
     async def disconnect(self, code):
         self.channel_layer.group_discard("unicastName", self.channel_name)
+        self.channel_layer.group_discard("broadcastName", self.channel_name)
 
 
     async def send_data(self, event):
@@ -82,5 +92,28 @@ class TradeConsumer(AsyncJsonWebsocketConsumer):
                     "amount": amount,
                     "equivalentAmount": equivalentAmount,
                 }
+
+        return result
+
+
+    @database_sync_to_async
+    def get_recentTrades(self):
+        histObj = TradeHistory.objects.filter(
+            usr=self.user, 
+            pair=self.currentPair
+            ).order_by("time")
+
+        if len(histObj) > 10:
+            histObj = histObj[len(histObj)-10:]
+
+        result = dict()
+        for index, item in enumerate(list(histObj)):
+            result[str(index)] = {
+                        "type": item.type,
+                        "pair": self.currentPair,
+                        "pairPrice": item.pairPrice,
+                        "amount": item.amount,
+                        "time": item.time.strftime("%H:%M:%S"),
+                    }
 
         return result

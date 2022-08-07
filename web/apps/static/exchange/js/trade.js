@@ -60,11 +60,17 @@ tradeSocket.onopen = () => {
 
 function tradeSocketMessage(e) {
     data = JSON.parse(e.data);
-    if(data["successful"] == true){
-        createAlert('success', data["message"])
+    
+    if(data["0"]){
+        recentTrades(data)
     }else{
-        createAlert('danger', data["message"])
+        if(data["successful"] == true){
+            createAlert('success', data["message"])
+        }else{
+            createAlert('danger', data["message"])
+        }
     }
+   
     // Object.keys(data).forEach(function(index){
     //     obj = data[index]
     //     // console.log(obj)
@@ -96,11 +102,6 @@ function tradeSocketMessage(e) {
     //     else if((header=='hist_response' || header=='orders_response') && user!='AnonymousUser'){
     //         getHistory(obj, header);
     //     }
-    //     else if(header == 'recent_response'){
-    //         if(obj['pair'] == pair){
-    //             recentTrades(obj);
-    //         }           
-    //     }
 
     // })
     try {
@@ -124,7 +125,6 @@ tradeSocket.onclose = function(e){
 }
 
 function tradeListSocketOpen(e, status) {
-    console.log('prices socket is on!!');
     tradeListSocket.send(JSON.stringify({"page": 0, RequestType : 'trade'}));
     
     if (!status) {
@@ -214,7 +214,6 @@ function getPortfolio(data) {
 function trade(type, pair) {
 
     clearAllAlerts();
-
     var amount = 0;
 
     if (type == 'buy') {
@@ -241,7 +240,6 @@ function trade(type, pair) {
 
 function limit(type, pair){
     clearAllAlerts();
-
     var hasError = false;
 
     if(type == 'buy'){
@@ -388,28 +386,36 @@ function getHistory(data, header) {
 }
 
 function recentTrades(data) {
-    var parent = document.getElementById("recentTradesHistory");
-    var newNode = document.createElement("tr");
-    var price = document.createElement("td");
-    var amount = document.createElement("td");
-    var time = document.createElement("td");
 
-    price.innerText = data['price'].toFixed(2);
-    amount.innerText = parseFloat(data['amount']).toFixed(5);
-    time.innerText = data['time'];
+    Object.keys(data).forEach(function(index){
+        obj = data[index]
 
-    if (data['type'] == 'buy') {
-        price.classList.add('green')
-    }
-    else {
-        price.classList.add('red')
-    }
+        if(pair == obj["pair"]){
+            var parent = document.getElementById("recentTradesHistory");
+            var newNode = document.createElement("tr");
+            var price = document.createElement("td");
+            var amount = document.createElement("td");
+            var time = document.createElement("td");
 
-    newNode.appendChild(price);
-    newNode.appendChild(amount);
-    newNode.appendChild(time);
-    createdRecentTrades.push(newNode);
-    parent.prepend(newNode);
+            price.innerText = obj['pairPrice'].toFixed(2);
+            amount.innerText = parseFloat(obj['amount']).toFixed(5);
+            time.innerText = obj['time'];
+
+            if (obj['type'] == 'buy') {
+                price.classList.add('green')
+            }
+            else {
+                price.classList.add('red')
+            }
+
+            newNode.appendChild(price);
+            newNode.appendChild(amount);
+            newNode.appendChild(time);
+            createdRecentTrades.push(newNode);
+            parent.prepend(newNode);
+        }
+    })
+    
 }
 
 function calcAmount(change, object) {
@@ -475,13 +481,17 @@ function percentage() {
 
     sellPercentageLimit.childNodes.forEach(function(item, index) {
         if (item.tagName == 'LI'){
-            sellPercentageLimit.childNodes[index].addEventListener("click", function() {calcAmount('limitBuy', sellPercentageLimit.childNodes[index]);});
+            sellPercentageLimit.childNodes[index].addEventListener("click", function() {
+                calcAmount('limitBuy', sellPercentageLimit.childNodes[index]);
+            });
         }
     })
 
     buyPercentageLimit.childNodes.forEach(function(item, index) {
         if (item.tagName == 'LI'){
-            buyPercentageLimit.childNodes[index].addEventListener("click", function() {calcAmount('limitSell', buyPercentageLimit.childNodes[index]);});
+            buyPercentageLimit.childNodes[index].addEventListener("click", function() {
+                calcAmount('limitSell', buyPercentageLimit.childNodes[index]);
+            });
         }
     })
 
