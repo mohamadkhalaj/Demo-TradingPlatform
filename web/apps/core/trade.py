@@ -94,6 +94,8 @@ class Trade:
                     "pair": self.pair,
                     "pairPrice": pairPrice,
                     "amount": amount,
+                    "orderType": "market",
+                    "complete": True,
                 }
             }
 

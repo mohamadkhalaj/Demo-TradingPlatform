@@ -30,6 +30,10 @@ class TradeConsumer(AsyncJsonWebsocketConsumer):
                 f"{self.user}_asset",
                 {"type": "send.data", "content": await self.get_assetAmount()},
             )
+            await channel.group_send(
+                f"{self.user}_histories",
+                {"type": "send.data", "content": await self.get_histories()},
+            )
             await self.send_json(await self.get_recentTrades())
 
         else:
@@ -43,6 +47,11 @@ class TradeConsumer(AsyncJsonWebsocketConsumer):
                 tradeResult["0"]["time"] = executedTime.strftime("%H:%M:%S")
                 await self.channel_layer.group_send(
                     self.broadcastName, 
+                    {"type": "send.data", "content": tradeResult}
+                )
+                tradeResult["0"]["time"] = executedTime.strftime("%Y/%m/%d-%H:%M")
+                await self.channel_layer.group_send(
+                    f"{self.user}_histories", 
                     {"type": "send.data", "content": tradeResult}
                 )
             except ValueError:
@@ -99,7 +108,6 @@ class TradeConsumer(AsyncJsonWebsocketConsumer):
     @database_sync_to_async
     def get_recentTrades(self):
         histObj = TradeHistory.objects.filter(
-            usr=self.user, 
             pair=self.currentPair
             ).order_by("time")
 
@@ -117,3 +125,49 @@ class TradeConsumer(AsyncJsonWebsocketConsumer):
                     }
 
         return result
+
+
+    @database_sync_to_async
+    def get_histories(self):
+        histObj = TradeHistory.objects.filter(usr=self.user).order_by("time")
+
+        if len(histObj) > 10:
+            histObj = histObj[len(histObj)-10:]
+
+        result = dict()
+        for index, item in enumerate(list(histObj)):
+            result[str(index)] = {
+                    "type": item.type,
+                    "pair": item.pair,
+                    "pairPrice": item.pairPrice,
+                    "amount": item.amount,
+                    "time": item.time.strftime("%Y/%m/%d-%H:%M"),
+                    "orderType": item.orderType,
+                    "complete": item.complete,
+                }
+
+        return result
+
+
+class HistoriesConsumer(AsyncJsonWebsocketConsumer):
+    async def connect(self):
+        self.user = self.scope["user"]
+        self.unicastName = f"{self.user}_histories"
+
+        if self.user.is_authenticated:
+            await (self.channel_layer.group_add)(self.unicastName, self.channel_name)
+
+        await self.accept()
+
+
+    async def receive_json(self, content, **kwargs):
+        self.currentPage = content.get("page")
+
+
+    async def disconnect(self, code):
+        self.channel_layer.group_discard("unicastName", self.channel_name)
+
+
+    async def send_data(self, event):
+        data = event["content"]
+        await self.send_json(data)

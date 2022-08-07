@@ -11,6 +11,12 @@ catch (e) {
     var assetSocket = new WebSocket('wss://' + window.location.host + '/ws/trade/asset/');
 }
 try {
+    var historiesSocket = new WebSocket('ws://' + window.location.host + '/ws/histories/');
+}
+catch (e) {
+    var historiesSocket = new WebSocket('wss://' + window.location.host + '/ws/histories/');
+}
+try {
     var tradeSocket = new WebSocket('ws://' + window.location.host + '/ws/trade/');
 }
 catch (e) {
@@ -165,6 +171,27 @@ function assetSocketMessage(e) {
 assetSocket.onmessage = function(e) {
     assetSocketMessage(e)
 };
+// histories socket
+function historiesSocketOpen(e, status) {
+    historiesSocket.send(JSON.stringify({"page": "trade"}));
+}
+
+historiesSocket.onopen = function (e) {
+    historiesSocketOpen(e, false)
+};
+
+function historiesSocketMessage(e) {
+    var message = e.data;
+    data = JSON.parse(message)  
+    getHistory(data)
+}
+
+historiesSocket.onmessage = function(e) {
+    historiesSocketMessage(e)
+};
+
+
+
 
 function getPortfolio(data) {
     Object.keys(data).forEach(function(index){
@@ -318,70 +345,83 @@ function clearAllAlerts() {
 }
 
 function getHistory(data, header) {
-    
-    var newNode = document.createElement("ul");
-    var removed = false;
-    newNode.classList.add("d-flex", "justify-content-between", "market-order-item", "ul");
 
-    var time = document.createElement("li");
-    var pair = document.createElement("li");
-    var type = document.createElement("li");
-    var price = document.createElement("li");
-    var amount = document.createElement("li");
-    var total = document.createElement("li");
-    var iconSpace = document.createElement("li");
-    var icon = document.createElement("div");
+    Object.keys(data).forEach(function(index){
+        obj = data[index];
 
-    time.innerText = data['date'];
-    type.innerText = data['type'];
-    pair.innerText = data['pair'];
-    amount.innerText = parseFloat(data['amount']).toFixed(5);
-    total.innerText = data['price'].toFixed(5);
-    price.innerText = data['pairPrice'];
-    
+        var newNode = document.createElement("ul");
+        var orderType = obj["orderType"];
+        var complete = obj["complete"];
+        newNode.classList.add("d-flex", "justify-content-between", "market-order-item", "ul");
 
-    if (data['type'] == 'buy') {
-        type.classList.add('green')
-    }
-    else {
-        type.classList.add('red')
-    }
+        var time = document.createElement("li");
+        var pair = document.createElement("li");
+        var type = document.createElement("li");
+        var price = document.createElement("li");
+        var amount = document.createElement("li");
+        var total = document.createElement("li");
+        var iconSpace = document.createElement("li");
+        var icon = document.createElement("div");
 
-    newNode.appendChild(time);
-    newNode.appendChild(pair);
-    newNode.appendChild(type);
-    newNode.appendChild(price);
-    newNode.appendChild(amount);
-    newNode.appendChild(total);
-    
+        time.innerText = obj['time'];
+        type.innerText = obj['type'];
+        pair.innerText = obj['pair'];
+        amount.innerText = parseFloat(obj['amount']).toFixed(5);
+        total.innerText = (obj['pairPrice'] * obj['amount'].split(' ')[0]).toFixed(5);
+        price.innerText = obj['pairPrice'];
+        
 
-    if(header == 'hist_response'){
-        if(data['orderType'] == 'market'){
+        if (obj['type'] == 'buy') {
+            type.classList.add('green')
+        }
+        else {
+            type.classList.add('red')
+        }
+
+        newNode.appendChild(time);
+        newNode.appendChild(pair);
+        newNode.appendChild(type);
+        newNode.appendChild(price);
+        newNode.appendChild(amount);
+        newNode.appendChild(total);
+
+        if(orderType == 'market'){
             var parent = document.getElementById("market-orders");
-        }else{
-            var parent = document.getElementById("closed-limit-orders");
+            createdHistory.push(newNode);
+            parent.prepend(newNode);
         }
-    }
-    else if(header == 'orders_response'){
-        var parent = document.getElementById("open-limit-orders");
+    })
+    
+    
+    
+
+    // if(header == 'hist_response'){
+    //     if(data['orderType'] == 'market'){
+    //         var parent = document.getElementById("market-orders");
+    //     }else{
+    //         var parent = document.getElementById("closed-limit-orders");
+    //     }
+    // }
+    // else if(header == 'orders_response'){
+    //     var parent = document.getElementById("open-limit-orders");
          
-        icon.innerText = 'Close'
-        icon.classList.add('closeOrderBtn')
+    //     icon.innerText = 'Close'
+    //     icon.classList.add('closeOrderBtn')
 
-        iconSpace.appendChild(icon);
-        newNode.appendChild(iconSpace);
+    //     iconSpace.appendChild(icon);
+    //     newNode.appendChild(iconSpace);
 
-        icon.onclick = function(e){
-            e.preventDefault();
-            tradeSocket.send(JSON.stringify({'header': 'delOrder_request', 'id': e.target.dataset.id}))
-            newNode.remove();
-            removed = true;
-        }
-    }
-    if(!removed){
-        createdHistory.push(newNode);
-        parent.prepend(newNode);
-    }
+    //     icon.onclick = function(e){
+    //         e.preventDefault();
+    //         tradeSocket.send(JSON.stringify({'header': 'delOrder_request', 'id': e.target.dataset.id}))
+    //         newNode.remove();
+    //         removed = true;
+    //     }
+    // }
+    // if(!removed){
+    //     createdHistory.push(newNode);
+    //     parent.prepend(newNode);
+    // }
        
 }
 
