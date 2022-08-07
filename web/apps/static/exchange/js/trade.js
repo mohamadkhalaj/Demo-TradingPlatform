@@ -11,16 +11,16 @@ catch (e) {
     var assetSocket = new WebSocket('wss://' + window.location.host + '/ws/trade/asset/');
 }
 try {
-    var historiesSocket = new WebSocket('ws://' + window.location.host + '/ws/histories/');
-}
-catch (e) {
-    var historiesSocket = new WebSocket('wss://' + window.location.host + '/ws/histories/');
-}
-try {
     var tradeSocket = new WebSocket('ws://' + window.location.host + '/ws/trade/');
 }
 catch (e) {
     var tradeSocket = new WebSocket('wss://' + window.location.host + '/ws/trade/');
+}
+try {
+    var historiesSocket = new WebSocket('ws://' + window.location.host + '/ws/histories/');
+}
+catch (e) {
+    var historiesSocket = new WebSocket('wss://' + window.location.host + '/ws/histories/');
 }
 
 var main_url = window.location.origin;
@@ -173,7 +173,7 @@ assetSocket.onmessage = function(e) {
 };
 // histories socket
 function historiesSocketOpen(e, status) {
-    historiesSocket.send(JSON.stringify({"page": "trade"}));
+    // historiesSocket.send(JSON.stringify({"currentPage": "trade"}));
 }
 
 historiesSocket.onopen = function (e) {
@@ -344,11 +344,11 @@ function clearAllAlerts() {
     activeAlerts = []
 }
 
-function getHistory(data, header) {
+function getHistory(data) {
 
     Object.keys(data).forEach(function(index){
         obj = data[index];
-
+    
         var newNode = document.createElement("ul");
         var orderType = obj["orderType"];
         var complete = obj["complete"];

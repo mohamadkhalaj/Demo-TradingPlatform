@@ -30,10 +30,10 @@ class TradeConsumer(AsyncJsonWebsocketConsumer):
                 f"{self.user}_asset",
                 {"type": "send.data", "content": await self.get_assetAmount()},
             )
-            await channel.group_send(
-                f"{self.user}_histories",
-                {"type": "send.data", "content": await self.get_histories()},
-            )
+            # await channel.group_send(
+            #     f"{self.user}_histories",
+            #     {"type": "send.data", "content": await self.get_histories()},
+            # )
             await self.send_json(await self.get_recentTrades())
 
         else:
@@ -50,6 +50,7 @@ class TradeConsumer(AsyncJsonWebsocketConsumer):
                     {"type": "send.data", "content": tradeResult}
                 )
                 tradeResult["0"]["time"] = executedTime.strftime("%Y/%m/%d-%H:%M")
+                tradeResult["0"]["newHistory"] = True
                 await self.channel_layer.group_send(
                     f"{self.user}_histories", 
                     {"type": "send.data", "content": tradeResult}
@@ -161,7 +162,10 @@ class HistoriesConsumer(AsyncJsonWebsocketConsumer):
 
 
     async def receive_json(self, content, **kwargs):
-        self.currentPage = content.get("page")
+        if content.get("page"):
+            await self.send_json(await self.get_histories(content.get("page")))
+        else:
+            await self.send_json(await self.get_histories())
 
 
     async def disconnect(self, code):
@@ -169,5 +173,32 @@ class HistoriesConsumer(AsyncJsonWebsocketConsumer):
 
 
     async def send_data(self, event):
-        data = event["content"]
+        data = event["content"]     
+        if not data["0"].get("newHistory"):
+            data["0"]["newHistory"] = False
+
         await self.send_json(data)
+
+
+    @database_sync_to_async
+    def get_histories(self, page=None):
+        if page:
+            histObj = TradeHistory.objects.filter(usr=self.user).order_by("time")[(page-1) * 10 : page * 10]
+        else:
+            histObj = TradeHistory.objects.filter(usr=self.user).order_by("time")
+            if len(histObj) > 10:
+                histObj = histObj[len(histObj)-10:]
+
+        result = dict()
+        for index, item in enumerate(list(histObj)):
+            result[str(index)] = {
+                    "type": item.type,
+                    "pair": item.pair,
+                    "pairPrice": item.pairPrice,
+                    "amount": item.amount,
+                    "time": item.time.strftime("%Y/%m/%d-%H:%M"),
+                    "orderType": item.orderType,
+                    "complete": item.complete,
+                }
+
+        return result
