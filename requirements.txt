@@ -8,7 +8,7 @@ defusedxml==0.7.1
 dj-database-url==1.0.0
 Django==3.2.14
 django-cors-headers==3.10.0
-django-crispy-forms==1.13.0
+django-crispy-forms==1.14.0
 django-gravatar2==1.4.4
 django-hCaptcha==0.1.0
 django-utils-six==2.0
