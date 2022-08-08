@@ -87,39 +87,6 @@ function tradeSocketMessage(e) {
         }
     }
    
-    // Object.keys(data).forEach(function(index){
-    //     obj = data[index]
-    //     // console.log(obj)
-    //     header = obj['header']
-
-    //     if((header == 'trade_response' || header == 'limit_response') && user != 'AnonymousUser'){
-    //         state = obj['state'];
-            
-    //         if(state == -1){
-    //             createAlert('danger', obj['message'])
-    //         }
-    //         else if(state == 0){
-    //             if(header == 'trade_response'){
-    //                 createAlert('success', 'Order filled!')
-    //                 uValue.value = 0;
-    //                 pValue.value = 0;
-    //             }else{
-    //                 createAlert('success', 'Order added!');
-    //                 limit_buy_price.value = 0;
-    //                 limit_buy_amount.value = 0;
-    //                 limit_sell_price.value = 0;
-    //                 limit_sell_amount.value = 0;
-    //             }
-                
-    //         }else{
-    //             createAlert('danger', 'Insufficient balance!')
-    //         }
-    //     }  
-    //     else if((header=='hist_response' || header=='orders_response') && user!='AnonymousUser'){
-    //         getHistory(obj, header);
-    //     }
-
-    // })
     try {
         if(document.getElementById('open-limit-orders').childElementCount > 0){
             document.querySelector('.no-data').style.display = 'none';
