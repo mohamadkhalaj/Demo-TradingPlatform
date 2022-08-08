@@ -20,18 +20,16 @@ histSocket.onopen = function(e){
 histSocket.onmessage = function(e){
     
     data = JSON.parse(e.data);
-    length = Object.keys(data).length;
 
     var title = document.getElementById("hisrtoryTitle");
     var tableHeader = document.getElementById("tableHeader");
     tableHeader.classList.remove('d-none');
     // tableHeader.classList.add('d-block');
     title.innerText = 'Latest Transactions';
-    
-    if(length > 0){
-
-        if(!data["newHistory"]){
-
+    length = Object.keys(data).length;
+    if(length != 0){
+        isNew = data["0"]["newHistory"]
+        if(isNew == false){
             liveRequest = false;
             if(res == 'add'){
                 page ++;
@@ -56,7 +54,6 @@ histSocket.onmessage = function(e){
                 updateCounters();
             }
         }
-        // console.log(liveRequest)
         
     } 
     
@@ -137,7 +134,7 @@ function fillElems(data){
 }
 function updateCounters(){
     parent.childNodes.forEach(function(item, index){
-        item.firstChild.innerText = index + 1;   
+        item.firstChild.innerText = index + 1;
     })
 }
 function pagination(){

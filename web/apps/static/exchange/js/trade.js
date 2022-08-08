@@ -17,6 +17,12 @@ catch (e) {
     var tradeSocket = new WebSocket('wss://' + window.location.host + '/ws/trade/');
 }
 try {
+    var RecentSocket = new WebSocket('ws://' + window.location.host + '/ws/trade/recents/');
+}
+catch (e) {
+    var RecentSocket = new WebSocket('wss://' + window.location.host + '/ws/trade/recents/');
+}
+try {
     var historiesSocket = new WebSocket('ws://' + window.location.host + '/ws/histories/');
 }
 catch (e) {
@@ -53,7 +59,6 @@ var createdRecentTrades = [];
 var activeAlerts = [];
 
 function tradeSocketOpen() {
-    tradeSocket.send(JSON.stringify({"currentPair": pair}));
     removeRecentTrades();
     removeHistory();
     removeOpenOrders();
@@ -198,6 +203,23 @@ function historiesSocketMessage(e) {
 
 historiesSocket.onmessage = function(e) {
     historiesSocketMessage(e)
+};
+// recents socket
+function recentSocketOpen(e, status) {
+    RecentSocket.send(JSON.stringify({"currentPair": pair}));
+}
+RecentSocket.onopen = function (e) {
+    recentSocketOpen(e, false)
+};
+function recentSocketMessage(e) {
+    var message = e.data;
+    data = JSON.parse(message);
+    console.log(data)
+    recentTrades(data)
+}
+
+RecentSocket.onmessage = function(e) {
+    recentSocketMessage(e)
 };
 
 
@@ -440,7 +462,7 @@ function recentTrades(data) {
     Object.keys(data).forEach(function(index){
         obj = data[index]
 
-        if(pair == obj["pair"]){
+        if(obj["pair"] == pair){
             var parent = document.getElementById("recentTradesHistory");
             var newNode = document.createElement("tr");
             var price = document.createElement("td");
@@ -464,6 +486,7 @@ function recentTrades(data) {
             createdRecentTrades.push(newNode);
             parent.prepend(newNode);
         }
+        
     })
     
 }

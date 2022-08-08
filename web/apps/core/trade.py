@@ -112,6 +112,7 @@ class Trade:
                     "datetime": executed_time.strftime("%Y/%m/%d-%H:%M"),
                     "orderType": "market",
                     "complete": True,
+                    "newHistory": True,
                 }
             }
 
