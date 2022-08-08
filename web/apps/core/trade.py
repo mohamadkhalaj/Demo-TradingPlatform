@@ -1,6 +1,5 @@
 from django.conf import settings
 from exchange.models import Portfolio, TradeHistory
-
 from .utils import calc_equivalent
 
 
@@ -60,16 +59,30 @@ class Trade:
             return tradeResponse
 
         if is_available:
+            updatedAsset = dict()
+
             obj = self.portfo.get(cryptoName=toSub[0])
             obj.amount = obj.amount - toSub[1]
             obj.save()
+            updatedAsset["0"] = {
+                "cryptoName": toSub[0],
+                "amount": obj.amount,
+                "equivalentAmount": obj.get_dollar_equivalent,
+            }
 
             try:
                 obj = self.portfo.get(cryptoName=toAdd[0])
                 obj.amount = obj.amount + toAdd[1]
                 obj.save()
             except:
-                Portfolio.objects.create(usr=self.user, cryptoName=toAdd[0], amount=toAdd[1])
+                obj = Portfolio(usr=self.user, cryptoName=toAdd[0], amount=toAdd[1])
+                obj.save()
+            updatedAsset["1"] = {
+                "cryptoName": toAdd[0],
+                "amount": obj.amount,
+                "equivalentAmount": obj.get_dollar_equivalent,
+            }
+                
 
             histAmount = dict()
             for item in self.portfo.iterator():
@@ -88,20 +101,21 @@ class Trade:
 
             tradeResponse = {"successful": True, "message": "Order filled!"}
 
+            executed_time = TradeHistory.objects.filter(usr=self.user).last().time.replace(tzinfo=None)
             tradeResult = {
                 "0": {
                     "type": self.type,
                     "pair": self.pair,
                     "pairPrice": pairPrice,
                     "amount": amount,
+                    "time": executed_time.strftime("%H:%M:%S"),
+                    "datetime": executed_time.strftime("%Y/%m/%d-%H:%M"),
                     "orderType": "market",
                     "complete": True,
                 }
             }
 
-            executed_time = TradeHistory.objects.filter(usr=self.user).last().time.replace(tzinfo=None)
-
-            return tradeResponse, tradeResult, executed_time
+            return tradeResponse, tradeResult, updatedAsset
 
         else:
             tradeResponse = {"successful": False, "message": "Insufficient balance!"}

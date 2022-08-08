@@ -26,10 +26,10 @@ class TradeConsumer(AsyncJsonWebsocketConsumer):
 
         if content.get("currentPair"):
             self.currentPair = content.get("currentPair")
-            await channel.group_send(
-                f"{self.user}_asset",
-                {"type": "send.data", "content": await self.get_assetAmount()},
-            )
+            # await channel.group_send(
+            #     f"{self.user}_asset",
+            #     {"type": "send.data", "content": await self.get_assetAmount()},
+            # )
             # await channel.group_send(
             #     f"{self.user}_histories",
             #     {"type": "send.data", "content": await self.get_histories()},
@@ -39,18 +39,15 @@ class TradeConsumer(AsyncJsonWebsocketConsumer):
         else:
             result = await self.trade(content)   
             try:
-                tradeResponse, tradeResult, executedTime = result        
+                tradeResponse, tradeResult, updatedAsset = result        
                 await channel.group_send(
                     f"{self.user}_asset", 
-                    {"type": "send.data", "content": await self.get_assetAmount()}
+                    {"type": "send.data", "content": updatedAsset}
                 )
-                tradeResult["0"]["time"] = executedTime.strftime("%H:%M:%S")
                 await self.channel_layer.group_send(
                     self.broadcastName, 
                     {"type": "send.data", "content": tradeResult}
                 )
-                tradeResult["0"]["time"] = executedTime.strftime("%Y/%m/%d-%H:%M")
-                tradeResult["0"]["newHistory"] = True
                 await self.channel_layer.group_send(
                     f"{self.user}_histories", 
                     {"type": "send.data", "content": tradeResult}
@@ -83,27 +80,27 @@ class TradeConsumer(AsyncJsonWebsocketConsumer):
         return result
 
 
-    @database_sync_to_async
-    def get_assetAmount(self):
-        currencies = [self.currentPair.split('-')[0], self.currentPair.split('-')[1]]
-        result = dict()
+    # @database_sync_to_async
+    # def get_assetAmount(self):
+    #     currencies = [self.currentPair.split('-')[0], self.currentPair.split('-')[1]]
+    #     result = dict()
         
-        for index, currency in enumerate(currencies):
-            try:
-                portfo = Portfolio.objects.get(cryptoName=currency, usr=self.user)       
-                equivalentAmount = portfo.get_dollar_equivalent if currency != 'USDT' else None
-                amount = portfo.amount
-            except Portfolio.DoesNotExist:
-                amount = 0
-                equivalentAmount = 0
+    #     for index, currency in enumerate(currencies):
+    #         try:
+    #             portfo = Portfolio.objects.get(cryptoName=currency, usr=self.user)       
+    #             equivalentAmount = portfo.get_dollar_equivalent if currency != 'USDT' else None
+    #             amount = portfo.amount
+    #         except Portfolio.DoesNotExist:
+    #             amount = 0
+    #             equivalentAmount = 0
 
-            result[str(index)] = {
-                    "cryptoName": currency,
-                    "amount": amount,
-                    "equivalentAmount": equivalentAmount,
-                }
+    #         result[str(index)] = {
+    #                 "cryptoName": currency,
+    #                 "amount": amount,
+    #                 "equivalentAmount": equivalentAmount,
+    #             }
 
-        return result
+    #     return result
 
 
     @database_sync_to_async
@@ -124,30 +121,30 @@ class TradeConsumer(AsyncJsonWebsocketConsumer):
                         "amount": item.amount,
                         "time": item.time.strftime("%H:%M:%S"),
                     }
-
+        
         return result
 
 
-    @database_sync_to_async
-    def get_histories(self):
-        histObj = TradeHistory.objects.filter(usr=self.user).order_by("time")
+    # @database_sync_to_async
+    # def get_histories(self):
+    #     histObj = TradeHistory.objects.filter(usr=self.user).order_by("time")
 
-        if len(histObj) > 10:
-            histObj = histObj[len(histObj)-10:]
+    #     if len(histObj) > 10:
+    #         histObj = histObj[len(histObj)-10:]
 
-        result = dict()
-        for index, item in enumerate(list(histObj)):
-            result[str(index)] = {
-                    "type": item.type,
-                    "pair": item.pair,
-                    "pairPrice": item.pairPrice,
-                    "amount": item.amount,
-                    "time": item.time.strftime("%Y/%m/%d-%H:%M"),
-                    "orderType": item.orderType,
-                    "complete": item.complete,
-                }
+    #     result = dict()
+    #     for index, item in enumerate(list(histObj)):
+    #         result[str(index)] = {
+    #                 "type": item.type,
+    #                 "pair": item.pair,
+    #                 "pairPrice": item.pairPrice,
+    #                 "amount": item.amount,
+    #                 "time": item.time.strftime("%Y/%m/%d-%H:%M"),
+    #                 "orderType": item.orderType,
+    #                 "complete": item.complete,
+    #             }
 
-        return result
+    #     return result
 
 
 class HistoriesConsumer(AsyncJsonWebsocketConsumer):
@@ -162,11 +159,8 @@ class HistoriesConsumer(AsyncJsonWebsocketConsumer):
 
 
     async def receive_json(self, content, **kwargs):
-        if content.get("page"):
-            await self.send_json(await self.get_histories(content.get("page")))
-        else:
-            await self.send_json(await self.get_histories())
-
+        await self.send_json(await self.get_histories(content.get("page")))
+       
 
     async def disconnect(self, code):
         self.channel_layer.group_discard("unicastName", self.channel_name)
@@ -181,7 +175,7 @@ class HistoriesConsumer(AsyncJsonWebsocketConsumer):
 
 
     @database_sync_to_async
-    def get_histories(self, page=None):
+    def get_histories(self, page):
         if page:
             histObj = TradeHistory.objects.filter(usr=self.user).order_by("time")[(page-1) * 10 : page * 10]
         else:
@@ -196,7 +190,7 @@ class HistoriesConsumer(AsyncJsonWebsocketConsumer):
                     "pair": item.pair,
                     "pairPrice": item.pairPrice,
                     "amount": item.amount,
-                    "time": item.time.strftime("%Y/%m/%d-%H:%M"),
+                    "datetime": item.time.strftime("%Y/%m/%d-%H:%M"),
                     "orderType": item.orderType,
                     "complete": item.complete,
                 }

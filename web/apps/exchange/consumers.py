@@ -35,6 +35,7 @@ class MarketConsumer(AsyncJsonWebsocketConsumer):
             while True:
                 await asyncio.ensure_future(self.sendList(subs))
 
+   
     
 class AssetConsumer(AsyncJsonWebsocketConsumer):
     async def connect(self):
@@ -48,7 +49,8 @@ class AssetConsumer(AsyncJsonWebsocketConsumer):
 
 
     async def receive_json(self, content, **kwargs):
-        pass
+        currentPair = content.get("currentPair")
+        await self.send_json(await self.get_assetAmount(currentPair))
 
 
     async def disconnect(self, code):
@@ -58,3 +60,25 @@ class AssetConsumer(AsyncJsonWebsocketConsumer):
     async def send_data(self, event):
         data = event["content"]
         await self.send_json(data)
+
+
+    @database_sync_to_async
+    def get_assetAmount(self, pair):
+        result = dict()
+        
+        for index, currency in enumerate([pair.split('-')[0], pair.split('-')[1]]):
+            try:
+                portfo = Portfolio.objects.get(cryptoName=currency, usr=self.user)       
+                equivalentAmount = portfo.get_dollar_equivalent if currency != 'USDT' else None
+                amount = portfo.amount
+            except Portfolio.DoesNotExist:
+                amount = 0
+                equivalentAmount = 0
+
+            result[str(index)] = {
+                    "cryptoName": currency,
+                    "amount": amount,
+                    "equivalentAmount": equivalentAmount,
+                }
+
+        return result

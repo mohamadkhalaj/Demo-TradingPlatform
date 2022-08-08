@@ -127,7 +127,7 @@ function fillElems(data){
             typeElem.style.color = '#26de81';
         }
 
-        document.getElementById(ind + "_time").innerText = `${obj["time"]}`;
+        document.getElementById(ind + "_time").innerText = `${obj["datetime"]}`;
         document.getElementById(ind + "_pairPrice").innerText = `${obj["pairPrice"]}`;
         document.getElementById(ind + "_amount").innerText = `${obj["amount"]}`;
         document.getElementById(ind + "_price").innerText = `${(obj['pairPrice'] * obj['amount'].split(' ')[0]).toFixed(2)}`;

@@ -66,13 +66,18 @@ tradeSocket.onopen = () => {
 
 function tradeSocketMessage(e) {
     data = JSON.parse(e.data);
+    if(Object.keys(data).length === 0){
+        return;
+    }
     
     if(data["0"]){
         recentTrades(data)
+        console.log(data)
     }else{
         if(data["successful"] == true){
             createAlert('success', data["message"])
         }else{
+            console.log('undef')
             createAlert('danger', data["message"])
         }
     }
@@ -143,7 +148,6 @@ tradeListSocket.onopen = function (e) {
 };
 
 function tradeListSocketMessage(e) {
-
     var message = e.data;
     data = JSON.parse(message)
     priceList(data);
@@ -162,9 +166,15 @@ tradeListSocket.onclose = function(e) {
     tradeListSocketClose()
 };
 // asset socket
+function assetSocketOpen(e, status) {
+    assetSocket.send(JSON.stringify({"currentPair": pair}));
+}
+assetSocket.onopen = function (e) {
+    assetSocketOpen(e, false)
+};
 function assetSocketMessage(e) {
     var message = e.data;
-    data = JSON.parse(message)  
+    data = JSON.parse(message);
     getPortfolio(data)
 }
 
@@ -173,7 +183,7 @@ assetSocket.onmessage = function(e) {
 };
 // histories socket
 function historiesSocketOpen(e, status) {
-    // historiesSocket.send(JSON.stringify({"currentPage": "trade"}));
+    historiesSocket.send(JSON.stringify({"page": null}));
 }
 
 historiesSocket.onopen = function (e) {
@@ -363,7 +373,7 @@ function getHistory(data) {
         var iconSpace = document.createElement("li");
         var icon = document.createElement("div");
 
-        time.innerText = obj['time'];
+        time.innerText = obj['datetime'];
         type.innerText = obj['type'];
         pair.innerText = obj['pair'];
         amount.innerText = parseFloat(obj['amount']).toFixed(5);
