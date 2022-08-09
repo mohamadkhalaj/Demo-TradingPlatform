@@ -14,25 +14,22 @@ var parent = document.getElementById("histories");
 histSocket.onopen = function(e){
     console.log('socket connected');  
     pagination(histSocket);
-    histSocket.send(JSON.stringify({'page': page}))
+    histSocket.send(JSON.stringify({"page": page}))
 }
 
 histSocket.onmessage = function(e){
     
     data = JSON.parse(e.data);
-    length = Object.keys(data).length;
 
     var title = document.getElementById("hisrtoryTitle");
     var tableHeader = document.getElementById("tableHeader");
     tableHeader.classList.remove('d-none');
     // tableHeader.classList.add('d-block');
     title.innerText = 'Latest Transactions';
-    
-    if(length > 0){
-
-        header = data["0"]["header"];
-        if(header == 'hist_responses'){
-
+    length = Object.keys(data).length;
+    if(length != 0){
+        isNew = data["0"]["newHistory"]
+        if(isNew == false){
             liveRequest = false;
             if(res == 'add'){
                 page ++;
@@ -127,17 +124,17 @@ function fillElems(data){
             typeElem.style.color = '#26de81';
         }
 
-        document.getElementById(ind + "_time").innerText = `${obj["date"]}`;
+        document.getElementById(ind + "_time").innerText = `${obj["datetime"]}`;
         document.getElementById(ind + "_pairPrice").innerText = `${obj["pairPrice"]}`;
-        document.getElementById(ind + "_amount").innerText = `${parseFloat(obj["amount"]).toFixed(5)}`;
-        document.getElementById(ind + "_price").innerText = `${obj["price"].toFixed(2)}`;
+        document.getElementById(ind + "_amount").innerText = `${obj["amount"]}`;
+        document.getElementById(ind + "_price").innerText = `${(obj['pairPrice'] * obj['amount'].split(' ')[0]).toFixed(2)}`;
 
     })
 
 }
 function updateCounters(){
     parent.childNodes.forEach(function(item, index){
-        item.firstChild.innerText = index + 1;    
+        item.firstChild.innerText = index + 1;
     })
 }
 function pagination(){

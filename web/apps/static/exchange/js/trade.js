@@ -1,15 +1,34 @@
 try {
+    var tradeListSocket = new WebSocket('ws://' + window.location.host + '/ws/trade/prices/');
+}
+catch (e) {
+    var tradeListSocket = new WebSocket('wss://' + window.location.host + '/ws/trade/prices/');
+}
+try {
+    var assetSocket = new WebSocket('ws://' + window.location.host + '/ws/trade/asset/');
+}
+catch (e) {
+    var assetSocket = new WebSocket('wss://' + window.location.host + '/ws/trade/asset/');
+}
+try {
     var tradeSocket = new WebSocket('ws://' + window.location.host + '/ws/trade/');
 }
 catch (e) {
     var tradeSocket = new WebSocket('wss://' + window.location.host + '/ws/trade/');
 }
 try {
-    var tradeListSocket = new WebSocket('ws://' + window.location.host + '/ws/trade/prices/');
+    var RecentSocket = new WebSocket('ws://' + window.location.host + '/ws/trade/recents/');
 }
 catch (e) {
-    var tradeListSocket = new WebSocket('wss://' + window.location.host + '/ws/trade/prices/');
+    var RecentSocket = new WebSocket('wss://' + window.location.host + '/ws/trade/recents/');
 }
+try {
+    var historiesSocket = new WebSocket('ws://' + window.location.host + '/ws/histories/');
+}
+catch (e) {
+    var historiesSocket = new WebSocket('wss://' + window.location.host + '/ws/histories/');
+}
+
 var main_url = window.location.origin;
 var usdtValue = 0;
 var pairValue = 0;
@@ -40,7 +59,6 @@ var createdRecentTrades = [];
 var activeAlerts = [];
 
 function tradeSocketOpen() {
-    // tradeSocket.send(JSON.stringify({'header': 'attribs', 'current_pair': pair, 'page': 'trade'}));
     removeRecentTrades();
     removeHistory();
     removeOpenOrders();
@@ -53,53 +71,22 @@ tradeSocket.onopen = () => {
 
 function tradeSocketMessage(e) {
     data = JSON.parse(e.data);
-    console.log(data)
-    if(data["successful"] == true){
-        createAlert('success', data["message"])
-    }else{
-        createAlert('danger', data["message"])
+    if(Object.keys(data).length === 0){
+        return;
     }
-    // Object.keys(data).forEach(function(index){
-    //     obj = data[index]
-    //     // console.log(obj)
-    //     header = obj['header']
-
-    //     if((header == 'trade_response' || header == 'limit_response') && user != 'AnonymousUser'){
-    //         state = obj['state'];
-            
-    //         if(state == -1){
-    //             createAlert('danger', obj['message'])
-    //         }
-    //         else if(state == 0){
-    //             if(header == 'trade_response'){
-    //                 createAlert('success', 'Order filled!')
-    //                 uValue.value = 0;
-    //                 pValue.value = 0;
-    //             }else{
-    //                 createAlert('success', 'Order added!');
-    //                 limit_buy_price.value = 0;
-    //                 limit_buy_amount.value = 0;
-    //                 limit_sell_price.value = 0;
-    //                 limit_sell_amount.value = 0;
-    //             }
-                
-    //         }else{
-    //             createAlert('danger', 'Insufficient balance!')
-    //         }
-    //     }  
-    //     else if((header=='hist_response' || header=='orders_response') && user!='AnonymousUser'){
-    //         getHistory(obj, header);
-    //     }
-    //     else if(header == 'recent_response'){
-    //         if(obj['pair'] == pair){
-    //             recentTrades(obj);
-    //         }           
-    //     }
-    //     else if(header == 'portfo_response' && user != 'AnonymousUser'){
-    //         getPortfolio(obj);
-    //     }
-
-    // })
+    
+    if(data["0"]){
+        recentTrades(data)
+        console.log(data)
+    }else{
+        if(data["successful"] == true){
+            createAlert('success', data["message"])
+        }else{
+            console.log('undef')
+            createAlert('danger', data["message"])
+        }
+    }
+   
     try {
         if(document.getElementById('open-limit-orders').childElementCount > 0){
             document.querySelector('.no-data').style.display = 'none';
@@ -121,7 +108,6 @@ tradeSocket.onclose = function(e){
 }
 
 function tradeListSocketOpen(e, status) {
-    console.log('prices socket is on!!');
     tradeListSocket.send(JSON.stringify({"page": 0, RequestType : 'trade'}));
     
     if (!status) {
@@ -134,7 +120,6 @@ tradeListSocket.onopen = function (e) {
 };
 
 function tradeListSocketMessage(e) {
-
     var message = e.data;
     data = JSON.parse(message)
     priceList(data);
@@ -152,53 +137,109 @@ function tradeListSocketClose() {
 tradeListSocket.onclose = function(e) {
     tradeListSocketClose()
 };
+// asset socket
+function assetSocketOpen(e, status) {
+    assetSocket.send(JSON.stringify({"currentPair": pair}));
+}
+assetSocket.onopen = function (e) {
+    assetSocketOpen(e, false)
+};
+function assetSocketMessage(e) {
+    var message = e.data;
+    data = JSON.parse(message);
+    getPortfolio(data)
+}
 
-function getPortfolio(res) {
-    var pair = res['cryptoName']
-    var usdtAmount = document.getElementById('usdtAmount');
-    var pairAmount = document.getElementById('pairAmount');
-    
-    var usdtAmountLimit = document.getElementById('usdtAmountLimit');
-    var pairAmountLimit = document.getElementById('pairAmountLimit');
-    
-    pairAmount.innerText = `0 ${pair}`
-    pairAmountLimit.innerText = `0 ${pair}`
-    
+assetSocket.onmessage = function(e) {
+    assetSocketMessage(e)
+};
+// histories socket
+function historiesSocketOpen(e, status) {
+    historiesSocket.send(JSON.stringify({"page": null}));
+}
 
-    if (res['cryptoName'] == 'USDT') {
-        usdtAmount.innerText = `${res['amount'].toFixed(1)} USDT`
-        usdtAmountLimit.innerText = `${res['amount'].toFixed(1)} USDT`
-        usdtValue = res['amount'].toFixed(1)
-    }
-    else{
-        var amount = res['amount']
-        var equivalentAmount = res['equivalentAmount']
+historiesSocket.onopen = function (e) {
+    historiesSocketOpen(e, false)
+};
 
-        if (amount >= 1) {
-            amount = amount.toFixed(1)
-        }
-        else {
-            amount = amount.toFixed(6)
-        }
+function historiesSocketMessage(e) {
+    var message = e.data;
+    data = JSON.parse(message)  
+    getHistory(data)
+}
 
-        if (equivalentAmount >= 1) {
-            equivalentAmount = equivalentAmount.toFixed(1)
+historiesSocket.onmessage = function(e) {
+    historiesSocketMessage(e)
+};
+// recents socket
+function recentSocketOpen(e, status) {
+    RecentSocket.send(JSON.stringify({"currentPair": pair}));
+}
+RecentSocket.onopen = function (e) {
+    recentSocketOpen(e, false)
+};
+function recentSocketMessage(e) {
+    var message = e.data;
+    data = JSON.parse(message);
+    console.log(data)
+    recentTrades(data)
+}
+
+RecentSocket.onmessage = function(e) {
+    recentSocketMessage(e)
+};
+
+
+
+
+function getPortfolio(data) {
+    Object.keys(data).forEach(function(index){
+        obj = data[index]
+        var pair = obj['cryptoName']
+        var usdtAmount = document.getElementById('usdtAmount');
+        var pairAmount = document.getElementById('pairAmount');
+        
+        var usdtAmountLimit = document.getElementById('usdtAmountLimit');
+        var pairAmountLimit = document.getElementById('pairAmountLimit');
+        
+        // pairAmount.innerText = `0 ${pair}`
+        // pairAmountLimit.innerText = `0 ${pair}`
+        
+
+        if (obj['cryptoName'] == 'USDT') {
+            usdtAmount.innerText = `${obj['amount'].toFixed(1)} USDT`
+            usdtAmountLimit.innerText = `${obj['amount'].toFixed(1)} USDT`
+            usdtValue = obj['amount'].toFixed(1)
         }
-        else {
-            equivalentAmount = equivalentAmount.toFixed(4)
+        else if(obj['cryptoName'] != 'USDT' && obj['cryptoName'] == globPair){
+            var amount = obj['amount']
+            var equivalentAmount = obj['equivalentAmount']
+
+            if (amount >= 1) {
+                amount = amount.toFixed(1)
+            }
+            else {
+                amount = amount.toFixed(6)
+            }
+
+            if (equivalentAmount >= 1) {
+                equivalentAmount = equivalentAmount.toFixed(1)
+            }
+            else {
+                equivalentAmount = equivalentAmount.toFixed(4)
+            }
+            pairAmount.innerText = `${amount} ${pair} = ${equivalentAmount} USDT`
+            pairAmountLimit.innerText = `${amount} ${pair} = ${equivalentAmount} USDT`
+            pairUsdtValue = equivalentAmount;
+            pairValue = obj['amount']
         }
-        pairAmount.innerText = `${amount} ${pair} = ${equivalentAmount} USDT`
-        pairAmountLimit.innerText = `${amount} ${pair} = ${equivalentAmount} USDT`
-        pairUsdtValue = equivalentAmount;
-        pairValue = res['amount']
-    }
-    
+    })
+        
 }
 
 function trade(type, pair) {
 
     clearAllAlerts();
-
     var amount = 0;
 
     if (type == 'buy') {
@@ -222,9 +263,9 @@ function trade(type, pair) {
     }
     
 }
+
 function limit(type, pair){
     clearAllAlerts();
-
     var hasError = false;
 
     if(type == 'buy'){
@@ -302,97 +343,119 @@ function clearAllAlerts() {
     activeAlerts = []
 }
 
-function getHistory(data, header) {
+function getHistory(data) {
+
+    Object.keys(data).forEach(function(index){
+        obj = data[index];
     
-    var newNode = document.createElement("ul");
-    var removed = false;
-    newNode.classList.add("d-flex", "justify-content-between", "market-order-item", "ul");
+        var newNode = document.createElement("ul");
+        var orderType = obj["orderType"];
+        var complete = obj["complete"];
+        newNode.classList.add("d-flex", "justify-content-between", "market-order-item", "ul");
 
-    var time = document.createElement("li");
-    var pair = document.createElement("li");
-    var type = document.createElement("li");
-    var price = document.createElement("li");
-    var amount = document.createElement("li");
-    var total = document.createElement("li");
-    var iconSpace = document.createElement("li");
-    var icon = document.createElement("div");
+        var time = document.createElement("li");
+        var pair = document.createElement("li");
+        var type = document.createElement("li");
+        var price = document.createElement("li");
+        var amount = document.createElement("li");
+        var total = document.createElement("li");
+        var iconSpace = document.createElement("li");
+        var icon = document.createElement("div");
 
-    time.innerText = data['date'];
-    type.innerText = data['type'];
-    pair.innerText = data['pair'];
-    amount.innerText = parseFloat(data['amount']).toFixed(5);
-    total.innerText = data['price'].toFixed(5);
-    price.innerText = data['pairPrice'];
-    
+        time.innerText = obj['datetime'];
+        type.innerText = obj['type'];
+        pair.innerText = obj['pair'];
+        amount.innerText = parseFloat(obj['amount']).toFixed(5);
+        total.innerText = (obj['pairPrice'] * obj['amount'].split(' ')[0]).toFixed(5);
+        price.innerText = obj['pairPrice'];
+        
 
-    if (data['type'] == 'buy') {
-        type.classList.add('green')
-    }
-    else {
-        type.classList.add('red')
-    }
+        if (obj['type'] == 'buy') {
+            type.classList.add('green')
+        }
+        else {
+            type.classList.add('red')
+        }
 
-    newNode.appendChild(time);
-    newNode.appendChild(pair);
-    newNode.appendChild(type);
-    newNode.appendChild(price);
-    newNode.appendChild(amount);
-    newNode.appendChild(total);
-    
+        newNode.appendChild(time);
+        newNode.appendChild(pair);
+        newNode.appendChild(type);
+        newNode.appendChild(price);
+        newNode.appendChild(amount);
+        newNode.appendChild(total);
 
-    if(header == 'hist_response'){
-        if(data['orderType'] == 'market'){
+        if(orderType == 'market'){
             var parent = document.getElementById("market-orders");
-        }else{
-            var parent = document.getElementById("closed-limit-orders");
+            createdHistory.push(newNode);
+            parent.prepend(newNode);
         }
-    }
-    else if(header == 'orders_response'){
-        var parent = document.getElementById("open-limit-orders");
+    })
+    
+    
+    
+
+    // if(header == 'hist_response'){
+    //     if(data['orderType'] == 'market'){
+    //         var parent = document.getElementById("market-orders");
+    //     }else{
+    //         var parent = document.getElementById("closed-limit-orders");
+    //     }
+    // }
+    // else if(header == 'orders_response'){
+    //     var parent = document.getElementById("open-limit-orders");
          
-        icon.innerText = 'Close'
-        icon.classList.add('closeOrderBtn')
+    //     icon.innerText = 'Close'
+    //     icon.classList.add('closeOrderBtn')
 
-        iconSpace.appendChild(icon);
-        newNode.appendChild(iconSpace);
+    //     iconSpace.appendChild(icon);
+    //     newNode.appendChild(iconSpace);
 
-        icon.onclick = function(e){
-            e.preventDefault();
-            tradeSocket.send(JSON.stringify({'header': 'delOrder_request', 'id': e.target.dataset.id}))
-            newNode.remove();
-            removed = true;
-        }
-    }
-    if(!removed){
-        createdHistory.push(newNode);
-        parent.prepend(newNode);
-    }
+    //     icon.onclick = function(e){
+    //         e.preventDefault();
+    //         tradeSocket.send(JSON.stringify({'header': 'delOrder_request', 'id': e.target.dataset.id}))
+    //         newNode.remove();
+    //         removed = true;
+    //     }
+    // }
+    // if(!removed){
+    //     createdHistory.push(newNode);
+    //     parent.prepend(newNode);
+    // }
        
 }
 
 function recentTrades(data) {
-    var parent = document.getElementById("recentTradesHistory");
-    var newNode = document.createElement("tr");
-    var price = document.createElement("td");
-    var amount = document.createElement("td");
-    var time = document.createElement("td");
 
-    price.innerText = data['price'].toFixed(2);
-    amount.innerText = parseFloat(data['amount']).toFixed(5);
-    time.innerText = data['time'];
+    Object.keys(data).forEach(function(index){
+        obj = data[index]
 
-    if (data['type'] == 'buy') {
-        price.classList.add('green')
-    }
-    else {
-        price.classList.add('red')
-    }
+        if(obj["pair"] == pair){
+            var parent = document.getElementById("recentTradesHistory");
+            var newNode = document.createElement("tr");
+            var price = document.createElement("td");
+            var amount = document.createElement("td");
+            var time = document.createElement("td");
 
-    newNode.appendChild(price);
-    newNode.appendChild(amount);
-    newNode.appendChild(time);
-    createdRecentTrades.push(newNode);
-    parent.prepend(newNode);
+            price.innerText = obj['pairPrice'].toFixed(2);
+            amount.innerText = parseFloat(obj['amount']).toFixed(5);
+            time.innerText = obj['time'];
+
+            if (obj['type'] == 'buy') {
+                price.classList.add('green')
+            }
+            else {
+                price.classList.add('red')
+            }
+
+            newNode.appendChild(price);
+            newNode.appendChild(amount);
+            newNode.appendChild(time);
+            createdRecentTrades.push(newNode);
+            parent.prepend(newNode);
+        }
+        
+    })
+    
 }
 
 function calcAmount(change, object) {
@@ -458,13 +521,17 @@ function percentage() {
 
     sellPercentageLimit.childNodes.forEach(function(item, index) {
         if (item.tagName == 'LI'){
-            sellPercentageLimit.childNodes[index].addEventListener("click", function() {calcAmount('limitBuy', sellPercentageLimit.childNodes[index]);});
+            sellPercentageLimit.childNodes[index].addEventListener("click", function() {
+                calcAmount('limitBuy', sellPercentageLimit.childNodes[index]);
+            });
         }
     })
 
     buyPercentageLimit.childNodes.forEach(function(item, index) {
         if (item.tagName == 'LI'){
-            buyPercentageLimit.childNodes[index].addEventListener("click", function() {calcAmount('limitSell', buyPercentageLimit.childNodes[index]);});
+            buyPercentageLimit.childNodes[index].addEventListener("click", function() {
+                calcAmount('limitSell', buyPercentageLimit.childNodes[index]);
+            });
         }
     })
 

@@ -2,7 +2,9 @@ import asyncio
 import json
 
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
+from channels.db import database_sync_to_async
 from core.utils import create_crypto_json, get_crypto_compare, get_crypto_list
+from exchange.models import Portfolio
 
 
 class MarketConsumer(AsyncJsonWebsocketConsumer):
@@ -32,3 +34,51 @@ class MarketConsumer(AsyncJsonWebsocketConsumer):
                     subs.append(item)
             while True:
                 await asyncio.ensure_future(self.sendList(subs))
+
+   
+    
+class AssetConsumer(AsyncJsonWebsocketConsumer):
+    async def connect(self):
+        self.user = self.scope["user"]
+        self.unicastName = f"{self.user}_asset"
+
+        if self.user.is_authenticated:
+            await (self.channel_layer.group_add)(self.unicastName, self.channel_name)
+
+        await self.accept()
+
+
+    async def receive_json(self, content, **kwargs):
+        currentPair = content.get("currentPair")
+        await self.send_json(await self.get_assetAmount(currentPair))
+
+
+    async def disconnect(self, code):
+        self.channel_layer.group_discard("unicastName", self.channel_name)
+
+
+    async def send_data(self, event):
+        data = event["content"]
+        await self.send_json(data)
+
+
+    @database_sync_to_async
+    def get_assetAmount(self, pair):
+        result = dict()
+        
+        for index, currency in enumerate([pair.split('-')[0], pair.split('-')[1]]):
+            try:
+                portfo = Portfolio.objects.get(cryptoName=currency, usr=self.user)       
+                equivalentAmount = portfo.get_dollar_equivalent if currency != 'USDT' else None
+                amount = portfo.amount
+            except Portfolio.DoesNotExist:
+                amount = 0
+                equivalentAmount = 0
+
+            result[str(index)] = {
+                    "cryptoName": currency,
+                    "amount": amount,
+                    "equivalentAmount": equivalentAmount,
+                }
+
+        return result
