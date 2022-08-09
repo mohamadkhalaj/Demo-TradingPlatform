@@ -5,17 +5,17 @@ import requests
 from core.utils import search_symbol
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
+from django.urls import reverse
 from requests.structures import CaseInsensitiveDict
 
 
-def exchange_trade(request, pair="BINANCE:BTCUSDT"):
+def exchange_trade(request, pair=None):
 
-    if pair != "BINANCE:BTCUSDT":
-        name = pair.split("-")[0]
-        pair = search_symbol(pair)
-    else:
-        name = "BTC"
+    if not pair:
+        return redirect(reverse("exchange:exchange_trade", kwargs={"pair": "BTC-USDT"}))
 
+    name = pair.split("-")[0]
+    pair = search_symbol(pair)
     context = {"pair": pair, "name": name.upper()}
 
     if not pair:
@@ -26,7 +26,7 @@ def exchange_trade(request, pair="BINANCE:BTCUSDT"):
             "pair": pair,
             "name": name.upper(),
         }
-        return redirect("/account/trade/BTC-USDT")
+        return redirect(reverse("exchange:exchange_trade", kwargs={"pair": "BTC-USDT"}))
     else:
         return render(request, "registration/trade.html", context=context)
 
