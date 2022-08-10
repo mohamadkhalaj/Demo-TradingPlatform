@@ -12,6 +12,7 @@ from django.contrib.auth.forms import (
 from django.contrib.auth.validators import ASCIIUsernameValidator
 
 from .models import User
+from .tasks import send_mail
 
 is_production = os.environ.get("DJANGO_SETTINGS_MODULE") == "config.settings.production"
 if is_production:
@@ -72,6 +73,20 @@ class PasswordResetFormAllowNoPassword(PasswordResetForm):
             }
         )
         return (u for u in active_users if unicode_ci_compare(email, getattr(u, email_field_name)))
+
+    def send_mail(
+        self, subject_template_name, email_template_name, context, from_email, to_email, html_email_template_name=None
+    ):
+        context["user"] = context["user"].id
+
+        send_mail.delay(
+            subject_template_name=subject_template_name,
+            email_template_name=email_template_name,
+            context=context,
+            from_email=from_email,
+            to_email=to_email,
+            html_email_template_name=html_email_template_name,
+        )
 
 
 class PasswordChangeFormOauth(PasswordChangeForm):

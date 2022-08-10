@@ -1,3 +1,6 @@
+from __future__ import absolute_import, unicode_literals
+
+from django.contrib.auth.forms import PasswordResetForm
 from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
 from django.utils.http import urlsafe_base64_encode
@@ -31,3 +34,12 @@ def send_activation_code_email(current_site, email_address, user_id):
     email = EmailMessage(mail_subject, message, to=[to_email])
     email.content_subtype = "html"
     email.send()
+
+
+@shared_task
+def send_mail(subject_template_name, email_template_name, context, from_email, to_email, html_email_template_name):
+    context["user"] = User.objects.get(pk=context["user"])
+
+    PasswordResetForm.send_mail(
+        None, subject_template_name, email_template_name, context, from_email, to_email, html_email_template_name
+    )
