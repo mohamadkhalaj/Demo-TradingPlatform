@@ -10,8 +10,28 @@ services:
     restart: always
     container_name: web
     build: ./web/
+    command: >
+      sh -c "while ! python manage.py sqlflush > /dev/null 2>&1; do sleep 1; done && \
+             python manage.py makemigrations --noinput && \
+             python manage.py migrate --noinput && \
+             python manage.py migrate --run-syncdb --noinput && \
+             python manage.py collectstatic --noinput && \
+             python manage.py createsuperuser --user admin --email exchange@localhost --noinput > /dev/null; \
+             daphne -b 0.0.0.0 -p 8000 config.routing:application"
     volumes:
       - ./web:/web
+
+  celery:
+    restart: always
+    container_name: celery
+    build: ./web/
+    command: celery -A config worker -l info -c 4
+    volumes:
+      - ./web:/web
+    depends_on:
+      - db
+      - redis
+      - web
 
   db:
     restart: always

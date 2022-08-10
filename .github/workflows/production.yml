@@ -40,7 +40,6 @@ jobs:
           python-version: 3.10.5
       - name: Install requirements
         env:
-          DJANGO_DEBUG: "False"
           DJANGO_SECRET_KEY: "secretsecretsecretsecret123456"
           DJANGO_SETTINGS_MODULE: "config.settings.production"
           DJANGO_ALLOWED_HOSTS: "*"

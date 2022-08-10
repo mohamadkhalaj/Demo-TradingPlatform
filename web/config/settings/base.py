@@ -14,6 +14,7 @@ sys.path.insert(0, os.path.join(BASE_DIR, "apps"))
 DEBUG = env("DJANGO_DEBUG", default=False)
 
 ADMIN_URL = "admin/"
+SITE_ID = 1
 
 DEBUG_PROPAGATE_EXCEPTIONS = False
 LOGIN_REDIRECT_URL = "home"
@@ -225,7 +226,10 @@ SOCIAL_AUTH_IMMUTABLE_USER_FIELDS = [
 ]
 
 # Celery settings
-CELERY_BROKER_URL = env("REDIS_URL", default="redis://localhost:6379")
+REDIS_CELERY = env("REDIS_URL", default="redis://localhost:6379")
+if not ":" in REDIS_CELERY:
+    REDIS_CELERY = "redis://" + REDIS_CELERY.rstrip("/") + ":6379"
+CELERY_BROKER_URL = REDIS_CELERY
 CELERY_RESULT_BACKEND = "django-db"
 CELERY_CACHE_BACKEND = "django-cache"
 
