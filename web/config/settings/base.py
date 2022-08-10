@@ -16,7 +16,6 @@ DEBUG = env("DJANGO_DEBUG", default=False)
 ADMIN_URL = "admin/"
 
 DEBUG_PROPAGATE_EXCEPTIONS = False
-CORS_ORIGIN_ALLOW_ALL = True
 LOGIN_REDIRECT_URL = "home"
 LOGIN_URL = "login"
 LOGOUT_REDIRECT_URL = "login"
