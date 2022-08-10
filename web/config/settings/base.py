@@ -39,6 +39,7 @@ THIRD_PARTY_APPS = [
     "channels",
     "corsheaders",
     "admin_honeypot",
+    "django_celery_results",
 ]
 LOCAL_APPS = [
     "apps.account",
@@ -223,6 +224,10 @@ SOCIAL_AUTH_IMMUTABLE_USER_FIELDS = [
     "email",
 ]
 
+# Celery settings
+CELERY_BROKER_URL = env("REDIS_URL", default="redis://localhost:6379")
+CELERY_RESULT_BACKEND = "django-db"
+CELERY_CACHE_BACKEND = "django-cache"
 
 DEFAULT_BALANCE = 1000.0
 MINIMUM_TRADE_SIZE = 10

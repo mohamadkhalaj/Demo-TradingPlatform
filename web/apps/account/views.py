@@ -2,17 +2,17 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView, PasswordChangeView, PasswordResetView
 from django.contrib.sites.shortcuts import get_current_site
-from django.core.mail import EmailMessage
 from django.shortcuts import redirect, render
-from django.template.loader import render_to_string
 from django.urls import reverse_lazy
+
+from .tasks import send_activation_code_email
 
 try:
     from django.utils.encoding import force_bytes, force_text
 except ImportError:
     from django.utils.encoding import force_str as force_text
 
-from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
+from django.utils.http import urlsafe_base64_decode
 from django.views.generic import CreateView, UpdateView
 
 from .forms import LoginForm, PasswordChangeFormOauth, PasswordResetFormAllowNoPassword, ProfileForm, SignupForm
@@ -59,21 +59,8 @@ class Register(CreateView):
         user.is_active = False
         user.save()
         current_site = get_current_site(self.request)
-        mail_subject = "Activate your Trading-Platform account."
-        message = render_to_string(
-            "registration/activate_account.html",
-            {
-                "user": user,
-                "domain": current_site.domain,
-                "uid": urlsafe_base64_encode(force_bytes(user.pk)),
-                "token": account_activation_token.make_token(user),
-            },
-        )
-        to_email = form.cleaned_data.get("email")
-        email = EmailMessage(mail_subject, message, to=[to_email])
-        email.content_subtype = "html"
-        email.send()
-
+        print(current_site.domain)
+        send_activation_code_email.delay(current_site.domain, form.cleaned_data.get("email"), user.pk)
         context = {
             "title": "Signup",
             "redirect": "home",

@@ -19,7 +19,7 @@ def check_symbol_balance(amount, name, user):
             return 0
         else:
             return 1
-    except Exception as e:
+    except:
         return 2
 
 
