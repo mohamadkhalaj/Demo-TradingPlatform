@@ -27,17 +27,16 @@ def calc_equivalent(base, qoute, amount=None):
     response = requests.get(
         "https://min-api.cryptocompare.com/data/pricemulti?fsyms=" + base + "," + qoute + "&tsyms=USDT,USDT"
     ).json()
-    
+
     basePrice = float(response[base]["USDT"])
     qoutePrice = float(response[qoute]["USDT"])
     pairPrice = basePrice / qoutePrice
-    
+
     if amount:
         equivalent = pairPrice * amount
         return pairPrice, equivalent
     else:
         return pairPrice
-
 
 
 def pretify(float_num):
@@ -116,3 +115,12 @@ def create_crypto_json(data, request_type, dictionary):
                 }
             )
     return array
+
+
+def get_user_ip(request):
+    x_forwarded_for = request.META.get("HTTP_X_FORWARDED_FOR")
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(",")[0]
+    else:
+        ip = request.META.get("REMOTE_ADDR")
+    return ip
