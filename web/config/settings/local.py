@@ -12,7 +12,7 @@ SECRET_KEY = env(
 )
 # https://docs.djangoproject.com/en/dev/ref/settings/#allowed-hosts
 ALLOWED_HOSTS = ["localhost", "0.0.0.0", "127.0.0.1", "192.168.1.10"]
-CORS_ORIGIN_WHITELIST = ALLOWED_HOSTS
+CORS_ORIGIN_WHITELIST = list(map(lambda x: "http://" + x if not x.startswith("http://") else x, ALLOWED_HOSTS))
 
 # CACHES
 # ------------------------------------------------------------------------------

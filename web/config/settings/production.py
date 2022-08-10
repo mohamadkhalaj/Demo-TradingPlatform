@@ -10,7 +10,7 @@ from .base import env
 SECRET_KEY = env("DJANGO_SECRET_KEY")
 # https://docs.djangoproject.com/en/dev/ref/settings/#allowed-hosts
 ALLOWED_HOSTS = env_.list("DJANGO_ALLOWED_HOSTS", default=["https://demo-trade.herokuapp.com"])
-CORS_ORIGIN_WHITELIST = ALLOWED_HOSTS
+CORS_ORIGIN_WHITELIST = list(map(lambda x: "https://" + x if not x.startswith("https://") else x, ALLOWED_HOSTS))
 
 # APPS
 THIRD_PARTY_APPS = [
