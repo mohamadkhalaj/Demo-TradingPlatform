@@ -21,7 +21,7 @@ def vistorsMiddleware(get_response):
 
         if path not in IGNORED_PATH:
             obj = visitor(ip_address=ip, userAgent=userAgent, path=path)
-            if path.startswith(f"/{ADMIN_URL}/") and request.user.is_authenticated:
+            if path.startswith(f"/{ADMIN_URL}/"):
                 obj.isAdminPanel = True
             obj.save()
 
