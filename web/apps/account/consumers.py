@@ -6,7 +6,7 @@ from core.charts import Charts
 from core.utils import calc_equivalent, get_crypto_compare, pretify
 from django.db.models import Sum
 from exchange.models import Portfolio, TradeHistory
-from spot.models import SpotOrders
+from limit_order.models import LimitOrders
 
 
 class ChartSocket(AsyncJsonWebsocketConsumer):
@@ -63,7 +63,7 @@ class ChartSocket(AsyncJsonWebsocketConsumer):
     @database_sync_to_async
     def get_orders(self):
         return (
-            SpotOrders.objects.all()
+            LimitOrders.objects.all()
             .filter(
                 usr=self.user,
                 amount__gt=0,
@@ -141,7 +141,7 @@ class WalletSocket(AsyncJsonWebsocketConsumer):
     @database_sync_to_async
     def get_orders(self):
         return (
-            SpotOrders.objects.all()
+            LimitOrders.objects.all()
             .filter(
                 usr=self.user,
                 amount__gt=0,
