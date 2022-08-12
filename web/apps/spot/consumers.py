@@ -29,7 +29,7 @@ class TradeConsumer(AsyncJsonWebsocketConsumer):
                 {"type": "send.data", "content": updatedAsset}
             )
             await channel.group_send(
-                f"{self.user}_recents", 
+                "recents", 
                 {"type": "send.data", "content": tradeResult}
             )
             await channel.group_send(
@@ -81,6 +81,7 @@ class HistoriesConsumer(AsyncJsonWebsocketConsumer):
 
     async def disconnect(self, code):
         self.channel_layer.group_discard("unicastName", self.channel_name)
+        self.close()
 
 
     async def send_data(self, event):
@@ -117,10 +118,10 @@ class HistoriesConsumer(AsyncJsonWebsocketConsumer):
 class RecentsConsumer(AsyncJsonWebsocketConsumer):
     async def connect(self):
         self.user = self.scope["user"]
-        self.unicastName = f"{self.user}_recents"
+        self.broadcastName = "recents"
 
         if self.user.is_authenticated:
-            await (self.channel_layer.group_add)(self.unicastName, self.channel_name)
+            await (self.channel_layer.group_add)(self.broadcastName, self.channel_name)
 
         await self.accept()
 
@@ -131,7 +132,8 @@ class RecentsConsumer(AsyncJsonWebsocketConsumer):
 
 
     async def disconnect(self, code):
-        self.channel_layer.group_discard("unicastName", self.channel_name)
+        self.channel_layer.group_discard("broadcastName", self.channel_name)
+        self.close()
 
 
     async def send_data(self, event):

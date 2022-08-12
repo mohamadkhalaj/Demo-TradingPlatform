@@ -55,6 +55,7 @@ class AssetConsumer(AsyncJsonWebsocketConsumer):
 
     async def disconnect(self, code):
         self.channel_layer.group_discard("unicastName", self.channel_name)
+        self.close()
 
 
     async def send_data(self, event):
