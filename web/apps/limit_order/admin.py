@@ -9,6 +9,7 @@ class LimitOrdersAdmin(admin.ModelAdmin):
         "type",
         "pair",
         "amount",
+        "pairPrice",
         "humanizeTime",
     )
     list_filter = (

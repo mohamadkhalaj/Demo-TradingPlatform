@@ -4,12 +4,12 @@ try {
 catch (e) {
     var histSocket = new WebSocket('wss://' + window.location.host + '/ws/histories/');
 }
+
 var page = 1;
 var res = null;
 var liveRequest = false;
 var newId = -1;
 var parent = document.getElementById("histories");
-
 
 histSocket.onopen = function(e){
     console.log('socket connected');  
@@ -27,37 +27,40 @@ histSocket.onmessage = function(e){
     // tableHeader.classList.add('d-block');
     title.innerText = 'Latest Transactions';
     length = Object.keys(data).length;
-    if(length != 0){
-        isNew = data["0"]["newHistory"]
-        if(isNew == false){
-            liveRequest = false;
-            if(res == 'add'){
-                page ++;
-            }else if(res == 'sub'){
-                page --;
-            }
-            console.log('page', page);
-            document.getElementById("paginationText").innerText = `${page}`;
-    
-            parent.innerHTML = ``;
-            for(let i=0; i<length; i++){
-                createElems(i);
-            }
+    isNew = data["0"]["newHistory"]
+    is_complete = data["0"]["complete"]
+
+    if(!is_complete || length == 0){
+        return
+    }
+    if(isNew == false){
+        liveRequest = false;
+        if(res == 'add'){
+            page ++;
+        }else if(res == 'sub'){
+            page --;
+        }
+        console.log('page', page);
+        document.getElementById("paginationText").innerText = `${page}`;
+
+        parent.innerHTML = ``;
+        for(let i=0; i<length; i++){
+            createElems(i);
+        }
+        fillElems(data);
+    }
+    else{
+        if(page == 1){
+            liveRequest = true;
+            createElems(newId);
             fillElems(data);
+            newId --;
+            updateCounters();
         }
-        else{
-            if(page == 1){
-                liveRequest = true;
-                createElems(newId);
-                fillElems(data);
-                newId --;
-                updateCounters();
-            }
-        }
-        
-    } 
+    }
     
 }
+
 histSocket.onclose = function(e){
     console.log('socket disconnected');
 }
@@ -126,7 +129,7 @@ function fillElems(data){
 
         document.getElementById(ind + "_time").innerText = `${obj["datetime"]}`;
         document.getElementById(ind + "_pairPrice").innerText = `${obj["pairPrice"]}`;
-        document.getElementById(ind + "_amount").innerText = `${obj["amount"]}`;
+        document.getElementById(ind + "_amount").innerText = `${parseFloat(obj["amount"].split(' ')[0]).toFixed(4)} ${obj["amount"].split(' ')[1]}`;
         document.getElementById(ind + "_price").innerText = `${(obj['pairPrice'] * obj['amount'].split(' ')[0]).toFixed(2)}`;
 
     })
@@ -138,7 +141,6 @@ function updateCounters(){
     })
 }
 function pagination(){
-
     document.getElementById('paginationPrev').addEventListener ('click',  function(e){
         if(page > 1){
             res = 'sub';
@@ -150,6 +152,5 @@ function pagination(){
             res = 'add';
             histSocket.send(JSON.stringify({"page": page + 1}));
         }
-    })
-    
+    })  
 }

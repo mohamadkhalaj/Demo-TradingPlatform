@@ -12,6 +12,7 @@ django.setup()
 from account import routing as account_routing
 from exchange import routing as exchange_routing
 from spot import routing as spot_routing
+from limit_order import routing as limit_routing
 
 application = ProtocolTypeRouter(
     {
@@ -22,6 +23,7 @@ application = ProtocolTypeRouter(
                         spot_routing.websocket_urlpatterns
                         + exchange_routing.websocket_urlpatterns
                         + account_routing.websocket_urlpatterns
+                        + limit_routing.websocket_urlpatterns
                     )
                 )
             )

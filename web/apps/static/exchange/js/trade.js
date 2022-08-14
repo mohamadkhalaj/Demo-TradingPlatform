@@ -28,6 +28,12 @@ try {
 catch (e) {
     var historiesSocket = new WebSocket('wss://' + window.location.host + '/ws/histories/');
 }
+try {
+    var limitSocket = new WebSocket('ws://' + window.location.host + '/ws/limit/');
+}
+catch (e) {
+    var limitSocket = new WebSocket('wss://' + window.location.host + '/ws/limit/');
+}
 
 var main_url = window.location.origin;
 var usdtValue = 0;
@@ -74,25 +80,12 @@ function tradeSocketMessage(e) {
     if(Object.keys(data).length === 0){
         return;
     }
-    
-    if(data["0"]){
-        recentTrades(data)
-        console.log(data)
+    if(data["successful"] == true){
+        createAlert('success', data["message"])
     }else{
-        if(data["successful"] == true){
-            createAlert('success', data["message"])
-        }else{
-            console.log('undef')
-            createAlert('danger', data["message"])
-        }
+        createAlert('danger', data["message"])
     }
-   
-    try {
-        if(document.getElementById('open-limit-orders').childElementCount > 0){
-            document.querySelector('.no-data').style.display = 'none';
-        }
-    }
-    catch (e) {}  
+    
 }
 
 tradeSocket.onmessage = e => {
@@ -181,15 +174,26 @@ RecentSocket.onopen = function (e) {
 function recentSocketMessage(e) {
     var message = e.data;
     data = JSON.parse(message);
-    console.log(data)
     recentTrades(data)
 }
-
 RecentSocket.onmessage = function(e) {
     recentSocketMessage(e)
 };
+// limit orders socket
+function limitSocketOpen(e, status) {
+    
+}
+limitSocket.onopen = function (e) {
+    limitSocketOpen(e, false)
+};
+function limitSocketMessage(e) {
+    var message = e.data;
+    data = JSON.parse(message);
+}
 
-
+limitSocket.onmessage = function(e) {
+    limitSocketMessage(e)
+};
 
 
 function getPortfolio(data) {
@@ -258,7 +262,7 @@ function trade(type, pair) {
             'pair' : `${pair}-USDT`,
             'type' : type,
             'amount' : amount,
-            }  
+        }  
         tradeSocket.send(JSON.stringify(reqJson));
     }
     
@@ -270,11 +274,11 @@ function limit(type, pair){
 
     if(type == 'buy'){
         var price = parseFloat(limit_buy_price.value);
-        var amount = `${limit_buy_amount.value} ${$('#buy-pair').text()}`;
+        var amount = `${limit_buy_amount.value} ${$('#limitBuyPairChanger').text()}`;
     }
     else{
         var price = parseFloat(limit_sell_price.value);
-        var amount = `${limit_sell_amount.value} ${$('#sell-pair').text()}`;
+        var amount = `${limit_sell_amount.value} ${$('#limitSellPairChanger').text()}`;
     }
 
     var amountVal = parseFloat(amount.split(' ')[0]);
@@ -297,15 +301,13 @@ function limit(type, pair){
     
     if(!hasError){
         var reqJson = {
-            'header': 'limit_request',
-            'orderType': 'limit',
             'pair' : `${pair}-USDT`,
             'type' : type,
-            'tradeSize': tradeSize,
             'amount' : amount,
-            'price': price
-            }  
-        tradeSocket.send(JSON.stringify(reqJson));
+            'targetPrice': price
+        }  
+        limitSocket.send(JSON.stringify(reqJson));
+        createAlert('success', "order placed sucsessfully!")
     
     }
 
@@ -344,7 +346,10 @@ function clearAllAlerts() {
 }
 
 function getHistory(data) {
-
+    
+    if(Object.keys(data).length != 0){
+        document.querySelector('.no-data').classList.add("d-none")
+    }
     Object.keys(data).forEach(function(index){
         obj = data[index];
     
@@ -365,8 +370,8 @@ function getHistory(data) {
         time.innerText = obj['datetime'];
         type.innerText = obj['type'];
         pair.innerText = obj['pair'];
-        amount.innerText = parseFloat(obj['amount']).toFixed(5);
-        total.innerText = (obj['pairPrice'] * obj['amount'].split(' ')[0]).toFixed(5);
+        amount.innerText = `${parseFloat(obj["amount"].split(' ')[0]).toFixed(4)} ${obj["amount"].split(' ')[1]}`;
+        total.innerText = (obj['pairPrice'] * parseFloat(obj['amount'].split(' ')[0])).toFixed(4);
         price.innerText = obj['pairPrice'];
         
 
@@ -386,13 +391,18 @@ function getHistory(data) {
 
         if(orderType == 'market'){
             var parent = document.getElementById("market-orders");
-            createdHistory.push(newNode);
-            parent.prepend(newNode);
         }
+        else if(orderType == 'limit'){
+            if(obj["complete"] == true){
+                var parent = document.getElementById("closed-limit-orders");
+            }
+            else{
+                var parent = document.getElementById("open-limit-orders");
+            }
+        }
+        createdHistory.push(newNode);
+        parent.prepend(newNode);
     })
-    
-    
-    
 
     // if(header == 'hist_response'){
     //     if(data['orderType'] == 'market'){

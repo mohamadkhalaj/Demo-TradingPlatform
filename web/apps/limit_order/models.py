@@ -10,6 +10,7 @@ class LimitOrders(models.Model):
     type = models.CharField(max_length=4)
     pair = models.CharField(max_length=20)
     amount = models.CharField(max_length=10)
+    pairPrice = models.FloatField(null=True, blank=True)
     time = models.DateTimeField(auto_now_add=True)
 
     @property

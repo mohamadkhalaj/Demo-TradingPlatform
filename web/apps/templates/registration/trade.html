@@ -156,7 +156,7 @@
 				<div class="input-group">
 				  <input id="limit-buy-amount" type="number" class="form-control" oninput="calculateTotalLimit('buy')" placeholder="Amount" onkeypress='validate(event)'>
 				  <div class="input-group-append">
-					<span class="input-group-text">{{name}}</span>
+					<span id="limitBuyPairChanger" class="input-group-text">{{name}}</span>
 				  </div>
 				</div>
 				<ul class="market-trade-list" id="usdtPercentageLimit">
@@ -186,7 +186,7 @@
 				<div class="input-group">
 				  <input id="limit-sell-amount" type="number" oninput="calculateTotalLimit('sell')" class="form-control" placeholder="Amount" onkeypress='validate(event)'>
 				  <div class="input-group-append">
-					<span class="input-group-text">{{name}}</span>
+					<span id="limitSellPairChanger" class="input-group-text">{{name}}</span>
 				  </div>
 				</div>
 				<ul class="market-trade-list" id="pairPercentageLimit">

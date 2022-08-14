@@ -3,17 +3,15 @@ from channels.generic.websocket import AsyncJsonWebsocketConsumer
 from channels.layers import get_channel_layer
 from core.trade import Trade
 from exchange.models import TradeHistory
+from limit_order.models import LimitOrders
+from itertools import chain
+from operator import attrgetter
 
 
 
 class TradeConsumer(AsyncJsonWebsocketConsumer):
     async def connect(self):
         self.user = self.scope["user"]
-        self.unicastName = f"{self.user}_unicast"
-
-        if self.user.is_authenticated:
-            await (self.channel_layer.group_add)(self.unicastName, self.channel_name)
-         
 
         await self.accept()
 
@@ -21,7 +19,7 @@ class TradeConsumer(AsyncJsonWebsocketConsumer):
     async def receive_json(self, content, **kwargs):
         channel = get_channel_layer()
 
-        result = await self.trade(content)   
+        result = await self.trade(content)
         try:
             tradeResponse, tradeResult, updatedAsset = result        
             await channel.group_send(
@@ -39,15 +37,11 @@ class TradeConsumer(AsyncJsonWebsocketConsumer):
         except ValueError:
             tradeResponse = result
 
-        await self.channel_layer.group_send(
-                self.unicastName, 
-                {"type": "send.data", 
-                "content": tradeResponse}
-        )
+        await self.send_json(tradeResponse)
 
 
     async def disconnect(self, code):
-        self.channel_layer.group_discard("unicastName", self.channel_name)
+        self.close()
 
 
     async def send_data(self, event):
@@ -93,25 +87,35 @@ class HistoriesConsumer(AsyncJsonWebsocketConsumer):
     @database_sync_to_async
     def get_histories(self, page):
         if page:
-            histObj = TradeHistory.objects.filter(usr=self.user).order_by("-time")[(page-1) * 10 : page * 10]
+            combinedObj = TradeHistory.objects.filter(
+                usr=self.user
+            ).order_by("-time")[(page-1) * 10 : page * 10]
         else:
-            histObj = TradeHistory.objects.filter(usr=self.user).order_by("time")
-            if len(histObj) > 10:
-                histObj = histObj[len(histObj)-10:]
+            combinedObj = sorted(chain(
+                TradeHistory.objects.filter(usr=self.user),
+                LimitOrders.objects.filter(usr=self.user)
+            ),key=attrgetter('time'))
+
+            if len(combinedObj) > 10:
+                combinedObj = combinedObj[len(combinedObj)-10:]
 
         result = dict()
-        for index, item in enumerate(list(histObj)):
+        for index, item in enumerate(list(combinedObj)):
             result[str(index)] = {
-                    "type": item.type,
-                    "pair": item.pair,
-                    "pairPrice": item.pairPrice,
-                    "amount": item.amount,
-                    "datetime": item.time.strftime("%Y/%m/%d-%H:%M"),
-                    "orderType": item.orderType,
-                    "complete": item.complete,
-                    "newHistory": False,
-                }
-
+                "type": item.type,
+                "pair": item.pair,
+                "pairPrice": item.pairPrice,
+                "amount": item.amount,
+                "datetime": item.time.strftime("%Y/%m/%d %H:%M"),
+                "newHistory": False,
+            }
+            try:
+                result[str(index)]["orderType"] = item.orderType
+                result[str(index)]["complete"] = item.complete
+            except Exception as e:
+                result[str(index)]["orderType"] = "limit"
+                result[str(index)]["complete"] = False
+               
         return result
 
 
@@ -151,11 +155,11 @@ class RecentsConsumer(AsyncJsonWebsocketConsumer):
         result = dict()
         for index, item in enumerate(list(histObj)):
             result[str(index)] = {
-                        "type": item.type,
-                        "pairPrice": item.pairPrice,
-                        "amount": item.amount,
-                        "pair": pair,
-                        "time": item.time.strftime("%H:%M:%S"),
-                    }
+                "type": item.type,
+                "pairPrice": item.pairPrice,
+                "amount": item.amount,
+                "pair": pair,
+                "time": item.time.strftime("%H:%M:%S"),
+            }
         
         return result
