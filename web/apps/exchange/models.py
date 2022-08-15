@@ -6,7 +6,7 @@ from django.db import models
 
 class Portfolio(models.Model):
     usr = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    cryptoName = models.CharField(max_length=50)
+    cryptoName = models.CharField(max_length=255)
     amount = models.FloatField(default=0, null=True)
     equivalentAmount = models.FloatField(default=0, null=True, blank=True)
     marketType = models.CharField(max_length=10, default="spot")  # spot/futures
@@ -28,11 +28,11 @@ class Portfolio(models.Model):
 class TradeHistory(models.Model):
     usr = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     type = models.CharField(max_length=4)  # buy/sell
-    pair = models.CharField(max_length=20)
+    pair = models.CharField(max_length=255)
     pairPrice = models.FloatField()
     orderType = models.CharField(max_length=15, default=None)  # market/limit
     histAmount = models.JSONField(default=None)
-    amount = models.CharField(max_length=10)
+    amount = models.CharField(max_length=255)
     time = models.DateTimeField(auto_now=True)
     complete = models.BooleanField(default=True)
 

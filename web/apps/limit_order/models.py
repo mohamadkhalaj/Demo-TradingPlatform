@@ -8,8 +8,8 @@ from django.db import models
 class LimitOrders(models.Model):
     usr = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     type = models.CharField(max_length=4)
-    pair = models.CharField(max_length=20)
-    amount = models.CharField(max_length=10)
+    pair = models.CharField(max_length=255)
+    amount = models.CharField(max_length=255)
     pairPrice = models.FloatField(null=True, blank=True)
     time = models.DateTimeField(auto_now_add=True)
 
