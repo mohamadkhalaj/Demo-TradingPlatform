@@ -4,7 +4,7 @@ from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
 from core.charts import Charts
 from core.utils import calc_equivalent, get_crypto_compare, pretify
-from django.db.models import Sum
+from django.db.models import F, Sum
 from exchange.models import Portfolio, TradeHistory
 from limit_order.models import LimitOrders
 
@@ -68,7 +68,7 @@ class ChartSocket(AsyncJsonWebsocketConsumer):
                 usr=self.user,
                 amount__gt=0,
             )
-            .aggregate(Sum("price"))["price__sum"]
+            .aggregate(sum=Sum(F("amount").name.split()[0]))["sum"]
         )
 
 
@@ -109,9 +109,8 @@ class WalletSocket(AsyncJsonWebsocketConsumer):
                 }
             )
 
-        availableMargin = await self.get_orders()
-        # dictionary["total"] = pretify(totalMargin + availableMargin)
-        dictionary["total"] = None
+        availableMargin = await self.get_orders() or 0
+        dictionary["total"] = pretify(totalMargin + availableMargin)
         dictionary["assets"] = array
         dictionary["available"] = pretify(totalMargin)
 
@@ -146,7 +145,7 @@ class WalletSocket(AsyncJsonWebsocketConsumer):
                 usr=self.user,
                 amount__gt=0,
             )
-            .aggregate(Sum("pairPrice"))["pairPrice__sum"]
+            .aggregate(sum=Sum(F("amount").name.split()[0]))["sum"]
         )
 
     @database_sync_to_async
