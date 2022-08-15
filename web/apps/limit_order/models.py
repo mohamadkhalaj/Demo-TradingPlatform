@@ -11,25 +11,24 @@ class LimitOrders(models.Model):
     pair = models.CharField(max_length=255)
     amount = models.CharField(max_length=255)
     pairPrice = models.FloatField(null=True, blank=True)
+    amount_float = models.FloatField()
     time = models.DateTimeField(auto_now_add=True)
 
     @property
     def get_dollar_equivalent(self):
-        base = self.pair.split('-')[0]
-        amount = self.amount.split(' ')[0]
-        response = requests.get(
-            f"https://min-api.cryptocompare.com/data/price?fsym={base}&tsyms=USDT"
-        ).json()
-        price = float(response['USDT'])
+        base = self.pair.split("-")[0]
+        amount = self.amount.split(" ")[0]
+        response = requests.get(f"https://min-api.cryptocompare.com/data/price?fsym={base}&tsyms=USDT").json()
+        price = float(response["USDT"])
 
         return price * float(amount)
 
     @property
     def get_amount(self):
-        base = self.pair.split('-')[0]
-        amount = self.amount.split(' ')[0]
+        base = self.pair.split("-")[0]
+        amount = self.amount.split(" ")[0]
         pairPrice = self.get_dollar_equivalent
-        if base == self.amount.split(' ')[1]:
+        if base == self.amount.split(" ")[1]:
             return float(amount) * pairPrice
         else:
             return float(amount) / pairPrice

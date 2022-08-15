@@ -68,7 +68,7 @@ class ChartSocket(AsyncJsonWebsocketConsumer):
                 usr=self.user,
                 amount__gt=0,
             )
-            .aggregate(sum=Sum(F("amount").name.split()[0]))["sum"]
+            .aggregate(sum=Sum(F("amount_float") * F("pairPrice")))["sum"]
         )
 
 
@@ -145,7 +145,7 @@ class WalletSocket(AsyncJsonWebsocketConsumer):
                 usr=self.user,
                 amount__gt=0,
             )
-            .aggregate(sum=Sum(F("amount").name.split()[0]))["sum"]
+            .aggregate(sum=Sum(F("amount_float") * F("pairPrice")))["sum"]
         )
 
     @database_sync_to_async

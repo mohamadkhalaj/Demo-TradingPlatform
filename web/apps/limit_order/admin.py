@@ -1,4 +1,5 @@
 from django.contrib import admin
+
 from .models import LimitOrders
 
 
@@ -11,6 +12,7 @@ class LimitOrdersAdmin(admin.ModelAdmin):
         "amount",
         "pairPrice",
         "humanizeTime",
+        "amount_float",
     )
     list_filter = (
         "usr",
