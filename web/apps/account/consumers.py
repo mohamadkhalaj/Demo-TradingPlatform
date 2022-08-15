@@ -146,7 +146,7 @@ class WalletSocket(AsyncJsonWebsocketConsumer):
                 usr=self.user,
                 amount__gt=0,
             )
-            .aggregate(Sum("price"))["price__sum"]
+            .aggregate(Sum("pairPrice"))["pairPrice__sum"]
         )
 
     @database_sync_to_async

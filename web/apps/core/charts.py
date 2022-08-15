@@ -77,10 +77,10 @@ class Charts:
                     historyDict = hst.histAmount
 
         total = 0
-        for hst in historyDict:
-            crypto = hst
-            amount = historyDict[hst]
-            total += prices[crypto][price_index] * amount
+        for index in historyDict:
+            crypto_name = historyDict[index]['cryptoName']
+            amount = historyDict[index]['amount']
+            total += prices[crypto_name][price_index] * amount
 
         return historyDict, total
 
