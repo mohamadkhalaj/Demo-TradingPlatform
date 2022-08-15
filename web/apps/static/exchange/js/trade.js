@@ -60,6 +60,7 @@ if(user != 'AnonymousUser'){
 var globPair = pair.split('-')[0];
 var createdHistory = [];
 var createdOpenOrders = [];
+var openorderIds = []
 var createdClosedOrders = [];
 var createdRecentTrades = [];
 var activeAlerts = [];
@@ -320,9 +321,10 @@ function removeHistory() {
 }
 function removeOpenOrders(){
     createdOpenOrders.forEach(function(item, index) {
-        item.remove();
+        item.remove();      
     })
     createdOpenOrders = []
+    openorderIds = []
 }
 function removeClosedOrders(){
     createdClosedOrders.forEach(function(item, index) {
@@ -346,7 +348,6 @@ function clearAllAlerts() {
 }
 
 function getHistory(data) {
-    
     if(Object.keys(data).length != 0){
         document.querySelector('.no-data').classList.add("d-none")
     }
@@ -364,14 +365,14 @@ function getHistory(data) {
         var price = document.createElement("li");
         var amount = document.createElement("li");
         var total = document.createElement("li");
-        var iconSpace = document.createElement("li");
-        var icon = document.createElement("div");
+        // var iconSpace = document.createElement("li");
+        var cancelBtn = document.createElement("button");
 
         time.innerText = obj['datetime'];
         type.innerText = obj['type'];
         pair.innerText = obj['pair'];
         amount.innerText = `${parseFloat(obj["amount"].split(' ')[0]).toFixed(4)} ${obj["amount"].split(' ')[1]}`;
-        total.innerText = (obj['pairPrice'] * parseFloat(obj['amount'].split(' ')[0])).toFixed(4);
+        total.innerText = (obj['pairPrice'] * parseFloat(obj['amount'].split(' ')[0])).toFixed(2);
         price.innerText = obj['pairPrice'];
         
 
@@ -398,40 +399,31 @@ function getHistory(data) {
             }
             else{
                 var parent = document.getElementById("open-limit-orders");
+                cancelBtn.innerText = "cancel";
+                cancelBtn.classList.add(...['btn', 'btn-primary-outline', 'green']);
+                cancelBtn.setAttribute('data-id', obj["id"])
+                cancelBtn.onclick = function(e){
+                    limitSocket.send(JSON.stringify({"cancel":[parseInt(this.dataset.id)]}));
+                    newNode.remove()
+                    createAlert('success', 'Selected order canceled!')
+                }
+                newNode.appendChild(cancelBtn);
+                createdOpenOrders.push(newNode);
+                openorderIds.push(obj["id"])
             }
         }
         createdHistory.push(newNode);
         parent.prepend(newNode);
     })
-
-    // if(header == 'hist_response'){
-    //     if(data['orderType'] == 'market'){
-    //         var parent = document.getElementById("market-orders");
-    //     }else{
-    //         var parent = document.getElementById("closed-limit-orders");
-    //     }
-    // }
-    // else if(header == 'orders_response'){
-    //     var parent = document.getElementById("open-limit-orders");
-         
-    //     icon.innerText = 'Close'
-    //     icon.classList.add('closeOrderBtn')
-
-    //     iconSpace.appendChild(icon);
-    //     newNode.appendChild(iconSpace);
-
-    //     icon.onclick = function(e){
-    //         e.preventDefault();
-    //         tradeSocket.send(JSON.stringify({'header': 'delOrder_request', 'id': e.target.dataset.id}))
-    //         newNode.remove();
-    //         removed = true;
-    //     }
-    // }
-    // if(!removed){
-    //     createdHistory.push(newNode);
-    //     parent.prepend(newNode);
-    // }
-       
+    if(createdOpenOrders.length != 0){
+        document.getElementById('cancel-all').classList.remove('invisible');
+    }
+   
+}
+function cancelAllOrders(){
+    limitSocket.send(JSON.stringify({"cancel": openorderIds}));
+    removeOpenOrders()
+    createAlert('success', 'All orders canceled!')
 }
 
 function recentTrades(data) {

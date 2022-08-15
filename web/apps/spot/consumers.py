@@ -113,6 +113,7 @@ class HistoriesConsumer(AsyncJsonWebsocketConsumer):
                 result[str(index)]["orderType"] = item.orderType
                 result[str(index)]["complete"] = item.complete
             except Exception as e:
+                result[str(index)]["id"] = item.id
                 result[str(index)]["orderType"] = "limit"
                 result[str(index)]["complete"] = False
                

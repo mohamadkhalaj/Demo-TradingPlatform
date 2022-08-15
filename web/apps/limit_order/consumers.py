@@ -17,6 +17,8 @@ class LimitConsumer(AsyncJsonWebsocketConsumer):
                 f"{self.user}_histories", 
                 {"type": "send.data", "content": await self.addOrder(content)}
             )
+        else:
+            await self.cancelOrder(content.get("cancel"))
            
 
     async def disconnect(self, code):
@@ -47,8 +49,10 @@ class LimitConsumer(AsyncJsonWebsocketConsumer):
         )
 
         executed_time = LimitOrders.objects.filter(usr=self.user).last().time.replace(tzinfo=None)
+        newId = LimitOrders.objects.filter(usr=self.user).last().id
         result = {
-            "0": {
+            "0":{
+                "id": newId,
                 "type": content["type"],
                 "pair": content["pair"],
                 "pairPrice": targetPrice,
@@ -60,3 +64,11 @@ class LimitConsumer(AsyncJsonWebsocketConsumer):
         }
 
         return result
+
+
+    @database_sync_to_async
+    def cancelOrder(self, ids):
+        LimitOrders.objects.filter(
+            usr=self.user,
+            pk__in=ids,
+        ).delete()
