@@ -312,7 +312,8 @@ function limit(type, pair){
             'targetPrice': price
         }  
         limitSocket.send(JSON.stringify(reqJson));
-        createAlert('success', "order placed sucsessfully!")
+        createAlert('success', "order placed sucsessfully!");
+        assetSocket.send(JSON.stringify({"currentPair": `${globPair}-USDT`}));
     
     }
 
@@ -410,7 +411,8 @@ function getHistory(data) {
                 cancelBtn.onclick = function(e){
                     limitSocket.send(JSON.stringify({"cancel":[parseInt(this.dataset.id)]}));
                     newNode.remove()
-                    createAlert('success', 'Selected order canceled!')
+                    createAlert('success', 'Selected order canceled!');
+                    assetSocket.send(JSON.stringify({"currentPair": `${globPair}-USDT`}));
                 }
                 newNode.appendChild(cancelBtn);
                 createdOpenOrders.push(newNode);
@@ -428,7 +430,8 @@ function getHistory(data) {
 function cancelAllOrders(){
     limitSocket.send(JSON.stringify({"cancel": openorderIds}));
     removeOpenOrders()
-    createAlert('success', 'All orders canceled!')
+    createAlert('success', 'All orders canceled!');
+    assetSocket.send(JSON.stringify({"currentPair": `${globPair}-USDT`}));
 }
 
 function recentTrades(data) {
