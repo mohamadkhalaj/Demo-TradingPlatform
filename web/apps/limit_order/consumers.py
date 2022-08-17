@@ -1,6 +1,8 @@
 from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
 from channels.layers import get_channel_layer
+from django.db.models import F
+from exchange.models import Portfolio
 
 from .models import LimitOrders
 
@@ -49,6 +51,9 @@ class LimitConsumer(AsyncJsonWebsocketConsumer):
             pairPrice=targetPrice,
             amount_float=float(famount.split()[0]),
         )
+        type_ = 1 if content["type"] == "buy" else 0
+        p_price = targetPrice * float(famount.split()[0]) if content["type"] == "buy" else float(famount.split()[0])
+        Portfolio.objects.filter(usr=self.user, cryptoName=pair.split("-")[type_]).update(amount=F("amount") - p_price)
 
         executed_time = LimitOrders.objects.filter(usr=self.user).last().time.replace(tzinfo=None)
         newId = LimitOrders.objects.filter(usr=self.user).last().id
@@ -69,7 +74,14 @@ class LimitConsumer(AsyncJsonWebsocketConsumer):
 
     @database_sync_to_async
     def cancelOrder(self, ids):
-        LimitOrders.objects.filter(
+        orders = LimitOrders.objects.filter(
             usr=self.user,
             pk__in=ids,
-        ).delete()
+        )
+        for order in orders:
+            type_ = 1 if order.type == "buy" else 0
+            p_price = order.pairPrice * order.amount_float if order.type == "buy" else order.amount_float
+            Portfolio.objects.filter(usr=self.user, cryptoName=order.pair.split("-")[type_]).update(
+                amount=F("amount") + p_price
+            )
+        orders.delete()
