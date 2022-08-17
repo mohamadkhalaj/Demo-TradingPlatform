@@ -78,8 +78,12 @@ class Charts:
 
         total = 0
         for index in historyDict:
-            crypto_name = historyDict[index]['cryptoName']
-            amount = historyDict[index]['amount']
+            if type(historyDict[index]) == dict:
+                crypto_name = historyDict[index]["cryptoName"]
+                amount = historyDict[index]["amount"]
+            else:
+                crypto_name = index
+                amount = historyDict[index]
             total += prices[crypto_name][price_index] * amount
 
         return historyDict, total

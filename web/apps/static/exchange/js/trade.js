@@ -77,6 +77,8 @@ tradeSocket.onopen = () => {
 }
 
 function tradeSocketMessage(e) {
+    document.getElementById("spot-btn-buy").removeAttribute('disabled');
+    document.getElementById("spot-btn-sell").removeAttribute('disabled');
     data = JSON.parse(e.data);
     if(Object.keys(data).length === 0){
         return;
@@ -248,9 +250,11 @@ function trade(type, pair) {
     var amount = 0;
 
     if (type == 'buy') {
+        document.getElementById("spot-btn-buy").setAttribute('disabled', '');
         amount = `${uValue.value} ${$('#buyPairChanger').text()}`;
     }
     else {
+        document.getElementById("spot-btn-sell").setAttribute('disabled', '');
         amount = `${pValue.value} ${$('#sellPairChanger').text()}`;
         
     }               
@@ -367,8 +371,10 @@ function getHistory(data) {
         var total = document.createElement("li");
         // var iconSpace = document.createElement("li");
         var cancelBtn = document.createElement("button");
-
-        time.innerText = obj['datetime'];
+        if(orderType == 'market'){
+            time.innerText = obj['datetime'];
+            newNode.appendChild(time);
+        }
         type.innerText = obj['type'];
         pair.innerText = obj['pair'];
         amount.innerText = `${parseFloat(obj["amount"].split(' ')[0]).toFixed(4)} ${obj["amount"].split(' ')[1]}`;
@@ -383,7 +389,6 @@ function getHistory(data) {
             type.classList.add('red')
         }
 
-        newNode.appendChild(time);
         newNode.appendChild(pair);
         newNode.appendChild(type);
         newNode.appendChild(price);
@@ -403,6 +408,7 @@ function getHistory(data) {
                 cancelBtn.classList.add(...['btn', 'btn-primary-outline', 'green']);
                 cancelBtn.setAttribute('data-id', obj["id"])
                 cancelBtn.onclick = function(e){
+                    e.setAttribute('disabled', true);
                     limitSocket.send(JSON.stringify({"cancel":[parseInt(this.dataset.id)]}));
                     newNode.remove()
                     createAlert('success', 'Selected order canceled!')

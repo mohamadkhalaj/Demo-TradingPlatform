@@ -137,10 +137,10 @@
 			</div>
 			<div class="row">
 				<div class="col-6">
-					<button class="btn buy" onclick="trade('buy', '{{name}}')">Buy {{name}}</button>
+					<button id="spot-btn-buy" class="btn buy" onclick="trade('buy', '{{name}}')">Buy {{name}}</button>
 				</div>
 				<div class="col-6">
-					<button class="btn sell" onclick="trade('sell', '{{name}}')">Sell {{name}}</button>
+					<button id="spot-btn-sell" class="btn sell" onclick="trade('sell', '{{name}}')">Sell {{name}}</button>
 				</div>
 			</div>
 		  </div>
@@ -209,10 +209,10 @@
 			</div>
 			<div class="row">
 				<div class="col-6">
-					<button class="btn buy" onclick="limit('buy', '{{name}}')">Buy</button>
+					<button id="limit-btn-buy" class="btn buy" onclick="limit('buy', '{{name}}')">Buy</button>
 				</div>
 				<div class="col-6">
-					<button class="btn sell" onclick="limit('sell', '{{name}}')">Sell</button>
+					<button id="limit-btn-sell" class="btn sell" onclick="limit('sell', '{{name}}')">Sell</button>
 				</div>
 			</div>
 		  </div>
@@ -392,7 +392,6 @@
 		  </div>
 		  <div class="tab-pane fade" id="open-orders" role="tabpanel">
 			<ul class="d-flex justify-content-between market-order-item ul">
-			  <li>Time</li>
 			  <li>All pairs</li>
 			  <li>Buy/Sell</li>
 			  <li>Price(USD)</li>
