@@ -14,9 +14,9 @@
 		  
 		  <a class="nav-link" id="settings-wallet-tab" href="{% url 'account:wallet' %}"> Wallet</a>
 		  
-		  <a class="nav-link active" id="settings-tab" href="{% url 'account:tradeHistory' %}">Trade history</a>
+		  <a class="nav-link" id="settings-tab" href="{% url 'account:tradeHistory' %}">Trade history</a>
 
-		  <a class="nav-link" id="settings-tab" href="{% url 'account:openOrders' %}">Open orders</a>
+		  <a class="nav-link active" id="settings-tab" href="{% url 'account:openOrders' %}">Open orders</a>
 		</div>
 	  </div>
 		<div class="tab-pane fade show active" id="settings" role="tabpanel" aria-labelledby="settings-tab">
@@ -30,10 +30,10 @@
 					  <th>No.</th>
 					  <th>Pair</th>
 					  <th>Type</th>
-					  <th>Date</th>
 					  <th>Price</th>
 					  <th>Amount</th>
 					  <th>Total</th>
+					  <th>Cancel</th>
 					</tr>
 				  </thead>
 				  <tbody id="histories">
@@ -61,5 +61,5 @@
   </div>
 </div>
 </div>
-<script src="{% static 'exchange/js/histories.js' %}"></script> 
+<script src="{% static 'exchange/js/open-orders.js' %}"></script> 
 {% endblock %}

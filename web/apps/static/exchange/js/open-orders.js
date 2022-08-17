@@ -1,8 +1,8 @@
 try {
-    var histSocket = new WebSocket('ws://' + window.location.host + '/ws/histories/');
+    var openOrdersSocket = new WebSocket('ws://' + window.location.host + '/ws/open-orders/');
 }
 catch (e) {
-    var histSocket = new WebSocket('wss://' + window.location.host + '/ws/histories/');
+    var openOrdersSocket = new WebSocket('wss://' + window.location.host + '/ws/open-orders/');
 }
 
 var page = 1;
@@ -11,13 +11,13 @@ var liveRequest = false;
 var newId = -1;
 var parent = document.getElementById("histories");
 
-histSocket.onopen = function(e){
+openOrdersSocket.onopen = function(e){
     console.log('socket connected');  
-    pagination(histSocket);
-    histSocket.send(JSON.stringify({"page": page}))
+    pagination(openOrdersSocket);
+    openOrdersSocket.send(JSON.stringify({"page": page}))
 }
 
-histSocket.onmessage = function(e){
+openOrdersSocket.onmessage = function(e){
     
     data = JSON.parse(e.data);
 
@@ -25,15 +25,14 @@ histSocket.onmessage = function(e){
     var tableHeader = document.getElementById("tableHeader");
     tableHeader.classList.remove('d-none');
     // tableHeader.classList.add('d-block');
-    title.innerText = 'Latest Transactions';
+    title.innerText = 'Open orders';
     length = Object.keys(data).length;
-    isNew = data["0"]["newHistory"]
-    is_complete = length && data["0"]["complete"]
+    let live = length && data[0]['header'];
 
-    if(!is_complete || length == 0){
+    if(length == 0){
         return
     }
-    if(isNew == false){
+    if(live){
         liveRequest = false;
         if(res == 'add'){
             page ++;
@@ -60,7 +59,7 @@ histSocket.onmessage = function(e){
     
 }
 
-histSocket.onclose = function(e){
+openOrdersSocket.onclose = function(e){
     console.log('socket disconnected');
 }
 
@@ -70,27 +69,37 @@ function createElems(i){
     var number = document.createElement("td");
     var pair = document.createElement("td");
     var type = document.createElement("td");
-    var time = document.createElement("td");
     var pairPrice = document.createElement("td");
     var amount = document.createElement("td");
     var price = document.createElement("td");
-    
+
+    var cancelBtn = document.createElement("button");
+    cancelBtn.innerText = "cancel";
+    cancelBtn.classList.add(...['btn', 'btn-primary-outline', 'green']);
+    cancelBtn.setAttribute('data-id', i)
+    cancelBtn.onclick = function(e){
+        openOrdersSocket.send(JSON.stringify({"cancel":[parseInt(this.dataset.id)]}));
+        tr.remove()
+        res = null;
+        openOrdersSocket.send(JSON.stringify({"page": page}));
+    }
+
     tr.id = i+"_tr";
     number.id = i+"_number";
     pair.id = i+"_pair";
     type.id = i+"_type";
-    time.id = i+"_time";
     pairPrice.id = i+"_pairPrice";
     amount.id = i+"_amount";
     price.id = i+"_price";
+    cancelBtn.id = i+"_cancel";
 
     tr.appendChild(number);
     tr.appendChild(pair);
     tr.appendChild(type);
-    tr.appendChild(time);
     tr.appendChild(pairPrice);
     tr.appendChild(amount);
     tr.appendChild(price);
+    tr.appendChild(cancelBtn);
 
     if(liveRequest){
         if(parent.childElementCount == 10){
@@ -126,7 +135,7 @@ function fillElems(data){
             typeElem.style.color = '#26de81';
         }
 
-        document.getElementById(ind + "_time").innerText = `${obj["datetime"]}`;
+        document.getElementById(ind + "_cancel").setAttribute('data-id', obj["id"]);
         document.getElementById(ind + "_pairPrice").innerText = `${obj["pairPrice"]}`;
         document.getElementById(ind + "_amount").innerText = `${parseFloat(obj["amount"].split(' ')[0]).toFixed(4)} ${obj["amount"].split(' ')[1]}`;
         document.getElementById(ind + "_price").innerText = `${(obj['pairPrice'] * obj['amount'].split(' ')[0]).toFixed(2)}`;
@@ -145,13 +154,13 @@ function pagination(){
     document.getElementById('paginationPrev').addEventListener ('click',  function(e){
         if(page > 1){
             res = 'sub';
-            histSocket.send(JSON.stringify({"page": page - 1}));
+            openOrdersSocket.send(JSON.stringify({"page": page - 1}));
         }
     })
     document.getElementById('paginationNext').addEventListener ('click',  function(e){
         if(parent.childElementCount == 10){
             res = 'add';
-            histSocket.send(JSON.stringify({"page": page + 1}));
+            openOrdersSocket.send(JSON.stringify({"page": page + 1}));
         }
     })  
 }

@@ -408,7 +408,6 @@ function getHistory(data) {
                 cancelBtn.classList.add(...['btn', 'btn-primary-outline', 'green']);
                 cancelBtn.setAttribute('data-id', obj["id"])
                 cancelBtn.onclick = function(e){
-                    e.setAttribute('disabled', true);
                     limitSocket.send(JSON.stringify({"cancel":[parseInt(this.dataset.id)]}));
                     newNode.remove()
                     createAlert('success', 'Selected order canceled!')

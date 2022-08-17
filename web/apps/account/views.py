@@ -1,6 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth.views import LoginView, PasswordChangeView, PasswordResetView
+from django.contrib.auth.views import (LoginView, PasswordChangeView,
+                                       PasswordResetView)
 from django.contrib.sites.shortcuts import get_current_site
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
@@ -15,7 +16,8 @@ except ImportError:
 from django.utils.http import urlsafe_base64_decode
 from django.views.generic import CreateView, UpdateView
 
-from .forms import LoginForm, PasswordChangeFormOauth, PasswordResetFormAllowNoPassword, ProfileForm, SignupForm
+from .forms import (LoginForm, PasswordChangeFormOauth,
+                    PasswordResetFormAllowNoPassword, ProfileForm, SignupForm)
 from .models import User
 from .tokens import account_activation_token
 
@@ -106,3 +108,7 @@ def wallet(request):
 @login_required
 def trade_history(request):
     return render(request, "registration/tradeHistory.html")
+
+@login_required
+def open_orders(request):
+    return render(request, "registration/openOrders.html")

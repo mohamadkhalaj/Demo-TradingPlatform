@@ -203,3 +203,58 @@ class HistoriesConsumer(AsyncJsonWebsocketConsumer):
             }
 
         return hist_content
+
+
+class OpenOrdersConsumer(AsyncJsonWebsocketConsumer):
+    async def connect(self):
+        self.user = self.scope["user"]
+        self.unicastName = f"{self.user}_ORDRunicast"
+
+        if self.user.is_authenticated:
+            await (self.channel_layer.group_add)(self.unicastName, self.channel_name)
+            await self.accept()
+        else:
+            await self.close()
+
+    async def receive_json(self, content, **kwargs):
+        if content.get("page"):
+            page = content["page"]
+            result = await self.initialFilling(page)
+            await self.send_json(result)
+        else:
+            await self.cancelOrder(content.get("cancel"))
+
+    async def disconnect(self, code):
+        pass
+
+    async def send_data(self, event):
+        data = event["content"]
+        await self.send_json(data)
+
+    @database_sync_to_async
+    def initialFilling(self, page):
+
+        before = (page - 1) * 10
+        after = page * 10
+        orderObj = LimitOrders.objects.filter(usr=self.user).order_by("-id")[before:after]
+
+        order_content = dict()
+
+        for index, item in enumerate(orderObj):
+            order_content[str(index)] = {
+                "header": "order_responses",
+                "type": item.type,
+                "pair": item.pair,
+                "pairPrice": item.pairPrice,
+                "amount": item.amount,
+                "id": item.id,
+            }
+
+        return order_content
+
+    @database_sync_to_async
+    def cancelOrder(self, ids):
+        LimitOrders.objects.filter(
+            usr=self.user,
+            pk__in=ids,
+        ).delete()

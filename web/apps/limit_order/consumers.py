@@ -14,7 +14,12 @@ class LimitConsumer(AsyncJsonWebsocketConsumer):
         if content.get("pair"):
             channel = get_channel_layer()
             await channel.group_send(
-                f"{self.user}_histories", {"type": "send.data", "content": await self.addOrder(content)}
+                f"{self.user}_histories",
+                {"type": "send.data", "content": await self.addOrder(content)},
+            )
+            await channel.group_send(
+                f"{self.user}_ORDRunicast",
+                {"type": "send.data", "content": self.limit_order},
             )
         else:
             await self.cancelOrder(content.get("cancel"))
@@ -59,7 +64,7 @@ class LimitConsumer(AsyncJsonWebsocketConsumer):
                 "complete": False,
             }
         }
-
+        self.limit_order = result
         return result
 
     @database_sync_to_async
