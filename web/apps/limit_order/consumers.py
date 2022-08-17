@@ -43,7 +43,7 @@ class LimitConsumer(AsyncJsonWebsocketConsumer):
         else:
             famount = f"{float(amount.split(' ')[1]) / float(targetPrice)} {pair.split('-')[0]}"
 
-        LimitOrders.objects.create(
+        obj = LimitOrders.objects.create(
             usr=self.user,
             type=content["type"],
             pair=pair,
@@ -51,6 +51,9 @@ class LimitConsumer(AsyncJsonWebsocketConsumer):
             pairPrice=targetPrice,
             amount_float=float(famount.split()[0]),
         )
+        if content["type"] == "buy":
+            obj.equivalentAmount = F("amount_float") * F("pairPrice")
+            obj.save()
         type_ = 1 if content["type"] == "buy" else 0
         p_price = targetPrice * float(famount.split()[0]) if content["type"] == "buy" else float(famount.split()[0])
         Portfolio.objects.filter(usr=self.user, cryptoName=pair.split("-")[type_]).update(amount=F("amount") - p_price)

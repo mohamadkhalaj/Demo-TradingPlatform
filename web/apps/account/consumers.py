@@ -23,8 +23,8 @@ class ChartSocket(AsyncJsonWebsocketConsumer):
 
         dictionary = {}
 
-        # orderMargin = await self.get_orders()
-        chart = Charts(portfolio, trades)
+        orderMargin = await self.get_orders()
+        chart = Charts(portfolio, trades, orderMargin)
         assetAllocation = chart.asset_allocation()
         pnl = chart.profit_loss()
 
@@ -62,13 +62,11 @@ class ChartSocket(AsyncJsonWebsocketConsumer):
 
     @database_sync_to_async
     def get_orders(self):
-        return (
-            LimitOrders.objects.all()
-            .filter(
+        return list(
+            LimitOrders.objects.all().filter(
                 usr=self.user,
                 amount__gt=0,
             )
-            .aggregate(sum=Sum("equivalentAmount"))["sum"]
         )
 
 
@@ -154,9 +152,6 @@ class WalletSocket(AsyncJsonWebsocketConsumer):
             usr=self.user,
             marketType="spot",
             cryptoName=symbol,
-        )
-        LimitOrders.objects.filter(usr=self.user, pair__startswith=symbol, type="buy").update(
-            equivalentAmount=F("amount_float") * F("pairPrice")
         )
         LimitOrders.objects.filter(usr=self.user, pair__startswith=symbol, type="sell").update(
             equivalentAmount=F("amount_float") * price

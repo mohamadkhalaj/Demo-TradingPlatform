@@ -7,8 +7,9 @@ from .utils import calc_equivalent
 
 
 class Charts:
-    def __init__(self, portfolio, histories):
+    def __init__(self, portfolio, histories, orderMargin):
         self.portfo = portfolio
+        self.orderMargin = orderMargin
         self.histories = histories
         self.dayNumber = 30
 
@@ -110,6 +111,15 @@ class Charts:
             else:
                 total = baseBalance
 
+            for item in self.orderMargin:
+                if (
+                    item.time.year == start_date.year
+                    and item.time.month == start_date.month
+                    and item.time.day == start_date.day
+                ):
+                    # total += item.equivalentAmount
+                    print(item.equivalentAmount)
+            print(total, baseBalance)
             sub = total - baseBalance
             values.append(sub)
             percents.append(sub / total * 100)
