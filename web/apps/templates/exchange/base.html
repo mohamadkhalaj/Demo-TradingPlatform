@@ -58,6 +58,7 @@
 							<a class="dropdown-item" href="{% url 'account:profile' %}">Profile</a>
 							<a class="dropdown-item" href="{% url 'account:wallet' %}">Wallet</a>
 							<a class="dropdown-item" href="{% url 'account:tradeHistory' %}">Trade history</a>
+							<a class="dropdown-item" href="{% url 'account:openOrders' %}">Open orders</a>
 						</div>
 					</li>
 				</ul>
@@ -104,6 +105,12 @@
 										<a href="{% url 'account:tradeHistory' %}" class="nav-link">
 											<i class="icon ion-md-settings"></i>
 											<span>Trade history</span>
+										</a>
+									</li>
+									<li class="nav-item">
+										<a href="{% url 'account:openOrders' %}" class="nav-link">
+										  <i class="icon ion-md-settings"></i>
+										  <span>Open orders</span>
 										</a>
 									</li>
 									<li class="nav-item" id="changeThemeDark">
