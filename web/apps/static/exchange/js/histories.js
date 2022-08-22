@@ -104,7 +104,7 @@ function createElems(i){
    
 }
 function fillElems(data){
-
+    rowNumber = (page-1) * 10 + 1;
     Object.keys(data).forEach(function(item, index){
         obj = data[index];
 
@@ -113,8 +113,8 @@ function fillElems(data){
         }else{
             ind = index;
         }
-
-        document.getElementById(ind + "_number").innerText = index + 1;
+        
+        document.getElementById(ind + "_number").innerText = rowNumber;
         document.getElementById(ind + "_pair").innerText = `${obj["pair"]}`;
 
         typeElem = document.getElementById(ind + "_type");
@@ -131,6 +131,7 @@ function fillElems(data){
         document.getElementById(ind + "_amount").innerText = `${parseFloat(obj["amount"].split(' ')[0]).toFixed(4)} ${obj["amount"].split(' ')[1]}`;
         document.getElementById(ind + "_price").innerText = `${(obj['pairPrice'] * obj['amount'].split(' ')[0]).toFixed(2)}`;
 
+        rowNumber += 1;
     })
 
 }
