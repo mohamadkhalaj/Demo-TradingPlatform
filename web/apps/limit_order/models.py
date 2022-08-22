@@ -6,8 +6,12 @@ from django.db import models
 
 # only for open spot orders
 class LimitOrders(models.Model):
+    TRADE_TYPES = (
+        ("buy", "buy"),
+        ("sell", "sell")
+    )
     usr = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    type = models.CharField(max_length=4)
+    type = models.CharField(max_length=4, choices=TRADE_TYPES)
     pair = models.CharField(max_length=255)
     amount = models.CharField(max_length=255)
     pairPrice = models.FloatField(null=True, blank=True)
