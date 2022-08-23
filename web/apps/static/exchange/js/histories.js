@@ -84,6 +84,9 @@ function createElems(i){
     amount.id = i+"_amount";
     price.id = i+"_price";
 
+    time.setAttribute('data-toggle', 'tooltip');
+    time.setAttribute('data-placement', 'bottom');
+
     tr.appendChild(number);
     tr.appendChild(pair);
     tr.appendChild(type);
@@ -125,8 +128,17 @@ function fillElems(data){
         }else{
             typeElem.style.color = '#26de81';
         }
+        
+        const months = ["January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"
+        ];
+        const days = ['Sun','Mon','Tues','Wed','Thrus','Fri','Sat'];
+        date = new Date(obj["time"] * 1000);
+        fullFormat = `${days[date.getDay()]}, ${months[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
+        shortFormat = `${days[date.getDay()]}, ${months[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
 
-        document.getElementById(ind + "_time").innerText = `${obj["datetime"]}`;
+        document.getElementById(ind + "_time").innerText = shortFormat;
+        document.getElementById(ind + "_time").setAttribute('title', fullFormat);
         document.getElementById(ind + "_pairPrice").innerText = `${obj["pairPrice"]}`;
         document.getElementById(ind + "_amount").innerText = `${parseFloat(obj["amount"].split(' ')[0]).toFixed(4)} ${obj["amount"].split(' ')[1]}`;
         document.getElementById(ind + "_price").innerText = `${(obj['pairPrice'] * obj['amount'].split(' ')[0]).toFixed(2)}`;

@@ -370,12 +370,11 @@ function getHistory(data) {
         var price = document.createElement("li");
         var amount = document.createElement("li");
         var total = document.createElement("li");
-        // var iconSpace = document.createElement("li");
         var cancelBtn = document.createElement("button");
-        if(orderType == 'market'){
-            time.innerText = obj['datetime'];
-            newNode.appendChild(time);
-        }
+        
+        date = new Date(obj["time"] * 1000);
+        formattedDate = `${date.getFullYear()}/${date.getMonth()}/${date.getDate()} ${date.getHours()}:${date.getMinutes()}`;
+        time.innerText = formattedDate;
         type.innerText = obj['type'];
         pair.innerText = obj['pair'];
         amount.innerText = `${parseFloat(obj["amount"].split(' ')[0]).toFixed(4)} ${obj["amount"].split(' ')[1]}`;
@@ -390,6 +389,7 @@ function getHistory(data) {
             type.classList.add('red')
         }
 
+        newNode.appendChild(time);
         newNode.appendChild(pair);
         newNode.appendChild(type);
         newNode.appendChild(price);
@@ -448,7 +448,9 @@ function recentTrades(data) {
 
             price.innerText = obj['pairPrice'].toFixed(2);
             amount.innerText = parseFloat(obj['amount']).toFixed(5);
-            time.innerText = obj['time'];
+            date = new Date(obj["time"] * 1000);
+            formattedDate = `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
+            time.innerText = formattedDate;
 
             if (obj['type'] == 'buy') {
                 price.classList.add('green')
