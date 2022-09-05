@@ -312,7 +312,8 @@ function limit(type, pair){
             'targetPrice': price
         }  
         limitSocket.send(JSON.stringify(reqJson));
-        createAlert('success', "order placed sucsessfully!")
+        createAlert('success', "order placed sucsessfully!");
+        assetSocket.send(JSON.stringify({"currentPair": `${globPair}-USDT`}));
     
     }
 
@@ -369,12 +370,11 @@ function getHistory(data) {
         var price = document.createElement("li");
         var amount = document.createElement("li");
         var total = document.createElement("li");
-        // var iconSpace = document.createElement("li");
         var cancelBtn = document.createElement("button");
-        if(orderType == 'market'){
-            time.innerText = obj['datetime'];
-            newNode.appendChild(time);
-        }
+        
+        date = new Date(obj["time"] * 1000);
+        formattedDate = `${date.getFullYear()}/${date.getMonth()}/${date.getDate()} ${date.getHours()}:${date.getMinutes()}`;
+        time.innerText = formattedDate;
         type.innerText = obj['type'];
         pair.innerText = obj['pair'];
         amount.innerText = `${parseFloat(obj["amount"].split(' ')[0]).toFixed(4)} ${obj["amount"].split(' ')[1]}`;
@@ -389,6 +389,7 @@ function getHistory(data) {
             type.classList.add('red')
         }
 
+        newNode.appendChild(time);
         newNode.appendChild(pair);
         newNode.appendChild(type);
         newNode.appendChild(price);
@@ -410,7 +411,8 @@ function getHistory(data) {
                 cancelBtn.onclick = function(e){
                     limitSocket.send(JSON.stringify({"cancel":[parseInt(this.dataset.id)]}));
                     newNode.remove()
-                    createAlert('success', 'Selected order canceled!')
+                    createAlert('success', 'Selected order canceled!');
+                    assetSocket.send(JSON.stringify({"currentPair": `${globPair}-USDT`}));
                 }
                 newNode.appendChild(cancelBtn);
                 createdOpenOrders.push(newNode);
@@ -428,7 +430,8 @@ function getHistory(data) {
 function cancelAllOrders(){
     limitSocket.send(JSON.stringify({"cancel": openorderIds}));
     removeOpenOrders()
-    createAlert('success', 'All orders canceled!')
+    createAlert('success', 'All orders canceled!');
+    assetSocket.send(JSON.stringify({"currentPair": `${globPair}-USDT`}));
 }
 
 function recentTrades(data) {
@@ -445,7 +448,9 @@ function recentTrades(data) {
 
             price.innerText = obj['pairPrice'].toFixed(2);
             amount.innerText = parseFloat(obj['amount']).toFixed(5);
-            time.innerText = obj['time'];
+            date = new Date(obj["time"] * 1000);
+            formattedDate = `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
+            time.innerText = formattedDate;
 
             if (obj['type'] == 'buy') {
                 price.classList.add('green')

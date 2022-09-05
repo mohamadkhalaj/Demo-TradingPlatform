@@ -38,17 +38,25 @@ class Charts:
 
             values, percents = self.calculate_pnl(start_date, end_date, historyDict, prices, baseBalance)
 
-        latestValue, latestPercentage = self.get_latest(baseBalance, prices)
+        latestValue, latestPercentage = self.get_latest(baseBalance, prices, end_date)
         values.append(latestValue)
         percents.append(latestPercentage)
 
         return dates, values
 
-    def get_latest(self, balance, prices):
+    def get_latest(self, balance, prices, date):
         total = 0
         for item in self.portfo:
             price = prices[item.cryptoName][-1]
             total += price * item.amount
+
+        for item in self.orderMargin:
+            if (
+                item.time.year == date.year
+                and item.time.month == date.month
+                and item.time.day == date.day
+            ):               
+                total += item.equivalentAmount
 
         value = total - balance
         percentage = round(value / 10, 2)
@@ -117,7 +125,7 @@ class Charts:
                     and item.time.month == start_date.month
                     and item.time.day == start_date.day
                 ):
-                    # total += item.equivalentAmount
+                    total += item.equivalentAmount
                     print(item.equivalentAmount)
             print(total, baseBalance)
             sub = total - baseBalance
