@@ -28,7 +28,7 @@ Advanced cryptocurrencies demo trading platform.
 ### Trade history
 - all trade histories
 
-## Open orders:
+### Open orders:
 - all open orders
 - cancel orders
 
