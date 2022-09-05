@@ -9,6 +9,7 @@ staticfiles
 db.sqlite3
 .idea
 .vscode
+postgre/*.*
 # C extensions
 *.so
 

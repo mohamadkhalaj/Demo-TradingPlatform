@@ -9,9 +9,12 @@ updates:
     directory: "/" # Location of package manifests
     schedule:
       interval: "weekly"
+<<<<<<< HEAD
 
 # Maintain dependencies for GitHub Actions
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
+=======
+>>>>>>> 8577bbf3975196736ff91d49d4079f10ef2988f8
