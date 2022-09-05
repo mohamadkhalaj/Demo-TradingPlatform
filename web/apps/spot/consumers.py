@@ -106,7 +106,7 @@ class HistoriesConsumer(AsyncJsonWebsocketConsumer):
                 "pair": item.pair,
                 "pairPrice": item.pairPrice,
                 "amount": item.amount,
-                "datetime": item.time.strftime("%Y/%m/%d %H:%M"),
+                "time": item.time.timestamp(),
                 "newHistory": False,
             }
             try:
@@ -160,7 +160,7 @@ class RecentsConsumer(AsyncJsonWebsocketConsumer):
                 "pairPrice": item.pairPrice,
                 "amount": item.amount,
                 "pair": pair,
-                "time": item.time.strftime("%H:%M:%S"),
+                "time": item.time.timestamp(),
             }
         
         return result

@@ -101,15 +101,14 @@ class Trade:
 
             tradeResponse = {"successful": True, "message": "Order filled!"}
 
-            executed_time = TradeHistory.objects.filter(usr=self.user).last().time.replace(tzinfo=None)
+            executed_time = TradeHistory.objects.filter(usr=self.user).last().time
             tradeResult = {
                 "0": {
                     "type": self.type,
                     "pair": self.pair,
                     "pairPrice": pairPrice,
                     "amount": amount,
-                    "time": executed_time.strftime("%H:%M:%S"),
-                    "datetime": executed_time.strftime("%Y/%m/%d-%H:%M"),
+                    "time": executed_time.timestamp(),
                     "orderType": "market",
                     "complete": True,
                     "newHistory": True,

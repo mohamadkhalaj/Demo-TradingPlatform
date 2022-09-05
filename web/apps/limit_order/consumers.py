@@ -58,7 +58,7 @@ class LimitConsumer(AsyncJsonWebsocketConsumer):
         p_price = targetPrice * float(famount.split()[0]) if content["type"] == "buy" else float(famount.split()[0])
         Portfolio.objects.filter(usr=self.user, cryptoName=pair.split("-")[type_]).update(amount=F("amount") - p_price)
 
-        executed_time = LimitOrders.objects.filter(usr=self.user).last().time.replace(tzinfo=None)
+        executed_time = LimitOrders.objects.filter(usr=self.user).last().time
         newId = LimitOrders.objects.filter(usr=self.user).last().id
         result = {
             "0": {
@@ -67,7 +67,7 @@ class LimitConsumer(AsyncJsonWebsocketConsumer):
                 "pair": content["pair"],
                 "pairPrice": targetPrice,
                 "amount": famount,
-                "datetime": executed_time.strftime("%Y/%m/%d %H:%M"),
+                "time": executed_time.timestamp(),
                 "orderType": "limit",
                 "complete": False,
             }
