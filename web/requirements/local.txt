@@ -1,0 +1,12 @@
+-r base.txt
+
+psycopg2-binary==2.9.3  # https://github.com/psycopg/psycopg2
+
+# Code quality
+# ------------------------------------------------------------------------------
+flake8==4.0.1  # https://github.com/PyCQA/flake8
+flake8-isort==4.1.1  # https://github.com/gforcada/flake8-isort
+coverage==6.4.2  # https://github.com/nedbat/coveragepy
+black==22.6.0  # https://github.com/psf/black
+pylint-django==2.5.3  # https://github.com/PyCQA/pylint-django
+pre-commit==2.20.0  # https://github.com/pre-commit/pre-commit

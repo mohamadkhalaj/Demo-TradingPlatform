@@ -4,14 +4,16 @@ __pycache__/
 *$py.class
 .env
 venv
-static/exchange/img/charts/*.*
+web/exchange/static/img/charts/*.*
 staticfiles
 db.sqlite3
+.idea
+.vscode
+postgre/*
 # C extensions
 *.so
 
 # Distribution / packaging
-*/migrations
 .Python
 build/
 develop-eggs/

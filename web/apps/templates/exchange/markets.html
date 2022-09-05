@@ -1,0 +1,147 @@
+{% extends 'exchange/base.html' %}
+
+{% block title %}Markets Info{% endblock %}
+
+{% block main %}
+{% load static %}
+
+ <div class="markets ptb70">
+	<div class="container">
+	  <div class="row">
+		<div class="d-none d-lg-flex">
+		  <div class="col-md-4">
+		  <!-- TradingView Widget BEGIN -->
+		  <div class="tradingview-widget-container">
+			<div class="tradingview-widget-container__widget"></div>
+			<script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
+			{
+			"symbol": "CRYPTOCAP:BTC.D",
+			"width": "350",
+			"height": "250",
+			"locale": "en",
+			"dateRange": "12M",
+			"colorTheme": "light",
+			"trendLineColor": "rgba(41, 98, 255, 1)",
+			"underLineColor": "rgba(41, 98, 255, 0.3)",
+			"underLineBottomColor": "rgba(41, 98, 255, 0)",
+			"isTransparent": true,
+			"autosize": false,
+			"largeChartUrl": ""
+		  }
+			</script>
+		  </div>
+		  <!-- TradingView Widget END -->
+			<br>
+		  </div>
+		  <div class="col-md-4">
+			<!-- TradingView Widget BEGIN -->
+			<div class="tradingview-widget-container">
+			  <div class="tradingview-widget-container__widget"></div>
+			  <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
+			  {
+			  "symbol": "CRYPTOCAP:TOTAL",
+			  "width": "350",
+			  "height": "250",
+			  "locale": "en",
+			  "dateRange": "12M",
+			  "colorTheme": "light",
+			  "trendLineColor": "rgba(41, 98, 255, 1)",
+			  "underLineColor": "rgba(41, 98, 255, 0.3)",
+			  "underLineBottomColor": "rgba(41, 98, 255, 0)",
+			  "isTransparent": true,
+			  "autosize": false,
+			  "largeChartUrl": ""
+			}
+			  </script>
+			</div>
+			<!-- TradingView Widget END -->
+		  </div>
+		  <div class="col-md-4">
+		  <!-- TradingView Widget BEGIN -->
+		  <div class="tradingview-widget-container">
+			<div class="tradingview-widget-container__widget"></div>
+			<script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
+			{
+			"symbol": "CRYPTOCAP:OTHERS.D",
+			"width": "350",
+			"height": "250",
+			"locale": "en",
+			"dateRange": "12M",
+			"colorTheme": "light",
+			"trendLineColor": "rgba(41, 98, 255, 1)",
+			"underLineColor": "rgba(41, 98, 255, 0.3)",
+			"underLineBottomColor": "rgba(41, 98, 255, 0)",
+			"isTransparent": true,
+			"autosize": false,
+			"largeChartUrl": ""
+		  }
+			</script>
+		  </div>
+		  <!-- TradingView Widget END -->
+		  </div>
+		</div>
+		<div class="col-md-12">
+		  <div class="markets-pair-list">
+
+			<div class="input-group">
+	
+			  <input id="inputBox" type="text" class="live-search-box" placeholder="search here" />
+			  
+			  <ul class="live-search-list" style="display: none !important" id='searchParent'>
+				
+				<li id='res' class="d-none">
+				  <p style="color: black;">Nothing found!</p>
+				</li>
+
+				<li id='loading' class="d-none">
+				  <p style="color: black;">Loading...</p>
+				</li>
+				<div id="searchBefore"></div>
+
+			  </ul>
+
+			</div>
+
+			<div class="tab-content">
+			  <div class="tab-pane fade show" style="display:block; overflow-x: scroll;">
+				<table class="table">
+				  <thead>
+					<tr style="cursor:auto">
+					  <th>Rank</th>
+					  <th>Coin</th>
+					  <th>Last Price</th>
+					  <th>Change (24H)</th>
+					  <th>High (24H)</th>
+					  <th>Low (24H)</th>
+					  <th>Volume (24h)</th>
+					  <th>Marketcap</th>
+					</tr>
+				  </thead>
+				  <tbody id='cryptos'>
+				  <div id='before'></div>
+				  </tbody>
+				</table>
+			  </div>
+			</div>
+		</div>
+	</div>
+</div>
+</div>
+<div class="container paginator-container">
+	<div class="row">
+		<div class="col-5">
+			<button id="paginationPrev" href="#" class="prev-next btn">Previous</button>
+		</div>
+		<div class="col-2">
+			<span id="paginationText" class="green pagination-number"></span>
+		</div>
+		<div class="col-5">
+			<button id="paginationNext" href="#" class="prev-next btn">Next</button>
+		</div>
+	</div>
+</div>
+</div>
+
+<script src="{% static 'exchange/js/markets.js' %}"></script>
+<script src="{% static 'exchange/js/search.js' %}"></script>
+{% endblock %}
