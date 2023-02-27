@@ -8,7 +8,7 @@ django-anymail==8.6  # https://github.com/anymail/django-anymail
 # minify html/css/js
 django-minify-html==1.3.0
 # sentry error tracking for production
-sentry_sdk==1.8.0
+sentry_sdk==1.16.0
 # Cache
 django-redis==5.2.0
 # Hcaptcha
